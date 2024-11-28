@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ikancipung.laundrygo.R
+import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
 
 @Composable
 fun TitleLaundryScreen() {
@@ -109,7 +110,7 @@ fun TitleLaundryScreen() {
             text = AnnotatedString("Laporkan Kendala!"),
             onClick = { /* Handle click */ },
             modifier = Modifier.align(Alignment.CenterHorizontally),
-            style = MaterialTheme.typography.bodyMedium.copy(color = Color.Blue)
+            style = MaterialTheme.typography.bodyMedium.copy(color = BlueLaundryGo)
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -117,7 +118,7 @@ fun TitleLaundryScreen() {
         // Action Button
         Button(
             onClick = { /* Handle click */ },
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Blue),
+            colors = ButtonDefaults.buttonColors(containerColor = BlueLaundryGo),
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = "Bayar", color = Color.White, fontSize = 16.sp)
