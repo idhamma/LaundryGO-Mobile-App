@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,35 +26,46 @@ fun TitleLaundryScreen() {
             .fillMaxSize()
             .padding(16.dp)
     ) {
+        Spacer(modifier = Modifier.height(16.dp))
         // Header Row
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
+                .padding(end = 20.dp)
         ) {
+            // Back Button
             Image(
                 painter = painterResource(R.drawable.keluar),
                 contentDescription = "Back Button",
                 modifier = Modifier.size(24.dp)
             )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "Antony Laundry",
-                style = MaterialTheme.typography.titleMedium,
-                color = Color.Black,
-                modifier = Modifier.weight(1f)
-            )
+//            Spacer(modifier = Modifier.width(8.dp))
+
+            // Title and Subtitle Column
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.weight(0.1f)
+
+            ) {
+                Text(
+                    text = "Antony Laundry",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.Black,
+                    fontSize = 15.sp
+                )
+                Text(
+                    text = "Klojen, Malang",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray,
+                    fontSize = 12.sp
+                )
+            }
         }
 
-        // Subtitle
-        Text(
-            text = "Klojen, Malang",
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color.Gray,
-            modifier = Modifier.padding(vertical = 8.dp)
-        )
+        // Other content remains the same
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Order Details Section
-        Spacer(modifier = Modifier.height(16.dp))
         Column(modifier = Modifier.fillMaxWidth()) {
             OrderInfoRow(title = "Waktu Pemesanan", value = "14 Oct 2024, 09:39")
             OrderInfoRow(title = "Order ID", value = "L-93V832NM102")
@@ -62,30 +74,46 @@ fun TitleLaundryScreen() {
             Spacer(modifier = Modifier.height(16.dp))
 
             // Address
-            Text(
-                text = "Alamat Pengiriman",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.Black,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            Text(
-                text = "Jl. Green Andara Residences Blok B3 No. 19, Malang",
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.Gray,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            Row (
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.baseline_location_alamat),
+                    contentDescription = "alamat",
+                    modifier = Modifier.size(18.dp)
+                )
+                Text(
+                    text = "Jl. Green Andara Residences Blok B3 No. 19, Malang",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
             Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "Jl. Sigura-gura II Blok C2 No. 20, Klojen",
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.Gray,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ){
+                Image(
+                    painter = painterResource(R.drawable.baseline_location_destination),
+                    contentDescription = "destinasi",
+                    modifier = Modifier.size(18.dp)
+                )
+                Text(
+                    text = "Jl. Sigura-gura II Blok C2 No. 20, Klojen",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
 
-        // Order Items Section
+        // The rest of your UI (Order items, total price, etc.)
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = "Rincian Pesanan",
@@ -97,12 +125,13 @@ fun TitleLaundryScreen() {
 
         // Price Details Section
         Spacer(modifier = Modifier.height(16.dp))
+
         Column {
-            OrderInfoRow(title = "Subtotal", value = "Rp.62.500")
-            OrderInfoRow(title = "Biaya Pengantaran", value = "Rp.10.000")
-            OrderInfoRow(title = "Biaya Pemesanan", value = "Rp.7.500")
+            SubtotalInfo(title = "Subtotal", value = "Rp.62.500")
+            SubtotalInfo(title = "Biaya Pengantaran", value = "Rp.10.000")
+            SubtotalInfo(title = "Biaya Pemesanan", value = "Rp.7.500")
             Divider(color = Color.Gray, thickness = 1.dp, modifier = Modifier.padding(vertical = 8.dp))
-            OrderInfoRow(title = "Total", value = "Rp.80.000", isBold = true)
+            SubtotalInfo(title = "Total", value = "Rp.80.000", isBold = true)
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -134,16 +163,19 @@ fun OrderInfoRow(title: String, value: String, isBold: Boolean = false) {
     ) {
         Text(
             text = title,
-            style = MaterialTheme.typography.bodySmall,
-            color = Color.Black
+            fontSize = 14.sp, // Atur ukuran font
+            color = Color.Black,
+            fontWeight = FontWeight.Bold // Gaya huruf tebal
         )
         Text(
             text = value,
-            style = if (isBold) MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp) else MaterialTheme.typography.bodySmall,
-            color = if (isBold) Color.Black else Color.Gray
+            fontSize = if (isBold) 16.sp else 14.sp, // Ukuran font dinamis
+            color = if (isBold) Color.Black else Color.Gray,
+            fontWeight = FontWeight.Bold // Gaya huruf tebal untuk semua teks
         )
     }
 }
+
 
 @Composable
 fun OrderItemRow(item: String, description: String, price: String) {
@@ -171,6 +203,29 @@ fun OrderItemRow(item: String, description: String, price: String) {
         )
     }
 }
+
+@Composable
+fun SubtotalInfo(title: String, value: String, isBold: Boolean = false) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = title,
+            fontSize = 14.sp, // Ukuran font tetap
+            color = Color.Black,
+            fontWeight = if (isBold) FontWeight.Bold else FontWeight.Normal // Bold hanya untuk "Total"
+        )
+        Text(
+            text = value,
+            fontSize = if (isBold) 16.sp else 14.sp, // Ukuran font dinamis untuk "Total"
+            color = if (isBold) Color.Black else Color.Gray,
+            fontWeight = if (isBold) FontWeight.Bold else FontWeight.Normal // Bold hanya untuk "Total"
+        )
+    }
+}
+
+
 
 @Preview(showBackground = true)
 @Composable
