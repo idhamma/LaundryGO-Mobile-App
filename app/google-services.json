@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "61898621914",
+    "firebase_url": "https://laundrygo-253ff-default-rtdb.firebaseio.com",
+    "project_id": "laundrygo-253ff",
+    "storage_bucket": "laundrygo-253ff.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:61898621914:android:2f0231772f14b37884f6e3",
+        "android_client_info": {
+          "package_name": "com.ikancipung.laundrygo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBlWkGMOhdfmtCD8g79XjrfpBb-Jdwr8M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
