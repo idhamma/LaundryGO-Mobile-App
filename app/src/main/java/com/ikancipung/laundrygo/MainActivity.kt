@@ -3,23 +3,16 @@ package com.ikancipung.laundrygo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import com.ikancipung.laundrygo.order.TitleLaundryScreen
 import com.ikancipung.laundrygo.ui.theme.LaundryGOTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             LaundryGOTheme {
-
+                // Memanggil TitleLaundryScreen dengan contoh orderId
+                TitleLaundryScreen(orderId = "L-93V832NM102")
             }
         }
     }

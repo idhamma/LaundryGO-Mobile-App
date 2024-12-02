@@ -42,6 +42,9 @@ android {
 
 dependencies {
     implementation(libs.androidx.compose.ui)
+    implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-database-ktx")
     implementation(libs.androidx.compose.material)
     implementation(libs.androidx.compose.tooling)
     implementation(libs.androidx.compose.tooling.preview)
