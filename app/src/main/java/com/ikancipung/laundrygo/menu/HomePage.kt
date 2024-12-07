@@ -31,7 +31,7 @@ import com.google.firebase.database.ValueEventListener
 @Composable
 fun HomepagePage(navController: NavController) {
     Scaffold(
-        bottomBar = { Footer() }
+        bottomBar = { Footer(navController) }
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
             Homepage(navController)
