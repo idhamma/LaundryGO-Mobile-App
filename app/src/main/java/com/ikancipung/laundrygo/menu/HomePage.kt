@@ -27,6 +27,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
+import com.ikancipung.laundrygo.R
 
 @Composable
 fun HomepagePage(navController: NavController) {
@@ -119,8 +120,17 @@ fun Homepage(navController: NavController) {
                         .height(120.dp)
                         .width(120.dp)
                         .clickable {
-                            // Navigate to detail page with the selected laundry
-                            navController.navigate("laundryDetail/${laundry.name}")
+                            // Navigasi ke halaman ProfileLaundry dengan data laundry
+                            navController.navigate(
+                                "Profilelaundry/${laundry.name}/" +
+                                        "Klojen, Malang/" + // Alamat
+                                        "5 Stars/" + // Rating
+                                        "${R.drawable.antony_laundry}/" + // Logo
+                                        "Cuci Lipat,Cuci Setrika,Cuci Express,Cuci Selimut,Cuci Sepatu/" + // Layanan
+                                        "4.500/kg,8.500/kg,10.000/kg,12.500/pcs,20.000/pair/" + // Harga
+                                        "08.00 - 18.00 WIB/" + // Jam Layanan
+                                        "Laundry terpercaya dengan layanan berkualitas tinggi." // Deskripsi
+                            )
                         }
                 ) {
                     Image(
@@ -142,4 +152,3 @@ fun Homepage(navController: NavController) {
 }
 
 data class Laundry(val name: String, val imageUrl: String)
-
