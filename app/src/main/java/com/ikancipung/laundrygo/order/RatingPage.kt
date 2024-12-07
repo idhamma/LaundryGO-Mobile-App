@@ -39,11 +39,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.ikancipung.laundrygo.R
 import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
 
 @Composable
-fun RatingScreen() {
+fun RatingScreen(navController: NavController) {
     var rating by remember { mutableStateOf(1f) }
 
     Column(
@@ -219,8 +220,8 @@ fun StarRatingBar(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PrevLaundryScreen() {
-    RatingScreen()
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun PrevLaundryScreen() {
+//    RatingScreen()
+//}

@@ -21,10 +21,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.ikancipung.laundrygo.R
 
 @Composable
-fun ProfileLaundry() {
+fun ProfileLaundry(navController: NavController) {
     var laundryName by remember { mutableStateOf("") }
     var laundryAddress by remember { mutableStateOf("") }
     var laundryRating by remember { mutableStateOf("") }
@@ -159,8 +160,8 @@ fun ProfileLaundry() {
 
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewLaundryApp() {
-    ProfileLaundry()
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewLaundryApp() {
+//    ProfileLaundry()
+//}

@@ -37,11 +37,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.ikancipung.laundrygo.R
 import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
 
 @Composable
-fun VAPaymentScreen() {
+fun VAPaymentScreen(navController: NavController) {
 
     val context = LocalContext.current
 
@@ -188,8 +189,8 @@ fun Header() {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun VirtualAccountPaymentPreview() {
-    VAPaymentScreen()
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun VirtualAccountPaymentPreview() {
+//    VAPaymentScreen()
+//}

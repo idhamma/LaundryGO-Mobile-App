@@ -30,12 +30,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.ikancipung.laundrygo.menu.Footer
 import com.ikancipung.laundrygo.menu.NavigationItem
 import com.ikancipung.laundrygo.menu.ProfileSettingsScreen
 
 @Composable
-fun myOrderPage() {
+fun myOrderPage(navController: NavController) {
     Scaffold(
         bottomBar = { Footer() }
     ) { innerPadding ->
@@ -154,8 +155,8 @@ fun Footer() {
 }
 
 
-@Preview(showBackground = true)
-@Composable
-fun MyOrderPreview(){
-    myOrderPage()
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun MyOrderPreview(){
+//    myOrderPage()
+//}
