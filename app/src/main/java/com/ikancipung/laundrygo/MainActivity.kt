@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
 
 
             LaundryGOTheme {
-                NavHost(navController, startDestination = startDestination){
+                NavHost(navController, startDestination = "Login"){
                     composable("Login"){LoginScreen(navController=navController)
                     }
                     composable("Signup") {
