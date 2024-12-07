@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -27,6 +28,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,11 +45,24 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ikancipung.laundrygo.R
 import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
+import com.ikancipung.laundrygo.ui.theme.RedLaundryGo
 
 @Composable
-fun VAPaymentScreen() {
-
+fun QrisPaymentScreen() {
     val context = LocalContext.current
+
+    // Countdown Timer
+    var remainingTime by remember { mutableStateOf(5 * 60) } // 5 menit dalam detik
+
+    LaunchedEffect(Unit) {
+        while (remainingTime > 0) {
+            kotlinx.coroutines.delay(1000L) // Delay 1 detik
+            remainingTime--
+        }
+    }
+
+    val minutes = remainingTime / 60
+    val seconds = remainingTime % 60
 
     Column(
         modifier = Modifier
@@ -70,26 +89,65 @@ fun VAPaymentScreen() {
             modifier = Modifier
                 .padding(16.dp, 0.dp)
                 .align(Alignment.Start),
-            text = "Lakukan pembayaran ke",
+            text = "Anda dapat scan atau download QR di bawah ini",
             style = MaterialTheme.typography.bodySmall,
             color = Color.Gray
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Virtual Account Section
-        VAPaymentInfoRow(label = "BNI Virtual Account",
-            value = "97999 0812345678910",
-            onCopy = { copyToClipboard(context, "97999 0812345678910") })
+        // Gambar QRIS dari Drawable
+        Image(
+            painter = painterResource(id = R.drawable.qris), // Ganti dengan ID drawable QRIS Anda
+            contentDescription = "QRIS",
+            modifier = Modifier
+                .size(400.dp)
+                .padding(16.dp)
+        )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        // Teks untuk mendownload QRIS
+        Row(
+            modifier = Modifier
+                .clickable {
+                    // Implementasikan fungsi download di sini
+                    Toast.makeText(context, "Download QRIS", Toast.LENGTH_SHORT).show()
+                }
+                .padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Ikon Download
+            Icon(
+                painter = painterResource(id = R.drawable.download), // Ganti dengan ID drawable ikon download Anda
+                contentDescription = "Download Icon",
+                tint = Color.Black, // Sesuaikan warna ikon
+                modifier = Modifier.size(20.dp) // Ukuran ikon
+            )
 
-        // Price Section
-        VAPaymentInfoRow(label = "Harga",
-            value = "80.000",
-            onCopy = { copyToClipboard(context, "80000") })
+            Spacer(modifier = Modifier.width(8.dp)) // Jarak antara ikon dan teks
+
+            // Teks Download
+            Text(
+                text = "Download QRIS",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Black,
+                fontWeight = FontWeight.Bold
+            )
+        }
 
         Spacer(modifier = Modifier.height(24.dp))
+
+        // Countdown Timer
+        Text(
+            modifier = Modifier.padding(0.dp, 16.dp),
+            text = String.format("Waktu tersisa: %02d:%02d", minutes, seconds),
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Bold,
+            fontSize = 14.sp,
+            textAlign = TextAlign.Center,
+            color = RedLaundryGo
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Payment Button
         Button(
@@ -112,84 +170,8 @@ fun VAPaymentScreen() {
     }
 }
 
-@Composable
-fun VAPaymentInfoRow(label: String, value: String, onCopy: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp, 0.dp)
-    ) {
-        Text(
-            modifier = Modifier.padding(0.dp, 8.dp),
-            text = label,
-            style = MaterialTheme.typography.bodySmall,
-            fontWeight = FontWeight.Bold
-        )
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    color = Color(0xFFEFEFEF), shape = RoundedCornerShape(8.dp)
-                )
-                .padding(16.dp)
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                // Value Text
-                Text(
-                    text = value, style = MaterialTheme.typography.bodyMedium
-                )
-                // Clickable Image for Copy
-                Image(painter = painterResource(R.drawable.baseline_content_copy_24),
-                    contentDescription = "Copy",
-                    modifier = Modifier
-                        .size(24.dp) // Set the size of the image
-                        .clickable { onCopy() } // Add clickable functionality
-                )
-            }
-        }
-    }
-}
-
-
-fun copyToClipboard(context: Context, text: String) {
-    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-    val clip = ClipData.newPlainText("Copied Text", text)
-    clipboard.setPrimaryClip(clip)
-    Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
-}
-
-@Composable
-fun Header() {
-    Box(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        // Icon on the left
-        IconButton(
-            onClick = { }, modifier = Modifier.align(Alignment.CenterStart)
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                contentDescription = "Left",
-                tint = BlueLaundryGo
-            )
-        }
-
-        // Text in the center
-        Text(
-            text = "Pembayaran",
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.align(Alignment.Center)
-        )
-    }
-}
-
 @Preview(showBackground = true)
 @Composable
-fun VirtualAccountPaymentPreview() {
-    VAPaymentScreen()
+fun QrisPaymentPreview() {
+    QrisPaymentScreen()
 }
