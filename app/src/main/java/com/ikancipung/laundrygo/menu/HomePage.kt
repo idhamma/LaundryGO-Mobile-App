@@ -20,23 +20,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.ikancipung.laundrygo.R
 
 @Composable
-fun HomepagePage() {
-    Scaffold(
-        bottomBar = { Footer() }
-    ) { innerPadding ->
-        Box(modifier = Modifier.padding(innerPadding)) {
-            Homepage()
-        }
-    }
-}
-
-
-
-@Composable
-fun Homepage(){
+fun Homepage(navController: NavController){
     val ImageIdOutlet = listOf(
         R.drawable.ic_launcher_background,
         R.drawable.ic_launcher_background,
@@ -184,8 +172,8 @@ fun ImageLazyRow(imageResIds: List<Int>) {
 }
 
 
-@Preview(showBackground = true)
-@Composable
-fun HomepagePreview(){
-    HomepagePage()
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun HomepagePreview(){
+//    HomepagePage()
+//}

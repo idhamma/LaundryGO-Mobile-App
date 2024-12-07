@@ -40,145 +40,142 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ikancipung.laundrygo.R
 
-class VirtualAccountPaymentPage {
+@Composable
+fun PaymentScreen() {
+    val context = LocalContext.current
 
-    @Composable
-    fun PaymentScreen() {
-        val context = LocalContext.current
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Header
+        header()
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Header
-            header()
+        Spacer(modifier = Modifier.height(32.dp))
 
-            Spacer(modifier = Modifier.height(32.dp))
+        // Instruction Text
+        Text(
+            text = "Silahkan lakukan pembayaran",
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp
+        )
+        Text(
+            text = "Lakukan pembayaran ke",
+            style = MaterialTheme.typography.bodySmall,
+            color = Color.Gray
+        )
 
-            // Instruction Text
-            Text(
-                text = "Silahkan lakukan pembayaran",
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
-            )
-            Text(
-                text = "Lakukan pembayaran ke",
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.Gray
-            )
+        Spacer(modifier = Modifier.height(24.dp))
 
-            Spacer(modifier = Modifier.height(24.dp))
+        // Virtual Account Section
+        PaymentInfoRow(
+            label = "BNI Virtual Account",
+            value = "97999 0812345678910",
+            onCopy = { copyToClipboard(context, "97999 0812345678910") }
+        )
 
-            // Virtual Account Section
-            PaymentInfoRow(
-                label = "BNI Virtual Account",
-                value = "97999 0812345678910",
-                onCopy = { copyToClipboard(context, "97999 0812345678910") }
-            )
+        Spacer(modifier = Modifier.height(16.dp))
 
-            Spacer(modifier = Modifier.height(16.dp))
+        // Price Section
+        PaymentInfoRow(
+            label = "Harga",
+            value = "80.000",
+            onCopy = { copyToClipboard(context, "80000") }
+        )
 
-            // Price Section
-            PaymentInfoRow(
-                label = "Harga",
-                value = "80.000",
-                onCopy = { copyToClipboard(context, "80000") }
-            )
+        Spacer(modifier = Modifier.weight(1f))
 
-            Spacer(modifier = Modifier.weight(1f))
-
-            // Payment Status Message
-            Text(
-                text = "Status pembayaran akan terupdate jika sudah melakukan pembayaran",
-                style = MaterialTheme.typography.bodySmall,
-                fontSize = 12.sp,
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center
-            )
-        }
+        // Payment Status Message
+        Text(
+            text = "Status pembayaran akan terupdate jika sudah melakukan pembayaran",
+            style = MaterialTheme.typography.bodySmall,
+            fontSize = 12.sp,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+        )
     }
+}
 
-    @Composable
-    fun PaymentInfoRow(label: String, value: String, onCopy: () -> Unit) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-        ) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodySmall,
-                fontWeight = FontWeight.Bold
-            )
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        color = Color(0xFFEFEFEF),
-                        shape = RoundedCornerShape(8.dp)
-                    )
-                    .padding(16.dp)
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    // Value Text
-                    Text(
-                        text = value,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    // Clickable Image for Copy
-                    Image(
-                        painter = painterResource(R.drawable.baseline_content_copy_24),
-                        contentDescription = "Copy",
-                        modifier = Modifier
-                            .size(24.dp) // Set the size of the image
-                            .clickable { onCopy() } // Add clickable functionality
-                    )
-                }
-            }
-        }
-    }
-
-
-    fun copyToClipboard(context: Context, text: String) {
-        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        val clip = ClipData.newPlainText("Copied Text", text)
-        clipboard.setPrimaryClip(clip)
-        Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
-    }
-
-    @Composable
-    fun header() {
+@Composable
+fun PaymentInfoRow(label: String, value: String, onCopy: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = FontWeight.Bold
+        )
         Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .background(
+                    color = Color(0xFFEFEFEF),
+                    shape = RoundedCornerShape(8.dp)
+                )
                 .padding(16.dp)
         ) {
-            // Icon on the left
-            IconButton(
-                onClick = { },
-                modifier = Modifier.align(Alignment.CenterStart)
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(imageVector = Icons.Default.KeyboardArrowLeft, contentDescription = "Left")
+                // Value Text
+                Text(
+                    text = value,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                // Clickable Image for Copy
+                Image(
+                    painter = painterResource(R.drawable.baseline_content_copy_24),
+                    contentDescription = "Copy",
+                    modifier = Modifier
+                        .size(24.dp) // Set the size of the image
+                        .clickable { onCopy() } // Add clickable functionality
+                )
             }
-
-            // Text in the center
-            Text(
-                text = "Pembayaran",
-                style = MaterialTheme.typography.labelLarge,
-                modifier = Modifier.align(Alignment.Center)
-            )
         }
     }
+}
 
-    @Preview(showBackground = true)
-    @Composable
-    fun VirtualAccountPaymentPreview(){
-        PaymentScreen()
+
+fun copyToClipboard(context: Context, text: String) {
+    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    val clip = ClipData.newPlainText("Copied Text", text)
+    clipboard.setPrimaryClip(clip)
+    Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
+}
+
+@Composable
+fun header() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        // Icon on the left
+        IconButton(
+            onClick = { },
+            modifier = Modifier.align(Alignment.CenterStart)
+        ) {
+            Icon(imageVector = Icons.Default.KeyboardArrowLeft, contentDescription = "Left")
+        }
+
+        // Text in the center
+        Text(
+            text = "Pembayaran",
+            style = MaterialTheme.typography.labelLarge,
+            modifier = Modifier.align(Alignment.Center)
+        )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun VirtualAccountPaymentPreview(){
+    PaymentScreen()
 }

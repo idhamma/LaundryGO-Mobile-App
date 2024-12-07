@@ -42,324 +42,321 @@ import androidx.compose.ui.unit.dp
 import com.ikancipung.laundrygo.profile.Profile
 import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
 
-class OrderPage {
+@Composable
+fun LaundryOrderScreen() {
+    var isCuciKiloanExpanded by remember { mutableStateOf(false) }
+    var isTempatTidurExpanded by remember { mutableStateOf(false) }
+    var isAksesorisExpanded by remember { mutableStateOf(false) }
 
-    @Composable
-    fun LaundryOrderScreen() {
-        var isCuciKiloanExpanded by remember { mutableStateOf(false) }
-        var isTempatTidurExpanded by remember { mutableStateOf(false) }
-        var isAksesorisExpanded by remember { mutableStateOf(false) }
+    // State for radio button selections
+    var antarJemput by remember { mutableStateOf("Ya") }
+    var tipeLaundry by remember { mutableStateOf("Regular") }
+    var pembayaran by remember { mutableStateOf("Cash") }
+    var selectedCuciKiloanOption by remember { mutableStateOf("") }
 
-        // State for radio button selections
-        var antarJemput by remember { mutableStateOf("Ya") }
-        var tipeLaundry by remember { mutableStateOf("Regular") }
-        var pembayaran by remember { mutableStateOf("Cash") }
-        var selectedCuciKiloanOption by remember { mutableStateOf("") }
-
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            item{
-                header()
-            }
-            item {
-                Text("Nama")
-                TextField(
-                    value = "",
-                    onValueChange = {},
-                    colors = OutlinedTextFieldDefaults.colors( unfocusedContainerColor = Color(0xFFE4E4E4)),
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-
-            item {
-                Text("Alamat")
-                TextField(
-                    value = "",
-                    onValueChange = {},
-                    colors = OutlinedTextFieldDefaults.colors( unfocusedContainerColor = Color(0xFFE4E4E4)),
-                    modifier = Modifier.fillMaxWidth(),
-                    trailingIcon = {
-                        Icon(imageVector = Icons.Default.LocationOn, contentDescription = "Map")
-                    }
-                )
-            }
-
-            item {
-                Text("No. HP")
-                TextField(
-                    value = "",
-                    onValueChange = {},
-                    colors = OutlinedTextFieldDefaults.colors( unfocusedContainerColor = Color(0xFFE4E4E4)),
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-
-            item {
-                AccordionSection(
-                    title = "Cuci Kiloan",
-                    isExpanded = isCuciKiloanExpanded,
-                    onToggle = { isCuciKiloanExpanded = !isCuciKiloanExpanded }
-                ) {
-                    Box(modifier = Modifier.background(Color.LightGray)) {
-                        RadioButtonOption(
-                            options = listOf("Cuci Lipat", "Cuci Setrika"),
-                            selectedOption = selectedCuciKiloanOption,
-                            onOptionSelected = { selectedCuciKiloanOption = it }
-                        )
-                    }
-                }
-            }
-
-            item {
-                AccordionSection(
-                    title = "Tempat Tidur",
-                    isExpanded = isTempatTidurExpanded,
-                    onToggle = { isTempatTidurExpanded = !isTempatTidurExpanded }
-                ) {
-                    QuantityOption("Selimut", "12.500/pcs")
-                    QuantityOption("Sprei", "10.000/pcs")
-                }
-            }
-
-            item {
-                AccordionSection(
-                    title = "Aksesoris",
-                    isExpanded = isAksesorisExpanded,
-                    onToggle = { isAksesorisExpanded = !isAksesorisExpanded }
-                ) {
-                    QuantityOption("Topi", "7.500/pcs")
-                    QuantityOption("Sepatu", "20.000/pair")
-                }
-            }
-
-            item {
-                Text("Antar Jemput")
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    RadioButton(selected = antarJemput == "Ya",colors = RadioButtonColors(
-                        selectedColor = BlueLaundryGo,
-                        unselectedColor = Color.Black,
-                        disabledSelectedColor = Color.Black,
-                        disabledUnselectedColor = Color.Black
-                    ), onClick = { antarJemput = "Ya" })
-                    Text("Ya")
-                    Spacer(modifier = Modifier.width(16.dp))
-                    RadioButton(
-                        selected = antarJemput == "Tidak",colors = RadioButtonColors(
-                            selectedColor = BlueLaundryGo,
-                            unselectedColor = Color.Black,
-                            disabledSelectedColor = Color.Black,
-                            disabledUnselectedColor = Color.Black
-                        ),
-                        onClick = { antarJemput = "Tidak" })
-                    Text("Tidak")
-                }
-            }
-
-            item {
-                Text("Tipe Laundry")
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    RadioButton(
-                        selected = tipeLaundry == "Regular",colors = RadioButtonColors(
-                            selectedColor = BlueLaundryGo,
-                            unselectedColor = Color.Black,
-                            disabledSelectedColor = Color.Black,
-                            disabledUnselectedColor = Color.Black
-                        ),
-                        onClick = { tipeLaundry = "Regular" })
-                    Text("Regular")
-                    Spacer(modifier = Modifier.width(16.dp))
-                    RadioButton(
-                        selected = tipeLaundry == "Express",colors = RadioButtonColors(
-                            selectedColor = BlueLaundryGo,
-                            unselectedColor = Color.Black,
-                            disabledSelectedColor = Color.Black,
-                            disabledUnselectedColor = Color.Black
-                        ),
-                        onClick = { tipeLaundry = "Express" })
-                    Text("Express")
-                }
-            }
-
-            item {
-                Text("Pembayaran")
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    RadioButton(selected = pembayaran == "Cash",colors = RadioButtonColors(
-                        selectedColor = BlueLaundryGo,
-                        unselectedColor = Color.Black,
-                        disabledSelectedColor = Color.Black,
-                        disabledUnselectedColor = Color.Black
-                    ), onClick = { pembayaran = "Cash" })
-                    Text("Cash")
-                    Spacer(modifier = Modifier.width(16.dp))
-                    RadioButton(selected = pembayaran == "QRIS",colors = RadioButtonColors(
-                        selectedColor = BlueLaundryGo,
-                        unselectedColor = Color.Black,
-                        disabledSelectedColor = Color.Black,
-                        disabledUnselectedColor = Color.Black
-                    ), onClick = { pembayaran = "QRIS" })
-                    Text("QRIS")
-                    Spacer(modifier = Modifier.width(16.dp))
-                    RadioButton(
-                        selected = pembayaran == "Virtual Account",colors = RadioButtonColors(
-                            selectedColor = BlueLaundryGo,
-                            unselectedColor = Color.Black,
-                            disabledSelectedColor = Color.Black,
-                            disabledUnselectedColor = Color.Black
-                        ),
-                        onClick = { pembayaran = "Virtual Account" })
-                    Text("Virtual Account")
-                }
-            }
-
-            item {
-                Button(
-                    onClick = { /* Handle Order Submission */ },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = BlueLaundryGo)
-                ) {
-                    Text("Pesan")
-                }
-            }
-        }
-    }
-
-
-    @Composable
-    fun AccordionSection(
-        title: String,
-        isExpanded: Boolean,
-        onToggle: () -> Unit,
-        content: @Composable () -> Unit
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Box(modifier = Modifier.background(color = BlueLaundryGo)) {
-            Column {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onToggle() }
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(text = title, style = MaterialTheme.typography.labelLarge, color = Color.White)
-                    Icon(
-                        imageVector = if (isExpanded) Icons.Default.ArrowDropDown else Icons.Default.ArrowDropDown,
-                        contentDescription = null
+        item{
+            Header()
+        }
+        item {
+            Text("Nama")
+            TextField(
+                value = "",
+                onValueChange = {},
+                colors = OutlinedTextFieldDefaults.colors( unfocusedContainerColor = Color(0xFFE4E4E4)),
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        item {
+            Text("Alamat")
+            TextField(
+                value = "",
+                onValueChange = {},
+                colors = OutlinedTextFieldDefaults.colors( unfocusedContainerColor = Color(0xFFE4E4E4)),
+                modifier = Modifier.fillMaxWidth(),
+                trailingIcon = {
+                    Icon(imageVector = Icons.Default.LocationOn, contentDescription = "Map")
+                }
+            )
+        }
+
+        item {
+            Text("No. HP")
+            TextField(
+                value = "",
+                onValueChange = {},
+                colors = OutlinedTextFieldDefaults.colors( unfocusedContainerColor = Color(0xFFE4E4E4)),
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        item {
+            AccordionSection(
+                title = "Cuci Kiloan",
+                isExpanded = isCuciKiloanExpanded,
+                onToggle = { isCuciKiloanExpanded = !isCuciKiloanExpanded }
+            ) {
+                Box(modifier = Modifier.background(Color.LightGray)) {
+                    RadioButtonOption(
+                        options = listOf("Cuci Lipat", "Cuci Setrika"),
+                        selectedOption = selectedCuciKiloanOption,
+                        onOptionSelected = { selectedCuciKiloanOption = it }
                     )
                 }
-                if (isExpanded) {
-                    content()
-                }
+            }
+        }
+
+        item {
+            AccordionSection(
+                title = "Tempat Tidur",
+                isExpanded = isTempatTidurExpanded,
+                onToggle = { isTempatTidurExpanded = !isTempatTidurExpanded }
+            ) {
+                QuantityOption("Selimut", "12.500/pcs")
+                QuantityOption("Sprei", "10.000/pcs")
+            }
+        }
+
+        item {
+            AccordionSection(
+                title = "Aksesoris",
+                isExpanded = isAksesorisExpanded,
+                onToggle = { isAksesorisExpanded = !isAksesorisExpanded }
+            ) {
+                QuantityOption("Topi", "7.500/pcs")
+                QuantityOption("Sepatu", "20.000/pair")
+            }
+        }
+
+        item {
+            Text("Antar Jemput")
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                RadioButton(selected = antarJemput == "Ya",colors = RadioButtonColors(
+                    selectedColor = BlueLaundryGo,
+                    unselectedColor = Color.Black,
+                    disabledSelectedColor = Color.Black,
+                    disabledUnselectedColor = Color.Black
+                ), onClick = { antarJemput = "Ya" })
+                Text("Ya")
+                Spacer(modifier = Modifier.width(16.dp))
+                RadioButton(
+                    selected = antarJemput == "Tidak",colors = RadioButtonColors(
+                        selectedColor = BlueLaundryGo,
+                        unselectedColor = Color.Black,
+                        disabledSelectedColor = Color.Black,
+                        disabledUnselectedColor = Color.Black
+                    ),
+                    onClick = { antarJemput = "Tidak" })
+                Text("Tidak")
+            }
+        }
+
+        item {
+            Text("Tipe Laundry")
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                RadioButton(
+                    selected = tipeLaundry == "Regular",colors = RadioButtonColors(
+                        selectedColor = BlueLaundryGo,
+                        unselectedColor = Color.Black,
+                        disabledSelectedColor = Color.Black,
+                        disabledUnselectedColor = Color.Black
+                    ),
+                    onClick = { tipeLaundry = "Regular" })
+                Text("Regular")
+                Spacer(modifier = Modifier.width(16.dp))
+                RadioButton(
+                    selected = tipeLaundry == "Express",colors = RadioButtonColors(
+                        selectedColor = BlueLaundryGo,
+                        unselectedColor = Color.Black,
+                        disabledSelectedColor = Color.Black,
+                        disabledUnselectedColor = Color.Black
+                    ),
+                    onClick = { tipeLaundry = "Express" })
+                Text("Express")
+            }
+        }
+
+        item {
+            Text("Pembayaran")
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                RadioButton(selected = pembayaran == "Cash",colors = RadioButtonColors(
+                    selectedColor = BlueLaundryGo,
+                    unselectedColor = Color.Black,
+                    disabledSelectedColor = Color.Black,
+                    disabledUnselectedColor = Color.Black
+                ), onClick = { pembayaran = "Cash" })
+                Text("Cash")
+                Spacer(modifier = Modifier.width(16.dp))
+                RadioButton(selected = pembayaran == "QRIS",colors = RadioButtonColors(
+                    selectedColor = BlueLaundryGo,
+                    unselectedColor = Color.Black,
+                    disabledSelectedColor = Color.Black,
+                    disabledUnselectedColor = Color.Black
+                ), onClick = { pembayaran = "QRIS" })
+                Text("QRIS")
+                Spacer(modifier = Modifier.width(16.dp))
+                RadioButton(
+                    selected = pembayaran == "Virtual Account",colors = RadioButtonColors(
+                        selectedColor = BlueLaundryGo,
+                        unselectedColor = Color.Black,
+                        disabledSelectedColor = Color.Black,
+                        disabledUnselectedColor = Color.Black
+                    ),
+                    onClick = { pembayaran = "Virtual Account" })
+                Text("Virtual Account")
+            }
+        }
+
+        item {
+            Button(
+                onClick = { /* Handle Order Submission */ },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = BlueLaundryGo)
+            ) {
+                Text("Pesan")
             }
         }
     }
+}
 
-    @Composable
-    fun LaundryOption(name: String, price: String) {
+
+@Composable
+fun AccordionSection(
+    title: String,
+    isExpanded: Boolean,
+    onToggle: () -> Unit,
+    content: @Composable () -> Unit
+) {
+    Box(modifier = Modifier.background(color = BlueLaundryGo)) {
+        Column {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onToggle() }
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(text = title, style = MaterialTheme.typography.labelLarge, color = Color.White)
+                Icon(
+                    imageVector = if (isExpanded) Icons.Default.ArrowDropDown else Icons.Default.ArrowDropDown,
+                    contentDescription = null
+                )
+            }
+            if (isExpanded) {
+                content()
+            }
+        }
+    }
+}
+
+@Composable
+fun LaundryOption(name: String, price: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(name)
+        Text(price)
+    }
+}
+
+@Composable
+fun QuantityOption(name: String, price: String) {
+    var quantity by remember { mutableStateOf(0) } // State variable to persist and react to changes
+
+    Box(modifier = Modifier.background(Color.LightGray)) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(name)
-            Text(price)
+            Column {
+                Text(name)
+                Text(price, style = MaterialTheme.typography.labelMedium)
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(
+                    onClick = {
+                        if (quantity > 0) quantity -= 1 // Prevent negative values
+                    }
+                ) {
+                    Icon(imageVector = Icons.Default.Close, contentDescription = "Minus")
+                }
+                Text(text = quantity.toString())
+                IconButton(onClick = { quantity += 1 }) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "Plus")
+                }
+            }
         }
     }
+}
 
-    @Composable
-    fun QuantityOption(name: String, price: String) {
-        var quantity by remember { mutableStateOf(0) } // State variable to persist and react to changes
-
-        Box(modifier = Modifier.background(Color.LightGray)) {
+@Composable
+fun RadioButtonOption(
+    options: List<String>,
+    selectedOption: String,
+    onOptionSelected: (String) -> Unit
+) {
+    Column(modifier = Modifier.padding(start = 16.dp)) {
+        options.forEach { option ->
             Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
+                    .clickable { onOptionSelected(option) }
             ) {
-                Column {
-                    Text(name)
-                    Text(price, style = MaterialTheme.typography.labelMedium)
-                }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(
-                        onClick = {
-                            if (quantity > 0) quantity -= 1 // Prevent negative values
-                        }
-                    ) {
-                        Icon(imageVector = Icons.Default.Close, contentDescription = "Minus")
-                    }
-                    Text(text = quantity.toString())
-                    IconButton(onClick = { quantity += 1 }) {
-                        Icon(imageVector = Icons.Default.Add, contentDescription = "Plus")
-                    }
-                }
+                RadioButton(
+                    selected = selectedOption == option,
+                    colors = RadioButtonColors(
+                        selectedColor = BlueLaundryGo,
+                        unselectedColor = Color.Black,
+                        disabledSelectedColor = Color.Black,
+                        disabledUnselectedColor = Color.Black
+                    ),
+                    onClick = { onOptionSelected(option) })
+                Text(option)
             }
         }
     }
+}
 
-    @Composable
-    fun RadioButtonOption(
-        options: List<String>,
-        selectedOption: String,
-        onOptionSelected: (String) -> Unit
+@Composable
+fun Header() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
     ) {
-        Column(modifier = Modifier.padding(start = 16.dp)) {
-            options.forEach { option ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onOptionSelected(option) }
-                ) {
-                    RadioButton(
-                        selected = selectedOption == option,
-                        colors = RadioButtonColors(
-                            selectedColor = BlueLaundryGo,
-                            unselectedColor = Color.Black,
-                            disabledSelectedColor = Color.Black,
-                            disabledUnselectedColor = Color.Black
-                        ),
-                        onClick = { onOptionSelected(option) })
-                    Text(option)
-                }
-            }
-        }
-    }
-
-    @Composable
-    fun header() {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+        // Icon on the left
+        IconButton(
+            onClick = { },
+            modifier = Modifier.align(Alignment.CenterStart)
         ) {
-            // Icon on the left
-            IconButton(
-                onClick = { },
-                modifier = Modifier.align(Alignment.CenterStart)
-            ) {
-                Icon(imageVector = Icons.Default.KeyboardArrowLeft, contentDescription = "Left")
-            }
-
-            // Text in the center
-            Text(
-                text = "Isi Data dan Pilih Layanan",
-                style = MaterialTheme.typography.labelLarge,
-                modifier = Modifier.align(Alignment.Center)
-            )
+            Icon(imageVector = Icons.Default.KeyboardArrowLeft, contentDescription = "Left")
         }
+
+        // Text in the center
+        Text(
+            text = "Isi Data dan Pilih Layanan",
+            style = MaterialTheme.typography.labelLarge,
+            modifier = Modifier.align(Alignment.Center)
+        )
     }
+}
 
 
 
-    @Preview(showBackground = true)
-    @Composable
-    fun PrevLaundryOrder() {
-        LaundryOrderScreen()
-    }
+@Preview(showBackground = true)
+@Composable
+fun PrevLaundryOrder() {
+    LaundryOrderScreen()
 }
