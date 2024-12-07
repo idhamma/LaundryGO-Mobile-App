@@ -32,12 +32,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.ikancipung.laundrygo.R
 import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
 import com.ikancipung.laundrygo.ui.theme.RedLaundryGo
 
 @Composable
-fun Profile() {
+fun Profile(navController: NavController) {
     var username by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf(0) }
     var email by remember { mutableStateOf("") }
@@ -182,8 +183,8 @@ fun FieldDataProfile(
     )
 }
 
-@Preview
-@Composable
-fun PrevProfile() {
-    Profile()
-}
+//@Preview
+//@Composable
+//fun PrevProfile() {
+//    Profile()
+//}

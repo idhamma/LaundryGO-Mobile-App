@@ -43,12 +43,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.ikancipung.laundrygo.R
 import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
 import com.ikancipung.laundrygo.ui.theme.RedLaundryGo
 
 @Composable
-fun QrisPaymentScreen() {
+fun QrisPaymentScreen(navController: NavController) {
     val context = LocalContext.current
 
     // Countdown Timer
@@ -170,8 +171,8 @@ fun QrisPaymentScreen() {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun QrisPaymentPreview() {
-    QrisPaymentScreen()
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun QrisPaymentPreview() {
+//    QrisPaymentScreen()
+//}
