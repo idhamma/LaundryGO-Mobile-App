@@ -12,11 +12,13 @@ import com.google.firebase.auth.auth
 import com.ikancipung.laundrygo.login.LoginScreen
 import com.ikancipung.laundrygo.menu.Homepage
 import com.ikancipung.laundrygo.menu.HomepagePage
+import com.ikancipung.laundrygo.menu.ProfileUser
 import com.ikancipung.laundrygo.order.LaundryOrderScreen
 import com.ikancipung.laundrygo.order.RatingScreen
 import com.ikancipung.laundrygo.order.TitleLaundryPreview
 import com.ikancipung.laundrygo.order.TitleLaundryScreen
 import com.ikancipung.laundrygo.order.myOrder
+import com.ikancipung.laundrygo.order.myOrderPage
 import com.ikancipung.laundrygo.payment.PaymentScreen
 import com.ikancipung.laundrygo.profile.Profile
 import com.ikancipung.laundrygo.profile.ProfileLaundry
@@ -47,7 +49,10 @@ class MainActivity : ComponentActivity() {
                         HomepagePage(navController = navController)
                     }
                     composable("Profile") {
-                        Profile(navController = navController)
+                        ProfileUser(navController = navController)
+                    }
+                    composable("MyOrder"){
+                        myOrderPage(navController = navController)
                     }
                 }
             }

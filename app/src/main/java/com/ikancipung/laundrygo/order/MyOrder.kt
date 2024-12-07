@@ -30,14 +30,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.ikancipung.laundrygo.menu.Footer
 import com.ikancipung.laundrygo.menu.NavigationItem
 import com.ikancipung.laundrygo.menu.ProfileSettingsScreen
 
 @Composable
-fun myOrderPage() {
+fun myOrderPage(navController: NavController) {
     Scaffold(
-        bottomBar = { Footer() }
+        bottomBar = { Footer(navController) }
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
             myOrder()
@@ -125,37 +126,37 @@ fun myOrder(){
     }
 }
 
-@Composable
-fun Footer() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-            .background(Color.White)
-            .padding(vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // Tombol Explore
-        NavigationItem(icon = Icons.Filled.Person, title = "Explore") {
-            // Tindakan yang akan dilakukan saat tombol di klik
-        }
+//@Composable
+//fun Footer() {
+//    Row(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .padding(16.dp)
+//            .background(Color.White)
+//            .padding(vertical = 8.dp),
+//        horizontalArrangement = Arrangement.SpaceBetween,
+//        verticalAlignment = Alignment.CenterVertically
+//    ) {
+//        // Tombol Explore
+//        NavigationItem(icon = Icons.Filled.Person, title = "Explore") {
+//            // Tindakan yang akan dilakukan saat tombol di klik
+//        }
+//
+//        // Tombol My Order
+//        NavigationItem(icon = Icons.Filled.Person, title = "My Order") {
+//            // Tindakan yang akan dilakukan saat tombol di klik
+//        }
+//
+//        // Tombol Profile
+//        NavigationItem(icon = Icons.Filled.Person, title = "Profile") {
+//            // Tindakan yang akan dilakukan saat tombol di klik
+//        }
+//    }
+//}
 
-        // Tombol My Order
-        NavigationItem(icon = Icons.Filled.Person, title = "My Order") {
-            // Tindakan yang akan dilakukan saat tombol di klik
-        }
 
-        // Tombol Profile
-        NavigationItem(icon = Icons.Filled.Person, title = "Profile") {
-            // Tindakan yang akan dilakukan saat tombol di klik
-        }
-    }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun MyOrderPreview(){
-    myOrderPage()
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun MyOrderPreview(){
+//    myOrderPage()
+//}
