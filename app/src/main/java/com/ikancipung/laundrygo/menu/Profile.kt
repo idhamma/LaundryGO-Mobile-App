@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseAuth
 import com.ikancipung.laundrygo.R
+import com.ikancipung.laundrygo.profile.Profile
 
 val auth = FirebaseAuth.getInstance()
 val currentUser = auth.currentUser
@@ -45,7 +46,7 @@ fun ProfileUser(navController: NavController) {
         bottomBar = { Footer(navController) }
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
-            ProfileSettingsScreen(navController)
+            Profile(navController)
         }
     }
 }
