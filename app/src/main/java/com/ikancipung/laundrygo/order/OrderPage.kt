@@ -39,11 +39,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.ikancipung.laundrygo.profile.Profile
 import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
 
 @Composable
-fun LaundryOrderScreen() {
+fun LaundryOrderScreen(navController: NavController) {
     var isCuciKiloanExpanded by remember { mutableStateOf(false) }
     var isTempatTidurExpanded by remember { mutableStateOf(false) }
     var isAksesorisExpanded by remember { mutableStateOf(false) }
@@ -353,10 +354,8 @@ fun Header() {
     }
 }
 
-
-
-@Preview(showBackground = true)
-@Composable
-fun PrevLaundryOrder() {
-    LaundryOrderScreen()
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun PrevLaundryOrder() {
+//    LaundryOrderScreen()
+//}

@@ -16,11 +16,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.ikancipung.laundrygo.R
 import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
 
 @Composable
-fun TitleLaundryScreen() {
+fun TitleLaundryScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -227,8 +228,8 @@ fun SubtotalInfo(title: String, value: String, isBold: Boolean = false) {
 
 
 
-@Preview(showBackground = true)
-@Composable
-fun TitleLaundryPreview() {
-    TitleLaundryScreen()
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun TitleLaundryPreview() {
+//    TitleLaundryScreen()
+//}

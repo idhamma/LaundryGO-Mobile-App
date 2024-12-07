@@ -3,14 +3,8 @@ package com.ikancipung.laundrygo.profile
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -30,14 +24,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.ikancipung.laundrygo.R
 import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
 import com.ikancipung.laundrygo.ui.theme.RedLaundryGo
 
 @Composable
-fun Profile() {
+fun Profile(navController: NavController) {
     var username by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf(0) }
     var email by remember { mutableStateOf("") }
@@ -48,31 +42,39 @@ fun Profile() {
     email = "boscipung@gmail.com"
     address = "Jl. Green Andara Residences Blok B3 No. 19, Pangkalan Jati"
 
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = "Profil",
-            modifier = Modifier.padding(vertical = 8.dp),
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight(500)
-        )
+        item {
+            Text(
+                text = "Profil",
+                modifier = Modifier.padding(vertical = 8.dp),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight(500)
+            )
+        }
 
-        PhotoProfile()
+        item {
+            PhotoProfile()
+        }
 
-        Text(
-            text = username,
-            modifier = Modifier.padding(vertical = 8.dp),
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight(500)
-        )
+        item {
+            Text(
+                text = username,
+                modifier = Modifier.padding(vertical = 8.dp),
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight(500)
+            )
+        }
 
-        DataProfile(
-            username = username, phoneNumber = phoneNumber, email = email, address = address
-        )
+        item {
+            DataProfile(
+                username = username, phoneNumber = phoneNumber, email = email, address = address
+            )
+        }
     }
 }
 
@@ -180,10 +182,4 @@ fun FieldDataProfile(
     HorizontalDivider(
         modifier = Modifier.padding(bottom = 16.dp), thickness = 0.25.dp, color = Color.Gray
     )
-}
-
-@Preview
-@Composable
-fun PrevProfile() {
-    Profile()
 }
