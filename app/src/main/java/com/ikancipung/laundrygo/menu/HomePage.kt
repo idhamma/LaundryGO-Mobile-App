@@ -142,3 +142,4 @@ fun Homepage(navController: NavController) {
 }
 
 data class Laundry(val name: String, val imageUrl: String)
+
