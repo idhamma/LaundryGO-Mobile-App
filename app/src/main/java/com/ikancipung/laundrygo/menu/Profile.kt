@@ -31,7 +31,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.google.firebase.auth.FirebaseAuth
 import com.ikancipung.laundrygo.R
+
+val auth = FirebaseAuth.getInstance()
+val currentUser = auth.currentUser
+val displayName = currentUser?.displayName ?: "User"
+val userId = currentUser?.uid ?: "Unknown ID"
 
 @Composable
 fun ProfileUser(navController: NavController) {
@@ -39,13 +45,18 @@ fun ProfileUser(navController: NavController) {
         bottomBar = { Footer(navController) }
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
-            ProfileSettingsScreen()
+            ProfileSettingsScreen(navController)
         }
     }
 }
 
 @Composable
-fun ProfileSettingsScreen() {
+fun ProfileSettingsScreen(navController: NavController) {
+    val auth = FirebaseAuth.getInstance()
+    val currentUser = auth.currentUser
+    val displayName = currentUser?.displayName ?: "User"
+    val email = currentUser?.email ?: "No email available"
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -53,23 +64,34 @@ fun ProfileSettingsScreen() {
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        item{Text("Profile Settings")}
+        item { Text("Profile Settings") }
 
-        item{Image(
-            painter = painterResource(id = R.drawable.bos_cipung),
-            contentDescription = "Profile Picture",
-            modifier = Modifier
-                .size(100.dp)
-                .clip(CircleShape),
-            contentScale = ContentScale.Crop
-        )}
-        item{Text("Bos Cipung")}
+        item {
+            Image(
+                painter = painterResource(id = R.drawable.bos_cipung),
+                contentDescription = "Profile Picture",
+                modifier = Modifier
+                    .size(100.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
+        }
+        item { Text(displayName) }
 
         item {
             OutlinedTextField(
-                value = "Bos Cipung",
+                value = displayName,
                 onValueChange = { /* Handle Name Change */ },
                 label = { Text("Nama") },
+                modifier = Modifier.fillMaxWidth(),
+                readOnly = true
+            )
+        }
+        item {
+            OutlinedTextField(
+                value = email,
+                onValueChange = { /* Handle Email Change */ },
+                label = { Text("Email") },
                 modifier = Modifier.fillMaxWidth(),
                 readOnly = true
             )
@@ -85,15 +107,6 @@ fun ProfileSettingsScreen() {
         }
         item {
             OutlinedTextField(
-                value = "boscipung@example.com",
-                onValueChange = { /* Handle Email Change */ },
-                label = { Text("Email") },
-                modifier = Modifier.fillMaxWidth(),
-                readOnly = true
-            )
-        }
-        item {
-            OutlinedTextField(
                 value = "Jl. Green Andara Residences Blok B3 No. 19, Pangkalan Jati",
                 onValueChange = { /* Handle Address Change */ },
                 label = { Text("Alamat") },
@@ -102,22 +115,17 @@ fun ProfileSettingsScreen() {
             )
         }
         item {
-            OutlinedTextField(
-                value = "Ganti Kata Sandi",
-                onValueChange = { /* Handle Password Change */ },
-                label = { Text("") },
-                modifier = Modifier.fillMaxWidth(),
-                readOnly = true
-            )
-        }
-        item {
-            OutlinedTextField(
-                value = "Keluar",
-                onValueChange = { /* Handle Logout */ },
-                label = { Text("") },
-                modifier = Modifier.fillMaxWidth(),
-                readOnly = true
-            )
+            Button(
+                onClick = {
+                    auth.signOut() // Sign out the user
+                    navController.navigate("Login") { // Navigate to Login screen
+                        popUpTo("Homepage") { inclusive = true } // Remove Homepage from the back stack
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Keluar")
+            }
         }
     }
 }
