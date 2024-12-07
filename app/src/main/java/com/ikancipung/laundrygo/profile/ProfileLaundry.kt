@@ -14,21 +14,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import com.ikancipung.laundrygo.R
 
 @Composable
 fun ProfileLaundry(
-    navController: NavController,
+    navController: NavController? = null, // NavController opsional untuk preview
     laundryName: String,
     laundryAddress: String,
     laundryRating: String,
-    laundryLogo: Int, // Gambar logo lokal menggunakan resource ID
+    imageUrl: String, // Ubah dari resource ID menjadi URL
     services: List<String>,
     prices: List<String>,
     serviceHours: String,
@@ -53,7 +51,7 @@ fun ProfileLaundry(
                 contentDescription = "Back",
                 modifier = Modifier
                     .size(24.dp)
-                    .clickable { navController.popBackStack() },
+                    .clickable { navController?.popBackStack() }, // Navigasi kembali
                 tint = Color.Black
             )
 
@@ -77,9 +75,9 @@ fun ProfileLaundry(
         // Gambar Laundry
         Spacer(modifier = Modifier.height(8.dp))
         Box(modifier = Modifier) {
-            Image(
-                painter = painterResource(id = laundryLogo),
-                contentDescription = "Laundry Logo",
+            AsyncImage(
+                model = imageUrl, // URL gambar dari Firebase
+                contentDescription = "Laundry Image",
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
@@ -184,30 +182,3 @@ fun ProfileLaundry(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewProfileLaundry() {
-    ProfileLaundry(
-        navController = rememberNavController(),
-        laundryName = "Antony Laundry",
-        laundryAddress = "Klojen, Malang",
-        laundryRating = "5 Stars",
-        laundryLogo = R.drawable.antony_laundry, // Contoh logo lokal
-        services = listOf(
-            "Cuci Lipat",
-            "Cuci Setrika",
-            "Cuci Express",
-            "Cuci Selimut",
-            "Cuci Sepatu"
-        ),
-        prices = listOf(
-            "4.500/kg",
-            "8.500/kg",
-            "10.000/kg",
-            "12.500/pcs",
-            "20.000/pair"
-        ),
-        serviceHours = "08.00 - 18.00 WIB",
-        laundryDescription = "Laundry terpercaya dengan layanan berkualitas tinggi."
-    )
-}

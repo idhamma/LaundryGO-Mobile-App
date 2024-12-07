@@ -46,19 +46,35 @@ fun Homepage(navController: NavController) {
 
     // Fetch data from Firebase
     LaunchedEffect(Unit) {
-        val database = FirebaseDatabase.getInstance().getReference("laundries")
+        val database = FirebaseDatabase.getInstance().getReference("laundry")
         database.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 laundries.clear()
                 for (child in snapshot.children) {
                     val name = child.child("name").value.toString()
                     val imageUrl = child.child("imageUrl").value.toString()
-                    laundries.add(Laundry(name, imageUrl))
+                    val address = child.child("address").value.toString()
+                    val services = child.child("services").children.map { it.value.toString() }
+                    val prices = child.child("prices").children.map { it.value.toString() }
+                    val hours = child.child("hours").value.toString()
+                    val description = child.child("description").value.toString()
+
+                    laundries.add(
+                        Laundry(
+                            name = name,
+                            imageUrl = imageUrl,
+                            address = address,
+                            services = services,
+                            prices = prices,
+                            hours = hours,
+                            description = description
+                        )
+                    )
                 }
             }
 
             override fun onCancelled(error: DatabaseError) {
-                // Handle error
+                println("Error: ${error.message}")
             }
         })
     }
@@ -123,13 +139,12 @@ fun Homepage(navController: NavController) {
                             // Navigasi ke halaman ProfileLaundry dengan data laundry
                             navController.navigate(
                                 "Profilelaundry/${laundry.name}/" +
-                                        "Klojen, Malang/" + // Alamat
-                                        "5 Stars/" + // Rating
-                                        "${R.drawable.antony_laundry}/" + // Logo
-                                        "Cuci Lipat,Cuci Setrika,Cuci Express,Cuci Selimut,Cuci Sepatu/" + // Layanan
-                                        "4.500/kg,8.500/kg,10.000/kg,12.500/pcs,20.000/pair/" + // Harga
-                                        "08.00 - 18.00 WIB/" + // Jam Layanan
-                                        "Laundry terpercaya dengan layanan berkualitas tinggi." // Deskripsi
+                                        "${laundry.address}/" +
+                                        "${laundry.imageUrl}/" +
+                                        "${laundry.services.joinToString(",")}/" +
+                                        "${laundry.prices.joinToString(",")}/" +
+                                        "${laundry.hours}/" +
+                                        "${laundry.description}"
                             )
                         }
                 ) {
@@ -151,4 +166,12 @@ fun Homepage(navController: NavController) {
     }
 }
 
-data class Laundry(val name: String, val imageUrl: String)
+data class Laundry(
+    val name: String,
+    val imageUrl: String,
+    val address: String,
+    val services: List<String>,
+    val prices: List<String>,
+    val hours: String,
+    val description: String
+)
