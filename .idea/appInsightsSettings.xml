@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.ikancipung.laundrygo" />
+                  <option name="mobileSdkAppId" value="1:61898621914:android:2f0231772f14b37884f6e3" />
+                  <option name="projectId" value="laundrygo-253ff" />
+                  <option name="projectNumber" value="61898621914" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

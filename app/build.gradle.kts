@@ -41,6 +41,8 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.compose.ui)
     implementation(libs.coil.compose)
     implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
@@ -64,6 +66,7 @@ dependencies {
     implementation(libs.firebase.database)
     implementation(libs.firebase.auth.ktx)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.firebase.firestore.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

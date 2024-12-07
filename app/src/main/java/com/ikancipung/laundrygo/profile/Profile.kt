@@ -26,6 +26,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.firestore.FirebaseFirestore
 import com.ikancipung.laundrygo.R
 import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
 import com.ikancipung.laundrygo.ui.theme.RedLaundryGo
@@ -37,10 +43,35 @@ fun Profile(navController: NavController) {
     var email by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
 
-    username = "Bos Cipung"
-    phoneNumber = 123
-    email = "boscipung@gmail.com"
-    address = "Jl. Green Andara Residences Blok B3 No. 19, Pangkalan Jati"
+    val currentUser = FirebaseAuth.getInstance().currentUser
+    val uid = currentUser?.uid
+
+    if (uid != null) {
+        // Referensi ke Firebase Realtime Database
+        val database = FirebaseDatabase.getInstance()
+        val userRef = database.getReference("users").child(uid)
+
+        // Fetch data dari Realtime Database
+        userRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                username = snapshot.child("name").getValue(String::class.java) ?: ""
+                email = snapshot.child("email").getValue(String::class.java) ?: ""
+            }
+            override fun onCancelled(error: DatabaseError) {
+                // Tangani error
+                println("Error fetching data: ${error.message}")
+            }
+
+        })
+    } else {
+        // Jika pengguna belum login, navigasikan ke halaman login
+        navController.navigate("Login")
+    }
+
+//    username = "Bos Cipung"
+//    phoneNumber = 123
+//    email = "boscipung@gmail.com"
+//    address = "Jl. Green Andara Residences Blok B3 No. 19, Pangkalan Jati"
 
     LazyColumn(
         modifier = Modifier
@@ -72,7 +103,7 @@ fun Profile(navController: NavController) {
 
         item {
             DataProfile(
-                username = username, phoneNumber = phoneNumber, email = email, address = address
+                navController = navController, username = username, phoneNumber = phoneNumber, email = email, address = address
             )
         }
     }
@@ -110,7 +141,8 @@ fun PhotoProfile() {
 
 @Composable
 fun DataProfile(
-    username: String, phoneNumber: Number, email: String, address: String
+    username: String, phoneNumber: Number, email: String, address: String,
+    navController: NavController
 ) {
     val dataFields = listOf(
         "Nama" to username,
@@ -142,7 +174,7 @@ fun DataProfile(
             color = RedLaundryGo,
             modifier = Modifier
                 .padding(bottom = 8.dp)
-                .clickable { /*TODO*/ })
+                .clickable { navController?.navigate("Login") })
     }
 }
 
