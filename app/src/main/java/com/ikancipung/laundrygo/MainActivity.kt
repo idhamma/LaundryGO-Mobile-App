@@ -46,6 +46,9 @@ class MainActivity : ComponentActivity() {
                     composable("Homepage") {
                         HomepagePage(navController = navController)
                     }
+                    composable("Profile") {
+                        Profile(navController = navController)
+                    }
                 }
             }
         }
