@@ -147,7 +147,7 @@ fun ImageLazyRow(imageResIds: List<Int>) {
         items(imageResIds) { imageResId ->
             Box(
                 modifier = Modifier
-                    .padding(8.dp) // Padding antar gambar
+                    .padding(8.dp) 
                     .height(60.dp)
                     .width(120.dp)
             ) {
@@ -156,7 +156,7 @@ fun ImageLazyRow(imageResIds: List<Int>) {
                     contentDescription = "Laundry Image",
                     modifier = Modifier
                         .fillMaxHeight()
-                        .fillMaxWidth() // Memastikan gambar memenuhi box
+                        .fillMaxWidth()
                 )
 
                 Text(

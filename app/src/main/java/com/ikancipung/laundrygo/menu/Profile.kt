@@ -58,7 +58,7 @@ fun ProfileSettingsScreen() {
 
         // Gambar Profil
         Image(
-            painter = painterResource(id = R.drawable.bos_cipung), // Ganti dengan gambar lokal Anda
+            painter = painterResource(id = R.drawable.bos_cipung),
             contentDescription = "Profile Picture",
             modifier = Modifier
                 .size(100.dp)
