@@ -16,7 +16,7 @@ import com.ikancipung.laundrygo.order.RatingScreen
 import com.ikancipung.laundrygo.order.TitleLaundryPreview
 import com.ikancipung.laundrygo.order.TitleLaundryScreen
 import com.ikancipung.laundrygo.order.myOrder
-import com.ikancipung.laundrygo.payment.PaymentScreen
+import com.ikancipung.laundrygo.payment.QrisPaymentScreen
 import com.ikancipung.laundrygo.profile.Profile
 import com.ikancipung.laundrygo.profile.ProfileLaundry
 import com.ikancipung.laundrygo.signup.SignUpScreen
