@@ -28,12 +28,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseAuth
 import com.ikancipung.laundrygo.R
 import com.ikancipung.laundrygo.profile.Profile
+import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
 
 val auth = FirebaseAuth.getInstance()
 val currentUser = auth.currentUser
@@ -133,6 +133,8 @@ fun ProfileSettingsScreen(navController: NavController) {
 
 @Composable
 fun Footer(navController: NavController) {
+    val currentRoute = navController.currentBackStackEntry?.destination?.route
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -142,15 +144,49 @@ fun Footer(navController: NavController) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        NavigationItem(icon = Icons.Filled.Person, title = "Explore") {
-            navController.navigate("Homepage")
-        }
-        NavigationItem(icon = Icons.Filled.Person, title = "My Order") {
-            navController.navigate("MyOrder")
-        }
-        NavigationItem(icon = Icons.Filled.Person, title = "Profile") {
-            navController.navigate("Profile")
-        }
+        NavigationItem(
+            icon = Icons.Filled.Person,
+            title = "Explore",
+            isSelected = currentRoute == "Homepage",
+            onClick = { navController.navigate("Homepage") }
+        )
+        NavigationItem(
+            icon = Icons.Filled.Person,
+            title = "My Order",
+            isSelected = currentRoute == "Myorder",
+            onClick = { navController.navigate("MyOrder") }
+        )
+        NavigationItem(
+            icon = Icons.Filled.Person,
+            title = "Profile",
+            isSelected = currentRoute == "Profile",
+            onClick = { navController.navigate("Profile") }
+        )
+    }
+}
+
+@Composable
+fun NavigationItem(
+    icon: ImageVector,
+    title: String,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .clickable(onClick = onClick)
+            .padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = title,
+            tint = if (isSelected) BlueLaundryGo else Color.Gray
+        )
+        Text(
+            text = title,
+            color = if (isSelected) BlueLaundryGo else Color.Gray
+        )
     }
 }
 
