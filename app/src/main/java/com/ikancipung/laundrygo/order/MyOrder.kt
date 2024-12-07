@@ -42,6 +42,7 @@ import com.ikancipung.laundrygo.menu.Footer
 import com.ikancipung.laundrygo.menu.NavigationItem
 import androidx.navigation.NavController
 import com.ikancipung.laundrygo.menu.ProfileSettingsScreen
+import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
 
 @Composable
 fun myOrderPage(navController: NavController) {
@@ -158,7 +159,7 @@ fun myOrder(){
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp, vertical = 4.dp)
-                                .background(Color.Blue, shape = RoundedCornerShape(8.dp)),
+                                .background(color = BlueLaundryGo, shape = RoundedCornerShape(8.dp)),
                             verticalArrangement = Arrangement.Center
                         ) {
                             val categoryId = when (order.category) {
@@ -215,7 +216,7 @@ fun myOrder(){
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp, vertical = 4.dp)
-                                .background(Color.Blue, shape = RoundedCornerShape(8.dp)),
+                                .background(color = BlueLaundryGo, shape = RoundedCornerShape(8.dp)),
                             verticalArrangement = Arrangement.Center
                         ) {
                             val categoryId = when (order.category) {
