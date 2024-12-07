@@ -24,7 +24,18 @@ import androidx.navigation.NavController
 import com.ikancipung.laundrygo.R
 
 @Composable
-fun Homepage(navController: NavController){
+fun HomepagePage(navController: NavController) {
+    Scaffold(
+        bottomBar = { Footer() }
+    ) { innerPadding ->
+        Box(modifier = Modifier.padding(innerPadding)) {
+            Homepage()
+        }
+    }
+}
+
+@Composable
+fun Homepage(){
     val ImageIdOutlet = listOf(
         R.drawable.ic_launcher_background,
         R.drawable.ic_launcher_background,

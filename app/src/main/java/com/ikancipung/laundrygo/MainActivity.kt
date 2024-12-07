@@ -11,6 +11,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.ikancipung.laundrygo.login.LoginScreen
 import com.ikancipung.laundrygo.menu.Homepage
+import com.ikancipung.laundrygo.menu.HomepagePage
 import com.ikancipung.laundrygo.order.LaundryOrderScreen
 import com.ikancipung.laundrygo.order.RatingScreen
 import com.ikancipung.laundrygo.order.TitleLaundryPreview
@@ -43,7 +44,7 @@ class MainActivity : ComponentActivity() {
                         SignUpScreen(navController = navController)
                     }
                     composable("Homepage") {
-                        Homepage(navController = navController)
+                        HomepagePage(navController = navController)
                     }
                 }
             }
