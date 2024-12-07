@@ -37,6 +37,8 @@ import com.ikancipung.laundrygo.R
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.navigation.NavController
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun LoginScreen(navController: NavController) {
@@ -44,6 +46,9 @@ fun LoginScreen(navController: NavController) {
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
 
     Column(
         modifier = Modifier
@@ -120,7 +125,22 @@ fun LoginScreen(navController: NavController) {
         Button(
             onClick = {
                 if (email.isNotEmpty() && password.isNotEmpty()) {
-                    Toast.makeText(context, "Login successful", Toast.LENGTH_SHORT).show()
+                    PerformLogin(
+                        email = email,
+                        password = password,
+                        onSuccess = {
+                            navController.navigate("Homepage") {
+                                popUpTo("login") { inclusive = true }
+                            }
+                        },
+                        onError = { error ->
+                            errorMessage = error
+                        },
+                        onLoading = { loading ->
+                            isLoading = loading
+                        }
+                    )
+
                 } else {
                     Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
                 }
@@ -157,7 +177,7 @@ fun LoginScreen(navController: NavController) {
             onClick = { offset ->
                 annotatedText.getStringAnnotations(tag = "REGISTER", start = offset, end = offset)
                     .firstOrNull()?.let {
-                        Toast.makeText(context, "Register Now Clicked", Toast.LENGTH_SHORT).show()
+                        navController.navigate("Signup")
                     }
             },
             modifier = Modifier.padding(top = 8.dp),
@@ -208,8 +228,18 @@ fun LoginScreen(navController: NavController) {
     }
 }
 
-//@Preview(showBackground = true)
-//@Composable
-//fun LoginScreenPreview() {
-//    LoginScreen(navController: NavController)
-//}
+private fun PerformLogin(email:String,
+                         password:String,
+                         onSuccess:()->Unit,
+                         onError:(String)->Unit,
+                         onLoading:(Boolean)->Unit){
+    onLoading(true)
+    val auth = FirebaseAuth.getInstance()
+    auth.signInWithEmailAndPassword(email, password).
+            addOnCompleteListener{ task -> onLoading(false)
+            if (task.isSuccessful){
+                onSuccess()
+            }else{
+                onError(task.exception?.message ?:"Login Failed")
+            }}
+}

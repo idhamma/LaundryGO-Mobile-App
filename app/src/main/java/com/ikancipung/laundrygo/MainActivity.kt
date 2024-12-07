@@ -30,7 +30,7 @@ class MainActivity : ComponentActivity() {
 
             auth = Firebase.auth
             val currentUser = auth.currentUser
-            val startDestination = if (currentUser != null) "Home" else "Login"
+            val startDestination = if (currentUser != null) "Homepage" else "Login"
 
             val navController = rememberNavController()
 
