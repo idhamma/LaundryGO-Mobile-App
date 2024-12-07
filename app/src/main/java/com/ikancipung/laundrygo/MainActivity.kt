@@ -67,9 +67,9 @@ class MainActivity : ComponentActivity() {
                     composable("Profile") {
                         Profile(navController = navController)
                     }
-                    composable("Profilelaundry") {
-                        ProfileLaundry(navController = navController)
-                    }
+//                    composable("Profilelaundry") {
+//                        ProfileLaundry(navController = navController)
+//                    }
                 }
             }
         }

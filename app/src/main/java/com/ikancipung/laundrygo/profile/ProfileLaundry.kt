@@ -10,7 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,7 +28,7 @@ fun ProfileLaundry(
     laundryName: String,
     laundryAddress: String,
     laundryRating: String,
-    laundryLogo: Int, // Gunakan resource ID untuk gambar logo lokal
+    laundryLogo: Int, // Gambar logo lokal menggunakan resource ID
     services: List<String>,
     prices: List<String>,
     serviceHours: String,
@@ -78,7 +78,7 @@ fun ProfileLaundry(
         Spacer(modifier = Modifier.height(8.dp))
         Box(modifier = Modifier) {
             Image(
-                painter = painterResource(id = laundryLogo), // Gunakan logo lokal
+                painter = painterResource(id = laundryLogo),
                 contentDescription = "Laundry Logo",
                 modifier = Modifier
                     .fillMaxWidth()
@@ -182,4 +182,32 @@ fun ProfileLaundry(
             Text(text = "Pesan Sekarang!", color = Color.White)
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewProfileLaundry() {
+    ProfileLaundry(
+        navController = rememberNavController(),
+        laundryName = "Antony Laundry",
+        laundryAddress = "Klojen, Malang",
+        laundryRating = "5 Stars",
+        laundryLogo = R.drawable.antony_laundry, // Contoh logo lokal
+        services = listOf(
+            "Cuci Lipat",
+            "Cuci Setrika",
+            "Cuci Express",
+            "Cuci Selimut",
+            "Cuci Sepatu"
+        ),
+        prices = listOf(
+            "4.500/kg",
+            "8.500/kg",
+            "10.000/kg",
+            "12.500/pcs",
+            "20.000/pair"
+        ),
+        serviceHours = "08.00 - 18.00 WIB",
+        laundryDescription = "Laundry terpercaya dengan layanan berkualitas tinggi."
+    )
 }
