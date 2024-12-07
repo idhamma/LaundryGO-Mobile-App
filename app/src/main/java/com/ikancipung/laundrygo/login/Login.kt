@@ -36,18 +36,10 @@ import androidx.compose.ui.unit.sp
 import com.ikancipung.laundrygo.R
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
-
-class LoginActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            LoginScreen()
-        }
-    }
-}
+import androidx.navigation.NavController
 
 @Composable
-fun LoginScreen() {
+fun LoginScreen(navController: NavController) {
     val context = LocalContext.current
 
     var email by remember { mutableStateOf("") }
@@ -216,8 +208,8 @@ fun LoginScreen() {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun LoginScreenPreview() {
-    LoginScreen()
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun LoginScreenPreview() {
+//    LoginScreen(navController: NavController)
+//}
