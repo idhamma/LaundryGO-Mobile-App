@@ -8,22 +8,21 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.google.common.reflect.TypeToken
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.database.FirebaseDatabase
+import com.google.gson.Gson
 import com.ikancipung.laundrygo.login.LoginScreen
-import com.ikancipung.laundrygo.menu.Homepage
 import com.ikancipung.laundrygo.menu.HomepagePage
 import com.ikancipung.laundrygo.menu.ProfileUser
 import com.ikancipung.laundrygo.order.LaundryOrderScreen
 import com.ikancipung.laundrygo.order.RatingScreen
 import com.ikancipung.laundrygo.order.TitleLaundryScreen
-import com.ikancipung.laundrygo.order.myOrder
 import com.ikancipung.laundrygo.order.myOrderPage
 import com.ikancipung.laundrygo.payment.QrisPaymentScreen
 import com.ikancipung.laundrygo.payment.VAPaymentScreen
-import com.ikancipung.laundrygo.profile.Profile
 import com.ikancipung.laundrygo.profile.ProfileLaundry
 import com.ikancipung.laundrygo.signup.SignUpScreen
 import com.ikancipung.laundrygo.ui.theme.LaundryGOTheme
@@ -41,6 +40,7 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
 
 
+
             LaundryGOTheme {
                 NavHost(navController = navController, startDestination = startDestination) {
                     composable("Login") { LoginScreen(navController = navController) }
@@ -54,26 +54,46 @@ class MainActivity : ComponentActivity() {
                     composable("Vapayment") { VAPaymentScreen(navController = navController) }
                     composable("Profile") { ProfileUser(navController = navController) }
                     composable(
-                        route = "ProfileLaundry/{name}/{address}/{imageUrl}",
+                        route = "ProfileLaundry/{name}/{address}/{imageUrl}/{description}/{hours}/{prices}/{services}",
                         arguments = listOf(
                             navArgument("name") { type = NavType.StringType },
                             navArgument("address") { type = NavType.StringType },
-                            navArgument("imageUrl") { type = NavType.StringType }
+                            navArgument("imageUrl") { type = NavType.StringType },
+                            navArgument("description") { type = NavType.StringType },
+                            navArgument("hours") { type = NavType.StringType },
+                            navArgument("services") { type = NavType.StringType },
+                            navArgument("prices") { type = NavType.StringType }
                         )
                     ) { backStackEntry ->
                         val name = backStackEntry.arguments?.getString("name") ?: ""
                         val address = backStackEntry.arguments?.getString("address") ?: ""
                         val imageUrl = backStackEntry.arguments?.getString("imageUrl") ?: ""
+                        val description = backStackEntry.arguments?.getString("description") ?: ""
+                        val hours = backStackEntry.arguments?.getString("hours") ?: ""
+                        val pricesJson = backStackEntry.arguments?.getString("prices")?: ""
+                        val servicesJson = backStackEntry.arguments?.getString("services")?:""
+
+                        val prices = if (pricesJson != null) {
+                            Gson().fromJson(pricesJson, object : TypeToken<List<String>>() {}.type)
+                        } else {
+                            emptyList<String>()
+                        }
+
+                        val service = if (servicesJson != null) {
+                            Gson().fromJson(servicesJson, object : TypeToken<List<String>>() {}.type)
+                        } else {
+                            emptyList<String>()
+                        }
                         ProfileLaundry(
                             navController = navController,
                             laundryName = name,
                             laundryAddress = address,
                             laundryRating = "5 Stars",
-                            laundryLogo = R.drawable.ic_launcher_background,
-                            services = listOf("Cuci Lipat", "Cuci Setrika"),
-                            prices = listOf("10.000", "15.000"),
-                            serviceHours = "08:00 - 20:00",
-                            laundryDescription = "Deskripsi Laundry"
+                            laundryLogo = imageUrl,
+                            services = service,
+                            prices = prices,
+                            serviceHours = hours,
+                            laundryDescription = description
                         )
                     }
                 }
