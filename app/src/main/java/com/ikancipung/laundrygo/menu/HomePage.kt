@@ -1,5 +1,6 @@
 package com.ikancipung.laundrygo.menu
 
+import android.net.Uri
 import com.ikancipung.laundrygo.order.myOrder
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -28,13 +29,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import coil.compose.rememberImagePainter
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.ikancipung.laundrygo.R
+import com.ikancipung.laundrygo.profile.ProfileLaundry
 
 @Composable
 fun HomepagePage(navController: NavController) {
@@ -66,14 +72,13 @@ fun HomepagePage(navController: NavController) {
         bottomBar = { Footer(navController) }
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
-            Homepage(outlets, services)
+            Homepage(outlets, services, navController)
         }
     }
 }
 
 @Composable
-fun Homepage(outlets: List<Laundry>, services: List<Laundry>) {
-    val navController = rememberNavController()
+fun Homepage(outlets: List<Laundry>, services: List<Laundry>, navController: NavController) {
     Column(modifier = Modifier.fillMaxSize().padding(8.dp)) {
         // Header
         Row(
@@ -166,8 +171,9 @@ fun ImageLazyRow(dataList: List<Laundry>, navController: NavController) {
                     .clickable {
                         // Navigasi ke halaman profil laundry
                         navController.navigate(
-                            "ProfileLaundry/${laundry.name}/${laundry.address}/${laundry.imageUrl}"
+                            "ProfileLaundry/${Uri.encode(laundry.name)}/${Uri.encode(laundry.address)}/${Uri.encode(laundry.imageUrl)}"
                         )
+
                     },
                 shape = RoundedCornerShape(8.dp)
             ) {
