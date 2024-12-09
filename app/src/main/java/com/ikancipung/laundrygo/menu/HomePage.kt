@@ -1,8 +1,10 @@
 package com.ikancipung.laundrygo.menu
 
+import android.net.Uri
 import com.ikancipung.laundrygo.order.myOrder
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -27,12 +29,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import coil.compose.rememberImagePainter
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.ikancipung.laundrygo.R
+import com.ikancipung.laundrygo.profile.ProfileLaundry
 
 @Composable
 fun HomepagePage(navController: NavController) {
@@ -64,13 +72,13 @@ fun HomepagePage(navController: NavController) {
         bottomBar = { Footer(navController) }
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
-            Homepage(outlets, services)
+            Homepage(outlets, services, navController)
         }
     }
 }
 
 @Composable
-fun Homepage(outlets: List<Laundry>, services: List<Laundry>) {
+fun Homepage(outlets: List<Laundry>, services: List<Laundry>, navController: NavController) {
     Column(modifier = Modifier.fillMaxSize().padding(8.dp)) {
         // Header
         Row(
@@ -127,7 +135,7 @@ fun Homepage(outlets: List<Laundry>, services: List<Laundry>) {
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold
             )
-            ImageLazyRow(dataList = outlets)
+            ImageLazyRow(dataList = outlets, navController = navController)
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -145,40 +153,59 @@ fun Homepage(outlets: List<Laundry>, services: List<Laundry>) {
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold
             )
-            ImageLazyRow(dataList = services)
+            ImageLazyRow(dataList = services, navController = navController)
         }
     }
 }
 
 @Composable
-fun ImageLazyRow(dataList: List<Laundry>) {
-    LazyRow {
-        items(dataList) { item ->
-            Box(
+fun ImageLazyRow(dataList: List<Laundry>, navController: NavController) {
+    LazyRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(dataList) { laundry ->
+            Card(
                 modifier = Modifier
-                    .padding(8.dp)
-                    .height(60.dp)
-                    .width(120.dp)
-            ) {
-                Image(
-                    painter = rememberImagePainter(item.imageUrl),
-                    contentDescription = item.name,
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .fillMaxWidth()
-                )
+                    .width(150.dp)
+                    .clickable {
+                        // Navigasi ke halaman profil laundry
+                        navController.navigate(
+                            "ProfileLaundry/${Uri.encode(laundry.name)}/${Uri.encode(laundry.address)}/${Uri.encode(laundry.imageUrl)}"
+                        )
 
-                Text(
-                    text = item.name,
-                    color = Color.Gray,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.align(Alignment.BottomCenter),
-                )
+                    },
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painter = rememberImagePainter(laundry.imageUrl),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(100.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = laundry.name,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = laundry.address,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
+                    )
+                }
             }
         }
     }
 }
+
+
 
 // Model class for Laundry
 data class Laundry(
