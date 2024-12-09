@@ -23,6 +23,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberImagePainter
 import com.ikancipung.laundrygo.R
+import java.util.Locale
 
 @Composable
 fun ProfileLaundry(
@@ -194,9 +195,13 @@ fun ProfileLaundry(
 
 @Composable
 fun getPriceUnit(service: String, price: String): String {
-    return when (service) {
-        "Cuci Lipat", "Cuci Setrika", "Cuci Express", -> "$price/kg"
-        "Cuci Selimut", "Cuci Sepatu","CUci Karpet" -> "$price/pcs"
+
+    val serviceLower = service.toLowerCase(Locale.getDefault())
+
+    return when (serviceLower) {
+        "cuci lipat", "cuci setrika", "cuci express","setrika" -> "$price/kg"
+        "cuci selimut", "cuci karpet", "cuci topi", "cuci sprei"-> "$price/pcs"
+        "cuci sepatu" -> "$price/pasang"
         else -> price
     }
 }
