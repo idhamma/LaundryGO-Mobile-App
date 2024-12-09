@@ -1,5 +1,6 @@
 package com.ikancipung.laundrygo.profile
 
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,20 +16,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
-
+import androidx.navigation.compose.rememberNavController
+import coil.compose.rememberImagePainter
+import com.google.gson.Gson
 import com.ikancipung.laundrygo.R
 
 @Composable
 fun ProfileLaundry(
-    navController: NavController? = null, // NavController opsional untuk preview
+    navController: NavController,
     laundryName: String,
     laundryAddress: String,
     laundryRating: String,
-    laundryLogo: String, // Ubah dari resource ID menjadi URL
+    laundryLogo: String, // Gambar logo lokal menggunakan resource ID
     services: List<String>,
     prices: List<String>,
     serviceHours: String,
@@ -53,7 +57,7 @@ fun ProfileLaundry(
                 contentDescription = "Back",
                 modifier = Modifier
                     .size(24.dp)
-                    .clickable { navController?.popBackStack() }, // Navigasi kembali
+                    .clickable { navController.popBackStack() },
                 tint = Color.Black
             )
 
@@ -77,9 +81,9 @@ fun ProfileLaundry(
         // Gambar Laundry
         Spacer(modifier = Modifier.height(8.dp))
         Box(modifier = Modifier) {
-            AsyncImage(
-                model = laundryLogo, // URL gambar dari Firebase
-                contentDescription = "Laundry Image",
+            Image(
+                painter = rememberImagePainter(laundryLogo),
+                contentDescription = "Laundry Logo",
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
@@ -180,7 +184,11 @@ fun ProfileLaundry(
 
         // Tombol Pesan
         Button(
-            onClick = { navController.navigate("Orderpage") },
+//            onClick = { navController.navigate("Orderpage") },
+            onClick = { navController.navigate(
+                "Orderpage/${Uri.encode(laundryName)}/${Uri.encode(Gson().toJson(prices))}/${Uri.encode(Gson().toJson(services))}"
+            )
+                      },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(10.dp),
             colors = ButtonDefaults.buttonColors(Color.Blue)
@@ -227,4 +235,3 @@ fun getPriceUnit(service: String, price: String): String {
 //        laundryDescription = "Laundry terpercaya dengan layanan berkualitas tinggi."
 //    )
 //}
-

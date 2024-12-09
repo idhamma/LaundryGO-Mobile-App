@@ -52,7 +52,12 @@ import com.ikancipung.laundrygo.profile.Profile
 import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
 
 @Composable
-fun LaundryOrderScreen(navController: NavController) {
+fun LaundryOrderScreen(
+    navController: NavController,
+    laundryName: String,
+    services: List<String>,
+    prices: List<String>
+) {
     var isCuciKiloanExpanded by remember { mutableStateOf(false) }
     var isTempatTidurExpanded by remember { mutableStateOf(false) }
     var isAksesorisExpanded by remember { mutableStateOf(false) }
@@ -161,7 +166,9 @@ fun LaundryOrderScreen(navController: NavController) {
             ) {
                 Box(modifier = Modifier.background(Color.LightGray)) {
                     RadioButtonOption(
-                        options = listOf("Cuci Lipat", "Cuci Setrika"),
+                        options = services.zip(prices)
+                            .filter { it.first.contains("Cuci") }
+                            .map { "${it.first} - ${it.second}" },
                         selectedOption = selectedCuciKiloanOption,
                         onOptionSelected = { selectedCuciKiloanOption = it }
                     )
@@ -175,8 +182,11 @@ fun LaundryOrderScreen(navController: NavController) {
                 isExpanded = isTempatTidurExpanded,
                 onToggle = { isTempatTidurExpanded = !isTempatTidurExpanded }
             ) {
-                QuantityOption("Selimut", "12.500/pcs")
-                QuantityOption("Sprei", "10.000/pcs")
+                services.zip(prices)
+                    .filter { it.first.contains("Selimut") || it.first.contains("Sprei") }
+                    .forEach { (service, price) ->
+                        QuantityOption(name = service, price = price)
+                    }
             }
         }
 
@@ -186,8 +196,11 @@ fun LaundryOrderScreen(navController: NavController) {
                 isExpanded = isAksesorisExpanded,
                 onToggle = { isAksesorisExpanded = !isAksesorisExpanded }
             ) {
-                QuantityOption("Topi", "7.500/pcs")
-                QuantityOption("Sepatu", "20.000/pair")
+                services.zip(prices)
+                    .filter { it.first.contains("Topi") || it.first.contains("Sepatu") }
+                    .forEach { (service, price) ->
+                        QuantityOption(name = service, price = price)
+                    }
             }
         }
 
