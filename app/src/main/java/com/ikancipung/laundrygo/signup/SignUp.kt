@@ -63,7 +63,13 @@ fun SignUpScreen(navController: NavController) {
     }
 
     fun saveUserDataToDatabase(userId: String, name: String, email: String) {
-        val user = mapOf("name" to name, "email" to email)
+        val user = mapOf(
+            "name" to name,
+            "email" to email,
+            "phoneNumber" to "",
+            "address" to "",
+            "photo" to ""
+        )
         database.child("users").child(userId).setValue(user)
             .addOnSuccessListener {
                 Toast.makeText(context, "Account created successfully!", Toast.LENGTH_SHORT).show()
