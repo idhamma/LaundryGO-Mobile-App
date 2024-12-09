@@ -26,7 +26,7 @@ fun ProfileLaundry(
     laundryName: String,
     laundryAddress: String,
     laundryRating: String,
-    imageUrl: String, // Ubah dari resource ID menjadi URL
+    laundryLogo: Int, // Ubah dari resource ID menjadi URL
     services: List<String>,
     prices: List<String>,
     serviceHours: String,
@@ -76,7 +76,7 @@ fun ProfileLaundry(
         Spacer(modifier = Modifier.height(8.dp))
         Box(modifier = Modifier) {
             AsyncImage(
-                model = imageUrl, // URL gambar dari Firebase
+                model = laundryLogo, // URL gambar dari Firebase
                 contentDescription = "Laundry Image",
                 modifier = Modifier
                     .fillMaxWidth()
