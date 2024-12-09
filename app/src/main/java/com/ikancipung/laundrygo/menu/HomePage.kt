@@ -143,8 +143,8 @@ fun Homepage(outlets: List<Laundry>, services: List<Laundry>, navController: Nav
                 items(bannerUrls) { imageUrl ->
                     Card(
                         modifier = Modifier
-                            .fillMaxHeight()
-                            .width(300.dp),
+                            .fillParentMaxWidth() // Ini memastikan elemen memenuhi layar
+                            .fillMaxHeight(),
                         shape = RoundedCornerShape(16.dp)
                     ) {
                         Image(
