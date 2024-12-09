@@ -3,6 +3,7 @@ package com.ikancipung.laundrygo.menu
 import com.ikancipung.laundrygo.order.myOrder
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -27,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberImagePainter
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -71,6 +73,7 @@ fun HomepagePage(navController: NavController) {
 
 @Composable
 fun Homepage(outlets: List<Laundry>, services: List<Laundry>) {
+    val navController = rememberNavController()
     Column(modifier = Modifier.fillMaxSize().padding(8.dp)) {
         // Header
         Row(
@@ -127,7 +130,7 @@ fun Homepage(outlets: List<Laundry>, services: List<Laundry>) {
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold
             )
-            ImageLazyRow(dataList = outlets)
+            ImageLazyRow(dataList = outlets, navController = navController)
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -145,40 +148,58 @@ fun Homepage(outlets: List<Laundry>, services: List<Laundry>) {
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold
             )
-            ImageLazyRow(dataList = services)
+            ImageLazyRow(dataList = services, navController = navController)
         }
     }
 }
 
 @Composable
-fun ImageLazyRow(dataList: List<Laundry>) {
-    LazyRow {
-        items(dataList) { item ->
-            Box(
+fun ImageLazyRow(dataList: List<Laundry>, navController: NavController) {
+    LazyRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(dataList) { laundry ->
+            Card(
                 modifier = Modifier
-                    .padding(8.dp)
-                    .height(60.dp)
-                    .width(120.dp)
+                    .width(150.dp)
+                    .clickable {
+                        // Navigasi ke halaman profil laundry
+                        navController.navigate(
+                            "ProfileLaundry/${laundry.name}/${laundry.address}/${laundry.imageUrl}"
+                        )
+                    },
+                shape = RoundedCornerShape(8.dp)
             ) {
-                Image(
-                    painter = rememberImagePainter(item.imageUrl),
-                    contentDescription = item.name,
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .fillMaxWidth()
-                )
-
-                Text(
-                    text = item.name,
-                    color = Color.Gray,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.align(Alignment.BottomCenter),
-                )
+                Column(
+                    modifier = Modifier.padding(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painter = rememberImagePainter(laundry.imageUrl),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(100.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = laundry.name,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = laundry.address,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
+                    )
+                }
             }
         }
     }
 }
+
+
 
 // Model class for Laundry
 data class Laundry(
