@@ -18,12 +18,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-<<<<<<< HEAD
 import coil.compose.AsyncImage
-=======
-import androidx.navigation.compose.rememberNavController
-import coil.compose.rememberImagePainter
->>>>>>> 28e66268503f6c10683e8961df0228776ca627ba
+
 import com.ikancipung.laundrygo.R
 
 @Composable
@@ -32,11 +28,7 @@ fun ProfileLaundry(
     laundryName: String,
     laundryAddress: String,
     laundryRating: String,
-<<<<<<< HEAD
-    laundryLogo: Int, // Ubah dari resource ID menjadi URL
-=======
-    laundryLogo: String, // Gambar logo lokal menggunakan resource ID
->>>>>>> 28e66268503f6c10683e8961df0228776ca627ba
+    laundryLogo: String, // Ubah dari resource ID menjadi URL
     services: List<String>,
     prices: List<String>,
     serviceHours: String,
@@ -85,15 +77,9 @@ fun ProfileLaundry(
         // Gambar Laundry
         Spacer(modifier = Modifier.height(8.dp))
         Box(modifier = Modifier) {
-<<<<<<< HEAD
             AsyncImage(
                 model = laundryLogo, // URL gambar dari Firebase
                 contentDescription = "Laundry Image",
-=======
-            Image(
-                painter = rememberImagePainter(laundryLogo),
-                contentDescription = "Laundry Logo",
->>>>>>> 28e66268503f6c10683e8961df0228776ca627ba
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
@@ -204,8 +190,6 @@ fun ProfileLaundry(
     }
 }
 
-<<<<<<< HEAD
-=======
 @Composable
 fun getPriceUnit(service: String, price: String): String {
     return when (service) {
@@ -243,4 +227,4 @@ fun getPriceUnit(service: String, price: String): String {
 //        laundryDescription = "Laundry terpercaya dengan layanan berkualitas tinggi."
 //    )
 //}
->>>>>>> 28e66268503f6c10683e8961df0228776ca627ba
+
