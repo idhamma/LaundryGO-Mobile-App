@@ -47,7 +47,7 @@ class MainActivity : ComponentActivity() {
                     composable("Signup") { SignUpScreen(navController = navController) }
                     composable("Homepage") { HomepagePage(navController = navController) }
                     composable("Myorder") { myOrderPage(navController = navController) }
-                    composable("Orderpage") { LaundryOrderScreen(navController = navController) }
+//                    composable("Orderpage") { LaundryOrderScreen(navController = navController) }
                     composable("Ordersum") { TitleLaundryScreen(navController = navController) }
                     composable("Rating") { RatingScreen(navController = navController) }
                     composable("Qris") { QrisPaymentScreen(navController = navController) }
@@ -96,8 +96,37 @@ class MainActivity : ComponentActivity() {
                             laundryDescription = description
                         )
                     }
-                }
+                    composable(
+                        route = "Orderpage/{name}/{prices}/{services}",
+                        arguments = listOf(
+                            navArgument("name") { type = NavType.StringType },
+                            navArgument("prices") { type = NavType.StringType },
+                            navArgument("services") { type = NavType.StringType }
+                        )
+                    ) { backStackEntry ->
+                        val name = backStackEntry.arguments?.getString("name") ?: ""
+                        val pricesJson = backStackEntry.arguments?.getString("prices")?: ""
+                        val servicesJson = backStackEntry.arguments?.getString("services")?:""
 
+                        val prices = if (pricesJson != null) {
+                            Gson().fromJson(pricesJson, object : TypeToken<List<String>>() {}.type)
+                        } else {
+                            emptyList<String>()
+                        }
+
+                        val service = if (servicesJson != null) {
+                            Gson().fromJson(servicesJson, object : TypeToken<List<String>>() {}.type)
+                        } else {
+                            emptyList<String>()
+                        }
+                        LaundryOrderScreen(
+                            navController = navController,
+                            laundryName = name,
+                            prices = prices,
+                            services = service
+                        )
+                    }
+                }
             }
         }
     }
