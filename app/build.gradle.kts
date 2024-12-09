@@ -41,6 +41,8 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.compose.ui)
     implementation(libs.coil.compose)
     implementation(platform("com.google.firebase:firebase-bom:33.6.0"))

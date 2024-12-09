@@ -114,13 +114,58 @@ fun Homepage(outlets: List<Laundry>, services: List<Laundry>, navController: Nav
         }
 
         // Banner Image
-        Image(
-            painter = painterResource(id = R.drawable.ic_launcher_background),
-            contentDescription = "Laundry Image",
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp)
-        )
+        val bannerUrls = remember { mutableStateListOf<String>() }
+        val bannerDatabase = FirebaseDatabase.getInstance().getReference("Banner/Banner")
+
+        LaunchedEffect(Unit) {
+            bannerDatabase.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    bannerUrls.clear()
+                    for (data in snapshot.children) {
+                        val imageUrl = data.value.toString()
+                        bannerUrls.add(imageUrl)
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    // Handle database fetch error
+                }
+            })
+        }
+
+        if (bannerUrls.isNotEmpty()) {
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(bannerUrls) { imageUrl ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .width(300.dp),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Image(
+                            painter = rememberImagePainter(data = imageUrl),
+                            contentDescription = "Banner Image",
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                }
+            }
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .background(Color.Gray),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = "Loading Banners...", color = Color.White)
+            }
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -219,6 +264,11 @@ data class Laundry(
     val imageUrl: String = "",
     val prices: List<String> = listOf(),
     val services: List<String> = listOf()
+)
+
+data class Banner(
+    val imageUrl1: String = "",
+    val imageUrl2: String = ""
 )
 
 //@Preview(showBackground = true)
