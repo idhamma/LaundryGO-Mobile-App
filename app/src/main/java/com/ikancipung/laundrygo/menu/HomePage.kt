@@ -39,8 +39,10 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.gson.Gson
 import com.ikancipung.laundrygo.R
 import com.ikancipung.laundrygo.profile.ProfileLaundry
+
 
 @Composable
 fun HomepagePage(navController: NavController) {
@@ -171,7 +173,8 @@ fun ImageLazyRow(dataList: List<Laundry>, navController: NavController) {
                     .clickable {
                         // Navigasi ke halaman profil laundry
                         navController.navigate(
-                            "ProfileLaundry/${Uri.encode(laundry.name)}/${Uri.encode(laundry.address)}/${Uri.encode(laundry.imageUrl)}"
+                            "ProfileLaundry/${Uri.encode(laundry.name)}/${Uri.encode(laundry.address)}/${Uri.encode(laundry.imageUrl)}/${Uri.encode(laundry.description)}/${Uri.encode(laundry.hours)}/${Uri.encode(
+                                Gson().toJson(laundry.prices))}/${Uri.encode(Gson().toJson(laundry.services))}"
                         )
 
                     },

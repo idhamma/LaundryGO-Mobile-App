@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -17,7 +18,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+<<<<<<< HEAD
 import coil.compose.AsyncImage
+=======
+import androidx.navigation.compose.rememberNavController
+import coil.compose.rememberImagePainter
+>>>>>>> 28e66268503f6c10683e8961df0228776ca627ba
 import com.ikancipung.laundrygo.R
 
 @Composable
@@ -26,7 +32,11 @@ fun ProfileLaundry(
     laundryName: String,
     laundryAddress: String,
     laundryRating: String,
+<<<<<<< HEAD
     laundryLogo: Int, // Ubah dari resource ID menjadi URL
+=======
+    laundryLogo: String, // Gambar logo lokal menggunakan resource ID
+>>>>>>> 28e66268503f6c10683e8961df0228776ca627ba
     services: List<String>,
     prices: List<String>,
     serviceHours: String,
@@ -75,9 +85,15 @@ fun ProfileLaundry(
         // Gambar Laundry
         Spacer(modifier = Modifier.height(8.dp))
         Box(modifier = Modifier) {
+<<<<<<< HEAD
             AsyncImage(
                 model = laundryLogo, // URL gambar dari Firebase
                 contentDescription = "Laundry Image",
+=======
+            Image(
+                painter = rememberImagePainter(laundryLogo),
+                contentDescription = "Laundry Logo",
+>>>>>>> 28e66268503f6c10683e8961df0228776ca627ba
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
@@ -126,6 +142,7 @@ fun ProfileLaundry(
             fontWeight = FontWeight.Bold
         )
         Row {
+            // Menampilkan Layanan
             LazyColumn {
                 items(services) { service ->
                     Text(
@@ -139,10 +156,14 @@ fun ProfileLaundry(
                 }
             }
 
+            // Menampilkan Harga dengan Satuan yang Tepat
             LazyColumn {
-                items(prices) { price ->
+                itemsIndexed(prices) { index, price ->
+                    // Mengambil unit yang sesuai berdasarkan service dan price
+                    val priceWithUnit = getPriceUnit(services[index], price)
+
                     Text(
-                        text = price,
+                        text = priceWithUnit,
                         color = Color.Gray,
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier
@@ -152,6 +173,7 @@ fun ProfileLaundry(
                 }
             }
         }
+
 
         // Jam Pelayanan
         Spacer(modifier = Modifier.height(16.dp))
@@ -182,3 +204,43 @@ fun ProfileLaundry(
     }
 }
 
+<<<<<<< HEAD
+=======
+@Composable
+fun getPriceUnit(service: String, price: String): String {
+    return when (service) {
+        "Cuci Lipat", "Cuci Setrika", "Cuci Express", -> "$price/kg"
+        "Cuci Selimut", "Cuci Sepatu","CUci Karpet" -> "$price/pcs"
+        else -> price
+    }
+}
+
+
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewProfileLaundry() {
+//    ProfileLaundry(
+//        navController = rememberNavController(),
+//        laundryName = "Antony Laundry",
+//        laundryAddress = "Klojen, Malang",
+//        laundryRating = "5 Stars",
+//        laundryLogo = R.drawable.antony_laundry, // Contoh logo lokal
+//        services = listOf(
+//            "Cuci Lipat",
+//            "Cuci Setrika",
+//            "Cuci Express",
+//            "Cuci Selimut",
+//            "Cuci Sepatu"
+//        ),
+//        prices = listOf(
+//            "4.500/kg",
+//            "8.500/kg",
+//            "10.000/kg",
+//            "12.500/pcs",
+//            "20.000/pair"
+//        ),
+//        serviceHours = "08.00 - 18.00 WIB",
+//        laundryDescription = "Laundry terpercaya dengan layanan berkualitas tinggi."
+//    )
+//}
+>>>>>>> 28e66268503f6c10683e8961df0228776ca627ba
