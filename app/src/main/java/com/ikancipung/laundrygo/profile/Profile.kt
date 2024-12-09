@@ -71,11 +71,11 @@ fun Profile(navController: NavController) {
             val listener = object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     snapshot.let {
-                        username = it.child("name").getValue(String::class.java) ?: "Unknown"
-                        email = it.child("email").getValue(String::class.java) ?: "Unknown"
-                        address = it.child("address").getValue(String::class.java) ?: "Unknown"
+                        username = it.child("name").getValue(String::class.java) ?: ""
+                        email = it.child("email").getValue(String::class.java) ?: ""
+                        address = it.child("address").getValue(String::class.java) ?: ""
                         phoneNumber =
-                            it.child("phoneNumber").getValue(String::class.java) ?: "Unknown"
+                            it.child("phoneNumber").getValue(String::class.java) ?: ""
                     }
                     isLoading = false
                 }

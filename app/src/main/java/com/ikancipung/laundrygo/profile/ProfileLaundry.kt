@@ -180,7 +180,7 @@ fun ProfileLaundry(
 
         // Tombol Pesan
         Button(
-            onClick = { /* Handle booking action */ },
+            onClick = { navController.navigate("Orderpage") },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(10.dp),
             colors = ButtonDefaults.buttonColors(Color.Blue)
