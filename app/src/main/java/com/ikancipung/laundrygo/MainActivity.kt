@@ -16,6 +16,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.gson.Gson
 import com.ikancipung.laundrygo.login.LoginScreen
 import com.ikancipung.laundrygo.menu.FavoriteLaundryScreen
+import com.ikancipung.laundrygo.menu.ServiceLaundryScreen
 import com.ikancipung.laundrygo.menu.HomepagePage
 import com.ikancipung.laundrygo.menu.ProfileUser
 import com.ikancipung.laundrygo.order.LaundryOrderScreen
@@ -47,6 +48,10 @@ class MainActivity : ComponentActivity() {
                     composable("Signup") { SignUpScreen(navController = navController) }
                     composable("Homepage") { HomepagePage(navController = navController) }
                     composable("FavLaundry") { FavoriteLaundryScreen(navController = navController) }
+                    composable("ServiceLaundryScreen/{serviceName}") { backStackEntry ->
+                        val serviceName = backStackEntry.arguments?.getString("serviceName") ?: ""
+                        ServiceLaundryScreen(navController = navController, serviceName = serviceName)
+                    }
 //                    composable("Myorder") { myOrderPage(navController = navController) }
 //                    composable("Orderpage") { LaundryOrderScreen(navController = navController) }
                     composable("Ordersum") { TitleLaundryScreen(navController = navController) }

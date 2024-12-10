@@ -350,11 +350,7 @@ fun ImageLazyRowService(dataList: List<Service>, navController: NavController) {
                 modifier = Modifier
                     .width(120.dp)
                     .clickable {
-                        // Navigasi ke halaman profil service
-//                        navController.navigate(
-//                            "ServicePage/${Uri.encode(service.name)}/${Uri.encode(service.imageUrl)}"
-//                        )
-
+                        navController.navigate("ServiceLaundryScreen/${Uri.encode(service.name)}")
                     }
                 ,
                 shape = RoundedCornerShape(8.dp),
