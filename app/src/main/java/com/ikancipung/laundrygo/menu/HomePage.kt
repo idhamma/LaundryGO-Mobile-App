@@ -18,7 +18,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -42,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
@@ -50,6 +53,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.gson.Gson
+import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
 
 @Composable
@@ -99,7 +103,9 @@ fun HomepagePage(navController: NavController) {
     Scaffold(
         bottomBar = { Footer(navController) }
     ) { innerPadding ->
-        Box(modifier = Modifier.padding(innerPadding)) {
+        Box(modifier = Modifier
+            .padding(innerPadding)
+            .verticalScroll(rememberScrollState())) {
             Homepage(outlets, services, navController)
         }
     }
@@ -270,7 +276,7 @@ fun Homepage(
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold
             )
-            ImageLazyRow(dataList = filteredServices, navController = navController)
+            ImageLazyRowService(dataList = filteredServices, navController = navController)
         }
     }
 }
@@ -302,7 +308,9 @@ fun ImageLazyRow(dataList: List<Laundry>, navController: NavController) {
                 shape = RoundedCornerShape(8.dp)
             ) {
                 Column(
-                    modifier = Modifier.padding(8.dp),
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Image(
@@ -321,6 +329,7 @@ fun ImageLazyRow(dataList: List<Laundry>, navController: NavController) {
                     Text(
                         text = laundry.address,
                         style = MaterialTheme.typography.bodySmall,
+                        textAlign = TextAlign.Center,
                         color = Color.Gray
                     )
                 }
@@ -338,18 +347,21 @@ fun ImageLazyRowService(dataList: List<Service>, navController: NavController) {
         items(dataList) { service ->
             Card(
                 modifier = Modifier
-                    .width(150.dp)
+                    .width(120.dp)
                     .clickable {
                         // Navigasi ke halaman profil service
-                        navController.navigate(
-                            "ServicePage/${Uri.encode(service.name)}/${Uri.encode(service.imageUrl)}"
-                        )
+//                        navController.navigate(
+//                            "ServicePage/${Uri.encode(service.name)}/${Uri.encode(service.imageUrl)}"
+//                        )
 
-                    },
-                shape = RoundedCornerShape(8.dp)
+                    }
+                ,
+                shape = RoundedCornerShape(8.dp),
             ) {
                 Column(
-                    modifier = Modifier.padding(8.dp),
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Image(
