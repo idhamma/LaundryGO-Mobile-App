@@ -32,6 +32,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -387,6 +388,16 @@ fun PhotoProfile() {
 
     var photoUrl by remember { mutableStateOf("") }
 
+    val databases = FirebaseDatabase.getInstance()
+    val tokenRef = databases.getReference("Token/Token/upload")
+    var tokenVal = ""
+
+    tokenRef.get().addOnSuccessListener { snapshot ->
+        if (snapshot.exists()) {
+            tokenVal = snapshot.value.toString()
+        }
+    }
+
     // Ambil URL gambar profil dari database
     DisposableEffect(Unit) {
         database.child("photoUrl").get().addOnSuccessListener {
@@ -400,7 +411,7 @@ fun PhotoProfile() {
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
-            val token = context.getString(R.string.tokenUpload)
+            val token = tokenVal
             UploadImageToGitHub(it, token, context)
         }
     }
