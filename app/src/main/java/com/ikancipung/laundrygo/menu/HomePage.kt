@@ -1,7 +1,6 @@
 package com.ikancipung.laundrygo.menu
 
 import android.net.Uri
-//import com.ikancipung.laundrygo.order.myOrder
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -10,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -44,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -54,7 +55,6 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.gson.Gson
-import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
 
 @Composable
@@ -212,14 +212,16 @@ fun Homepage(
                 items(bannerUrls) { imageUrl ->
                     Card(
                         modifier = Modifier
-                            .fillParentMaxWidth() // Ini memastikan elemen memenuhi layar
+                            .fillParentMaxWidth()
+                            .aspectRatio(16f / 9f)// Ini memastikan elemen memenuhi layar
                             .fillMaxHeight(),
                         shape = RoundedCornerShape(16.dp)
                     ) {
                         Image(
                             painter = rememberImagePainter(data = imageUrl),
                             contentDescription = "Banner Image",
-                            modifier = Modifier.fillMaxSize()
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop // Gambar akan memenuhi Card dan memotong sisi yang tidak sesuai
                         )
                     }
                 }
@@ -309,9 +311,7 @@ fun ImageLazyRow(dataList: List<Laundry>, navController: NavController) {
                 shape = RoundedCornerShape(8.dp)
             ) {
                 Column(
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .fillMaxWidth(),
+                    modifier = Modifier.padding(8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Image(
