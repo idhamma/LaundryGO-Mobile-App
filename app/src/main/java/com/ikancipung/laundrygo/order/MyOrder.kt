@@ -50,7 +50,7 @@ fun myOrderPage(navController: NavController) {
         bottomBar = { Footer(navController) }
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
-            myOrder()
+            myOrder(navController)
         }
     }
 }
@@ -58,7 +58,7 @@ fun myOrderPage(navController: NavController) {
 
 
 @Composable
-fun myOrder(){
+fun myOrder(navController: NavController){
 
     var historyWindow by remember { mutableStateOf(false) }
 
@@ -159,7 +159,8 @@ fun myOrder(){
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp, vertical = 4.dp)
-                                .background(color = BlueLaundryGo, shape = RoundedCornerShape(8.dp)),
+                                .background(color = BlueLaundryGo, shape = RoundedCornerShape(8.dp))
+                                .clickable(onClick = {navController.navigate("Rating")}),
                             verticalArrangement = Arrangement.Center
                         ) {
                             val categoryId = when (order.category) {
@@ -216,7 +217,8 @@ fun myOrder(){
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp, vertical = 4.dp)
-                                .background(color = BlueLaundryGo, shape = RoundedCornerShape(8.dp)),
+                                .background(color = BlueLaundryGo, shape = RoundedCornerShape(8.dp))
+                                .clickable(onClick = {navController.navigate("Ordersum")}),
                             verticalArrangement = Arrangement.Center
                         ) {
                             val categoryId = when (order.category) {

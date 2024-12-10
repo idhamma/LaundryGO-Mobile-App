@@ -88,7 +88,7 @@ class MainActivity : ComponentActivity() {
                             navController = navController,
                             laundryName = name,
                             laundryAddress = address,
-                            laundryRating = "5 Stars",
+                            laundryRating = "5",
                             laundryLogo = imageUrl,
                             services = service,
                             prices = prices,

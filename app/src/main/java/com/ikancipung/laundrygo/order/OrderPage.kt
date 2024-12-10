@@ -33,6 +33,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -65,7 +66,7 @@ fun LaundryOrderScreen(
     // State for radio button selections
     var antarJemput by remember { mutableStateOf("Ya") }
     var tipeLaundry by remember { mutableStateOf("Regular") }
-    var pembayaran by remember { mutableStateOf("Cash") }
+    var pembayaran by remember { mutableStateOf("Cash") } // Track selected payment method
     var selectedCuciKiloanOption by remember { mutableStateOf("") }
 
     // State for text fields
@@ -73,14 +74,20 @@ fun LaundryOrderScreen(
     var address by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
 
+    // State for service quantities
+    val serviceQuantities = remember { mutableStateMapOf<String, Int>() }
+    services.forEach { service ->
+        serviceQuantities[service] = 0 // Initialize the quantity for each service
+    }
+
     val currentUser = FirebaseAuth.getInstance().currentUser
     val uid = currentUser?.uid
     val context = LocalContext.current
     var isLoading by remember { mutableStateOf(true) }
+    val database = FirebaseDatabase.getInstance()
 
     DisposableEffect(uid) {
         if (uid != null) {
-            val database = FirebaseDatabase.getInstance()
             val userRef = database.getReference("users").child(uid)
 
             val listener = object : ValueEventListener {
@@ -104,7 +111,7 @@ fun LaundryOrderScreen(
 
             userRef.addValueEventListener(listener)
 
-            // Hapus listener saat composable dihancurkan
+            // Remove listener on dispose
             onDispose {
                 userRef.removeEventListener(listener)
             }
@@ -112,7 +119,52 @@ fun LaundryOrderScreen(
             navController.navigate("Login")
         }
 
-        onDispose { } // Dibutuhkan oleh DisposableEffect meskipun tidak ada tambahan logika
+        onDispose { } // Required by DisposableEffect
+    }
+
+    // Handle order submission
+    fun submitOrder() {
+        val orderId = database.reference.push().key ?: return
+
+        val orderData = mapOf(
+            "OrderID" to orderId,
+            "NamaLaundry" to laundryName,
+            "NamaPemesan" to username,
+            "IDPemesan" to uid,
+            "AlamatPemensanan" to address,
+            "AlamatLaundry" to laundryName,  // Assuming laundryName is the laundry address
+            "WaktuPesan" to System.currentTimeMillis(),
+            "WaktuSelesai" to null,  // Assuming you will set this when done
+            "Orders" to services.zip(prices)
+                .map { service ->
+                    mapOf(
+                        "Service" to service.first,
+                        "Price" to service.second,
+                        "Quantity" to (serviceQuantities[service.first] ?: 0)
+                    )
+                },
+            "isAntarJemput" to (antarJemput == "Ya"),
+            "isExpress" to (tipeLaundry == "Express"),
+            "Pembayaran" to pembayaran, // Add the payment method to the order data
+            "Status" to mapOf(
+                "isReceived" to mapOf("value" to false, "time" to null),
+                "isInLaundry" to mapOf("value" to false, "time" to null),
+                "isWeighted" to mapOf("value" to false, "time" to null),
+                "isPaid" to mapOf("value" to false, "time" to null),
+                "isWashing" to mapOf("value" to false, "time" to null),
+                "isSent" to mapOf("value" to false, "time" to null),
+                "isDone" to mapOf("value" to false, "time" to null)
+            )
+        )
+
+        val orderRef = database.getReference("orders").child(orderId)
+        orderRef.setValue(orderData).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Toast.makeText(context, "Order berhasil ditambahkan", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(context, "Gagal menambahkan order: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     LazyColumn(
@@ -121,9 +173,7 @@ fun LaundryOrderScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        item {
-            Header()
-        }
+        item { Header() }
 
         item {
             Text("Nama")
@@ -158,6 +208,7 @@ fun LaundryOrderScreen(
             )
         }
 
+        // Add Accordion sections for services
         item {
             AccordionSection(
                 title = "Cuci Kiloan",
@@ -185,7 +236,13 @@ fun LaundryOrderScreen(
                 services.zip(prices)
                     .filter { it.first.contains("Selimut") || it.first.contains("Sprei") }
                     .forEach { (service, price) ->
-                        QuantityOption(name = service, price = price)
+                        QuantityOption(
+                            name = service,
+                            price = price,
+                            onQuantityChange = { quantity ->
+                                serviceQuantities[service] = quantity
+                            }
+                        )
                     }
             }
         }
@@ -199,7 +256,13 @@ fun LaundryOrderScreen(
                 services.zip(prices)
                     .filter { it.first.contains("Topi") || it.first.contains("Sepatu") }
                     .forEach { (service, price) ->
-                        QuantityOption(name = service, price = price)
+                        QuantityOption(
+                            name = service,
+                            price = price,
+                            onQuantityChange = { quantity ->
+                                serviceQuantities[service] = quantity
+                            }
+                        )
                     }
             }
         }
@@ -207,22 +270,10 @@ fun LaundryOrderScreen(
         item {
             Text("Antar Jemput")
             Row(verticalAlignment = Alignment.CenterVertically) {
-                RadioButton(selected = antarJemput == "Ya", colors = RadioButtonColors(
-                    selectedColor = BlueLaundryGo,
-                    unselectedColor = Color.Black,
-                    disabledSelectedColor = Color.Black,
-                    disabledUnselectedColor = Color.Black
-                ), onClick = { antarJemput = "Ya" })
+                RadioButton(selected = antarJemput == "Ya", onClick = { antarJemput = "Ya" })
                 Text("Ya")
                 Spacer(modifier = Modifier.width(16.dp))
-                RadioButton(
-                    selected = antarJemput == "Tidak", colors = RadioButtonColors(
-                        selectedColor = BlueLaundryGo,
-                        unselectedColor = Color.Black,
-                        disabledSelectedColor = Color.Black,
-                        disabledUnselectedColor = Color.Black
-                    ),
-                    onClick = { antarJemput = "Tidak" })
+                RadioButton(selected = antarJemput == "Tidak", onClick = { antarJemput = "Tidak" })
                 Text("Tidak")
             }
         }
@@ -230,24 +281,10 @@ fun LaundryOrderScreen(
         item {
             Text("Tipe Laundry")
             Row(verticalAlignment = Alignment.CenterVertically) {
-                RadioButton(
-                    selected = tipeLaundry == "Regular", colors = RadioButtonColors(
-                        selectedColor = BlueLaundryGo,
-                        unselectedColor = Color.Black,
-                        disabledSelectedColor = Color.Black,
-                        disabledUnselectedColor = Color.Black
-                    ),
-                    onClick = { tipeLaundry = "Regular" })
+                RadioButton(selected = tipeLaundry == "Regular", onClick = { tipeLaundry = "Regular" })
                 Text("Regular")
                 Spacer(modifier = Modifier.width(16.dp))
-                RadioButton(
-                    selected = tipeLaundry == "Express", colors = RadioButtonColors(
-                        selectedColor = BlueLaundryGo,
-                        unselectedColor = Color.Black,
-                        disabledSelectedColor = Color.Black,
-                        disabledUnselectedColor = Color.Black
-                    ),
-                    onClick = { tipeLaundry = "Express" })
+                RadioButton(selected = tipeLaundry == "Express", onClick = { tipeLaundry = "Express" })
                 Text("Express")
             }
         }
@@ -255,37 +292,21 @@ fun LaundryOrderScreen(
         item {
             Text("Pembayaran")
             Row(verticalAlignment = Alignment.CenterVertically) {
-                RadioButton(selected = pembayaran == "Cash", colors = RadioButtonColors(
-                    selectedColor = BlueLaundryGo,
-                    unselectedColor = Color.Black,
-                    disabledSelectedColor = Color.Black,
-                    disabledUnselectedColor = Color.Black
-                ), onClick = { pembayaran = "Cash" })
+                RadioButton(selected = pembayaran == "Cash", onClick = { pembayaran = "Cash" })
                 Text("Cash")
                 Spacer(modifier = Modifier.width(16.dp))
-                RadioButton(selected = pembayaran == "QRIS", colors = RadioButtonColors(
-                    selectedColor = BlueLaundryGo,
-                    unselectedColor = Color.Black,
-                    disabledSelectedColor = Color.Black,
-                    disabledUnselectedColor = Color.Black
-                ), onClick = { pembayaran = "QRIS" })
+                RadioButton(selected = pembayaran == "QRIS", onClick = { pembayaran = "QRIS" })
                 Text("QRIS")
                 Spacer(modifier = Modifier.width(16.dp))
-                RadioButton(
-                    selected = pembayaran == "Virtual Account", colors = RadioButtonColors(
-                        selectedColor = BlueLaundryGo,
-                        unselectedColor = Color.Black,
-                        disabledSelectedColor = Color.Black,
-                        disabledUnselectedColor = Color.Black
-                    ),
-                    onClick = { pembayaran = "Virtual Account" })
+                RadioButton(selected = pembayaran == "Virtual Account", onClick = { pembayaran = "Virtual Account" })
                 Text("Virtual Account")
             }
         }
 
         item {
             Button(
-                onClick = { /* Handle Order Submission */ },
+                onClick = { submitOrder() },
+                enabled = !isLoading,
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(containerColor = BlueLaundryGo)
             ) {
@@ -294,6 +315,7 @@ fun LaundryOrderScreen(
         }
     }
 }
+
 
 
 
@@ -340,8 +362,12 @@ fun LaundryOption(name: String, price: String) {
 }
 
 @Composable
-fun QuantityOption(name: String, price: String) {
-    var quantity by remember { mutableStateOf(0) } // State variable to persist and react to changes
+fun QuantityOption(
+    name: String,
+    price: String,
+    onQuantityChange: (Int) -> Unit // Add this parameter to handle quantity change
+) {
+    var quantity by remember { mutableStateOf(0) }
 
     Box(modifier = Modifier.background(Color.LightGray)) {
         Row(
@@ -357,13 +383,21 @@ fun QuantityOption(name: String, price: String) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(
                     onClick = {
-                        if (quantity > 0) quantity -= 1 // Prevent negative values
+                        if (quantity > 0) {
+                            quantity -= 1 // Prevent negative values
+                            onQuantityChange(quantity) // Notify parent of the updated quantity
+                        }
                     }
                 ) {
                     Icon(imageVector = Icons.Default.Close, contentDescription = "Minus")
                 }
                 Text(text = quantity.toString())
-                IconButton(onClick = { quantity += 1 }) {
+                IconButton(
+                    onClick = {
+                        quantity += 1
+                        onQuantityChange(quantity) // Notify parent of the updated quantity
+                    }
+                ) {
                     Icon(imageVector = Icons.Default.Add, contentDescription = "Plus")
                 }
             }
@@ -421,6 +455,51 @@ fun Header() {
             style = MaterialTheme.typography.labelLarge,
             modifier = Modifier.align(Alignment.Center)
         )
+    }
+}
+
+fun orderLogic(
+    navController: NavController,
+    database: FirebaseDatabase,
+    laundryName: String,
+    username: String,
+    address: String,
+    phoneNumber: String,
+    antarJemput: String,
+    tipeLaundry: String,
+    pembayaran: String,
+    selectedCuciKiloanOption: String,
+    onSuccess: () -> Unit,
+    onError: (String) -> Unit
+) {
+    if (username.isBlank() || address.isBlank() || phoneNumber.isBlank() || selectedCuciKiloanOption.isBlank()) {
+        onError("Semua data harus diisi!")
+        return
+    }
+
+    val ordersRef = database.getReference("orders")
+    val orderId = ordersRef.push().key
+
+    val orderData = mapOf(
+        "orderId" to orderId,
+        "laundryName" to laundryName,
+        "username" to username,
+        "address" to address,
+        "phoneNumber" to phoneNumber,
+        "antarJemput" to antarJemput,
+        "tipeLaundry" to tipeLaundry,
+        "pembayaran" to pembayaran,
+        "service" to selectedCuciKiloanOption,
+        "timestamp" to System.currentTimeMillis()
+    )
+
+    if (orderId != null) {
+        ordersRef.child(orderId).setValue(orderData)
+            .addOnSuccessListener { onSuccess() }
+            .addOnFailureListener { error -> onError(error.message ?: "Unknown Error") }
+        navController.navigate("Homepage")
+    } else {
+        onError("Gagal membuat ID Pesanan!")
     }
 }
 
