@@ -47,6 +47,8 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-database-ktx")
     implementation("com.google.code.gson:gson:2.8.9")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0")
+
 
     implementation(libs.androidx.compose.material)
     implementation(libs.androidx.compose.tooling)

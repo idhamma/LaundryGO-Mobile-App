@@ -1,6 +1,10 @@
 package com.ikancipung.laundrygo.profile
 
+import android.net.Uri
+import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -41,6 +45,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil.compose.rememberImagePainter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -49,6 +54,7 @@ import com.google.firebase.database.ValueEventListener
 import com.ikancipung.laundrygo.R
 import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
 import com.ikancipung.laundrygo.ui.theme.RedLaundryGo
+import com.ikancipung.laundrygo.profile.UploadImageToGitHub
 
 @Composable
 fun Profile(navController: NavController) {
@@ -71,11 +77,10 @@ fun Profile(navController: NavController) {
             val listener = object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     snapshot.let {
-                        username = it.child("name").getValue(String::class.java) ?: "Unknown"
-                        email = it.child("email").getValue(String::class.java) ?: "Unknown"
-                        address = it.child("address").getValue(String::class.java) ?: "Unknown"
-                        phoneNumber =
-                            it.child("phoneNumber").getValue(String::class.java) ?: "Unknown"
+                        username = it.child("name").getValue(String::class.java) ?: ""
+                        email = it.child("email").getValue(String::class.java) ?: ""
+                        address = it.child("address").getValue(String::class.java) ?: ""
+                        phoneNumber = it.child("phoneNumber").getValue(String::class.java) ?: ""
                     }
                     isLoading = false
                 }
@@ -167,7 +172,7 @@ fun Profile(navController: NavController) {
 }
 
 @Composable
-fun PhotoProfile() {
+fun PhotoProfileold() {
     Box {
         val photoProfile = painterResource(id = R.drawable.bos_cipung)
 
@@ -318,5 +323,125 @@ fun FieldDataProfile(
         HorizontalDivider(
             modifier = Modifier.padding(bottom = 16.dp), thickness = 0.25.dp, color = Color.Gray
         )
+    }
+}
+
+@Composable
+fun PhotoProfileNew() {
+    val currentUser = FirebaseAuth.getInstance().currentUser
+    val database = FirebaseDatabase.getInstance().getReference("users").child(currentUser?.uid!!)
+
+    var photoUrl by remember { mutableStateOf("") }
+
+    //URL gambar profil dari database
+    database.child("photoUrl").get().addOnSuccessListener {
+        photoUrl = it.value as String? ?: ""
+    }
+
+
+    Box {
+
+        if (photoUrl.isNotEmpty()) {
+            Image(
+                painter = rememberImagePainter(photoUrl),
+                contentDescription = "photo_profile",
+                modifier = Modifier
+                    .size(150.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
+        } else {
+            Image(
+                painter = painterResource(id = R.drawable.bos_cipung),
+                contentDescription = "default_photo",
+                modifier = Modifier
+                    .size(150.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
+        }
+
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(4.dp)
+        ) {
+            Icon(imageVector = Icons.Filled.Edit,
+                contentDescription = "edit_icon",
+                tint = Color.White,
+                modifier = Modifier
+                    .size(32.dp)
+                    .background(BlueLaundryGo, CircleShape)
+                    .clickable { /*TODO*/ }
+                    .padding(8.dp))
+        }
+    }
+
+}
+
+@Composable
+fun PhotoProfile() {
+    val context = LocalContext.current
+    val currentUser = FirebaseAuth.getInstance().currentUser
+    val database = FirebaseDatabase.getInstance().getReference("users").child(currentUser?.uid!!)
+
+    var photoUrl by remember { mutableStateOf("") }
+
+    // Ambil URL gambar profil dari database
+    DisposableEffect(Unit) {
+        database.child("photoUrl").get().addOnSuccessListener {
+            val newUrl = it.value as String? ?: ""
+            photoUrl = "$newUrl?timestamp=${System.currentTimeMillis()}" // Hindari cache
+        }
+        onDispose { }
+    }
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            val token = context.getString(R.string.tokenUpload)
+            UploadImageToGitHub(it, token, context)
+        }
+    }
+
+    Box {
+        if (photoUrl.isNotEmpty()) {
+            Image(
+                painter = rememberImagePainter(photoUrl),
+                contentDescription = "photo_profile",
+                modifier = Modifier
+                    .size(150.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
+        } else {
+            Image(
+                painter = painterResource(id = R.drawable.bos_cipung),
+                contentDescription = "default_photo",
+                modifier = Modifier
+                    .size(150.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
+        }
+
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(4.dp)
+        ) {
+            Icon(imageVector = Icons.Filled.Edit,
+                contentDescription = "edit_icon",
+                tint = Color.White,
+                modifier = Modifier
+                    .size(32.dp)
+                    .background(BlueLaundryGo, CircleShape)
+                    .clickable {
+                        // Menyuruh pengguna memilih gambar
+                        imagePickerLauncher.launch("image/*")
+                    }
+                    .padding(8.dp))
+        }
     }
 }
