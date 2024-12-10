@@ -11,10 +11,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 
 @Composable
-fun TitleLaundryScreen(navController: NavController, orderId: String) {
+fun TitleLaundryScreen(navController: NavController) {
     val context = LocalContext.current
+
+    // Mengambil orderId dari argumen navigasi
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val orderId = backStackEntry?.arguments?.getString("orderId") ?: ""
 
     // State untuk menyimpan data pesanan
     var orderData by remember { mutableStateOf<Order?>(null) }
@@ -23,17 +28,22 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
 
     // Ambil data order dari Firebase
     LaunchedEffect(orderId) {
-        fetchOrderData(
-            orderId = orderId,
-            onSuccess = { order ->
-                orderData = order // Menyimpan data order ke state
-                isLoading = false
-            },
-            onError = { error ->
-                errorMessage = error // Menyimpan pesan kesalahan
-                isLoading = false
-            }
-        )
+        if (orderId.isNotEmpty()) {
+            fetchOrderData(
+                orderId = orderId,
+                onSuccess = { order ->
+                    orderData = order // Menyimpan data order ke state
+                    isLoading = false
+                },
+                onError = { error ->
+                    errorMessage = error // Menyimpan pesan kesalahan
+                    isLoading = false
+                }
+            )
+        } else {
+            errorMessage = "Order ID tidak ditemukan."
+            isLoading = false
+        }
     }
 
     if (isLoading) {
@@ -71,7 +81,7 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Rincian Pesanan
+                // Rincian Pemesanan
                 Text("Rincian Pemesanan", fontWeight = FontWeight.Bold, fontSize = 20.sp)
                 Text("Alamat: ${order.AlamatPemesanan}")
                 Text("Waktu Pemesanan: ${formatTimestamp(order.WaktuPesan)}")
