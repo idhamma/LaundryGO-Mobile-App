@@ -49,8 +49,9 @@ import com.ikancipung.laundrygo.profile.ProfileLaundry
 @Composable
 fun HomepagePage(navController: NavController) {
     val outlets = remember { mutableStateListOf<Laundry>() }
-    val services = remember { mutableStateListOf<Laundry>() }
+    val services = remember { mutableStateListOf<Service>() }
     val database = FirebaseDatabase.getInstance().getReference("laundry")
+    val databaseService = FirebaseDatabase.getInstance().getReference("Services")
 
     LaunchedEffect(Unit) {
         database.addValueEventListener(object : ValueEventListener {
@@ -61,7 +62,24 @@ fun HomepagePage(navController: NavController) {
                     val laundry = data.getValue(Laundry::class.java)
                     if (laundry != null) {
                         outlets.add(laundry)
-                        services.add(laundry)
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Handle error
+            }
+        })
+    }
+
+    LaunchedEffect(Unit) {
+        databaseService.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                services.clear()
+                for (data in snapshot.children) {
+                    val service = data.getValue(Service::class.java)
+                    if (service != null) {
+                        services.add(service)
                     }
                 }
             }
@@ -84,7 +102,7 @@ fun HomepagePage(navController: NavController) {
 @Composable
 fun Homepage(
     outlets: List<Laundry>,
-    services: List<Laundry>,
+    services: List<Service>,
     navController: NavController
 ) {
     var isSearchActive by remember { mutableStateOf(false) }
@@ -281,6 +299,49 @@ fun ImageLazyRow(dataList: List<Laundry>, navController: NavController) {
     }
 }
 
+@Composable
+fun ImageLazyRowService(dataList: List<Service>, navController: NavController) {
+    LazyRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(dataList) { service ->
+            Card(
+                modifier = Modifier
+                    .width(150.dp)
+                    .clickable {
+                        // Navigasi ke halaman profil service
+                        navController.navigate(
+                            "ServicePage/${Uri.encode(service.name)}/${Uri.encode(service.imageUrl)}"
+                        )
+
+                    },
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painter = rememberImagePainter(service.imageUrl),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(100.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = service.name,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                }
+            }
+        }
+    }
+}
+
 
 
 // Model class for Laundry
@@ -297,6 +358,11 @@ data class Laundry(
 data class Banner(
     val imageUrl1: String = "",
     val imageUrl2: String = ""
+)
+
+data class Service(
+    val name: String = "",
+    val imageUrl: String = ""
 )
 
 //@Preview(showBackground = true)
