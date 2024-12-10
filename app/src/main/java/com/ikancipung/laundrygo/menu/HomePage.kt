@@ -18,6 +18,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,8 +60,8 @@ fun HomepagePage(navController: NavController) {
                 for (data in snapshot.children) {
                     val laundry = data.getValue(Laundry::class.java)
                     if (laundry != null) {
-                        outlets.add(laundry) // Anggap outlets dan services sama
-                        services.add(laundry) // Contoh: gunakan service yang sama
+                        outlets.add(laundry)
+                        services.add(laundry)
                     }
                 }
             }
@@ -80,20 +82,47 @@ fun HomepagePage(navController: NavController) {
 }
 
 @Composable
-fun Homepage(outlets: List<Laundry>, services: List<Laundry>, navController: NavController) {
+fun Homepage(
+    outlets: List<Laundry>,
+    services: List<Laundry>,
+    navController: NavController
+) {
+    var isSearchActive by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
+
+    val filteredOutlets = outlets.filter { it.name.contains(searchQuery, ignoreCase = true) }
+    val filteredServices = services.filter { it.name.contains(searchQuery, ignoreCase = true) }
+
     Column(modifier = Modifier.fillMaxSize().padding(8.dp)) {
-        // Header
+        // Header with Search Icon
         Row(
             modifier = Modifier.fillMaxWidth()
                 .padding(8.dp)
-                .height(48.dp),
+                .height(56.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            if (isSearchActive) {
+                TextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 8.dp),
+                    singleLine = true
+                )
+            }
             Icon(
-                imageVector = Icons.Filled.Search,
+                imageVector = if (isSearchActive) Icons.Filled.Close else Icons.Filled.Search,
                 contentDescription = "Search",
-                modifier = Modifier.size(24.dp),
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable {
+                        isSearchActive = !isSearchActive
+                        if (!isSearchActive) {
+                            searchQuery = "" // Reset search query ketika search bar ditutup
+                        }
+                    },
                 tint = Color.Black
             )
 
@@ -113,7 +142,6 @@ fun Homepage(outlets: List<Laundry>, services: List<Laundry>, navController: Nav
             }
         }
 
-        // Banner Image
         val bannerUrls = remember { mutableStateListOf<String>() }
         val bannerDatabase = FirebaseDatabase.getInstance().getReference("Banner/Banner")
 
@@ -182,7 +210,7 @@ fun Homepage(outlets: List<Laundry>, services: List<Laundry>, navController: Nav
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold
             )
-            ImageLazyRow(dataList = outlets, navController = navController)
+            ImageLazyRow(dataList = filteredOutlets, navController = navController)
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -200,7 +228,7 @@ fun Homepage(outlets: List<Laundry>, services: List<Laundry>, navController: Nav
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold
             )
-            ImageLazyRow(dataList = services, navController = navController)
+            ImageLazyRow(dataList = filteredServices, navController = navController)
         }
     }
 }
