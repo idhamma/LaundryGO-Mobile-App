@@ -2,21 +2,8 @@ package com.ikancipung.laundrygo.order
 
 import com.google.firebase.database.FirebaseDatabase
 
-// Data class untuk Order
-data class Order(
-    val IDPemesan: String = "",
-    val NamaLaundry: String = "",
-    val NamaPemesan: String = "",
-    val AlamatPemesanan: String = "",
-    val WaktuPesan: Long = 0L,
-    val isAntarJemput: Boolean = false,
-    val isExpress: Boolean = false,
-    val Status: Status = Status(),
-    val layanan: Map<String, Int> = mapOf() // Layanan dan jumlahnya
-)
-
 // Data class untuk status
-data class Status(
+data class LaundryStatus(
     val isDone: Boolean = false,
     val isInLaundry: Boolean = false,
     val isPaid: Boolean = false,
@@ -82,17 +69,17 @@ const val ANTAR_JEMPUT_COST = 10000
 const val EXPRESS_COST = 10000
 
 // Fungsi untuk menghitung subtotal
-fun calculateSubtotal(layanan: Map<String, Int>, namaLaundry: String): Int {
+fun calculateSubtotal(orders: Map<String, OrderDetail>, namaLaundry: String): Int {
     val laundryPrices = priceList[namaLaundry] ?: return 0
-    return layanan.entries.sumOf { (layananName, jumlah) ->
-        val unitPrice = laundryPrices[layananName] ?: 0
-        unitPrice * jumlah
+    return orders.values.sumOf { detail ->
+        val unitPrice = laundryPrices[detail.Service] ?: 0
+        unitPrice * detail.Quantity
     }
 }
 
 // Fungsi untuk menghitung total harga
 fun calculateTotal(order: Order): Int {
-    val subtotal = calculateSubtotal(order.layanan, order.NamaLaundry)
+    val subtotal = calculateSubtotal(order.Orders, order.NamaLaundry)
     val biayaAntarJemput = if (order.isAntarJemput) ANTAR_JEMPUT_COST else 0
     val biayaExpress = if (order.isExpress) EXPRESS_COST else 0
     return subtotal + biayaAntarJemput + biayaExpress
