@@ -68,7 +68,8 @@ fun SignUpScreen(navController: NavController) {
             "email" to email,
             "phoneNumber" to "",
             "address" to "",
-            "photo" to ""
+            "photoUrl" to "",
+            "favorites" to null
         )
         database.child("users").child(userId).setValue(user)
             .addOnSuccessListener {

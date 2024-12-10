@@ -1,30 +1,50 @@
 package com.ikancipung.laundrygo.profile
 
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberImagePainter
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import com.google.gson.Gson
-import com.ikancipung.laundrygo.R
+import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
 import java.util.Locale
 
 @Composable
@@ -33,12 +53,21 @@ fun ProfileLaundry(
     laundryName: String,
     laundryAddress: String,
     laundryRating: String,
-    laundryLogo: String, // Gambar logo lokal menggunakan resource ID
+    laundryLogo: String,
     services: List<String>,
     prices: List<String>,
     serviceHours: String,
     laundryDescription: String
 ) {
+    // State untuk melacak apakah laundry ini adalah favorit
+    var isFavorite by remember { mutableStateOf(false) }
+
+    // Cek status favorit saat pertama kali layar dimuat
+    LaunchedEffect(Unit) {
+        checkFavoriteStatus(laundryName) { favorite ->
+            isFavorite = favorite
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -64,8 +93,7 @@ fun ProfileLaundry(
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = laundryName,
-                    fontWeight = FontWeight.Bold
+                    text = laundryName, fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = laundryAddress,
@@ -91,12 +119,17 @@ fun ProfileLaundry(
             )
 
             Icon(
-                imageVector = Icons.Filled.FavoriteBorder,
+                imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                 contentDescription = "Rating",
                 modifier = Modifier
                     .size(24.dp)
-                    .align(Alignment.BottomEnd),
-                tint = Color.Blue
+                    .align(Alignment.BottomEnd)
+                    .clickable {
+                        toggleFavorite(laundryName, isFavorite, navController) { updatedFavorite ->
+                            isFavorite = updatedFavorite
+                        }
+                    },
+                tint = BlueLaundryGo
             )
         }
 
@@ -150,7 +183,6 @@ fun ProfileLaundry(
             // Menampilkan Harga dengan Satuan yang Tepat
             LazyColumn {
                 itemsIndexed(prices) { index, price ->
-                    // Mengambil unit yang sesuai berdasarkan service dan price
                     val priceWithUnit = getPriceUnit(services[index], price)
 
                     Text(
@@ -165,12 +197,10 @@ fun ProfileLaundry(
             }
         }
 
-
         // Jam Pelayanan
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Jam Pelayanan",
-            fontWeight = FontWeight.Bold
+            text = "Jam Pelayanan", fontWeight = FontWeight.Bold
         )
         Text(
             text = serviceHours,
@@ -185,14 +215,18 @@ fun ProfileLaundry(
 
         // Tombol Pesan
         Button(
-//            onClick = { navController.navigate("Orderpage") },
-            onClick = { navController.navigate(
-                "Orderpage/${Uri.encode(laundryName)}/${Uri.encode(Gson().toJson(prices))}/${Uri.encode(Gson().toJson(services))}"
-            )
-                      },
+            onClick = {
+                navController.navigate(
+                    "Orderpage/${Uri.encode(laundryName)}/${
+                        Uri.encode(
+                            Gson().toJson(prices)
+                        )
+                    }/${Uri.encode(Gson().toJson(services))}"
+                )
+            },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(10.dp),
-            colors = ButtonDefaults.buttonColors(Color.Blue)
+            colors = ButtonDefaults.buttonColors(BlueLaundryGo)
         ) {
             Text(text = "Pesan Sekarang!", color = Color.White)
         }
@@ -205,38 +239,81 @@ fun getPriceUnit(service: String, price: String): String {
     val serviceLower = service.toLowerCase(Locale.getDefault())
 
     return when (serviceLower) {
-        "cuci lipat", "cuci setrika", "cuci express","setrika" -> "$price/kg"
-        "cuci selimut", "cuci karpet", "cuci topi", "cuci sprei"-> "$price/pcs"
+        "cuci lipat", "cuci setrika", "cuci express", "setrika" -> "$price/kg"
+        "cuci selimut", "cuci karpet", "cuci topi", "cuci sprei" -> "$price/pcs"
         "cuci sepatu" -> "$price/pasang"
         else -> price
     }
 }
 
+// Fungsi untuk mengecek status favorit
+fun checkFavoriteStatus(laundryName: String, callback: (Boolean) -> Unit) {
+    val userId = FirebaseAuth.getInstance().currentUser?.uid
+    val database = FirebaseDatabase.getInstance().reference
 
-//@Preview(showBackground = true)
-//@Composable
-//fun PreviewProfileLaundry() {
-//    ProfileLaundry(
-//        navController = rememberNavController(),
-//        laundryName = "Antony Laundry",
-//        laundryAddress = "Klojen, Malang",
-//        laundryRating = "5 Stars",
-//        laundryLogo = R.drawable.antony_laundry, // Contoh logo lokal
-//        services = listOf(
-//            "Cuci Lipat",
-//            "Cuci Setrika",
-//            "Cuci Express",
-//            "Cuci Selimut",
-//            "Cuci Sepatu"
-//        ),
-//        prices = listOf(
-//            "4.500/kg",
-//            "8.500/kg",
-//            "10.000/kg",
-//            "12.500/pcs",
-//            "20.000/pair"
-//        ),
-//        serviceHours = "08.00 - 18.00 WIB",
-//        laundryDescription = "Laundry terpercaya dengan layanan berkualitas tinggi."
-//    )
-//}
+    if (userId != null) {
+        val userFavoritesRef = database.child("users").child(userId).child("favorites")
+        userFavoritesRef.get().addOnSuccessListener { snapshot ->
+            val currentFavorites =
+                snapshot.children.mapNotNull { it.getValue(String::class.java) }
+            callback(currentFavorites.contains(laundryName))
+        }.addOnFailureListener {
+            callback(false) // Jika gagal memuat data, asumsikan bukan favorit
+        }
+    } else {
+        callback(false) // Pengguna tidak terautentikasi
+    }
+}
+
+// Fungsi untuk toggle status favorit
+fun toggleFavorite(
+    laundryName: String,
+    isCurrentlyFavorite: Boolean,
+    navController: NavController,
+    callback: (Boolean) -> Unit
+) {
+    val userId = FirebaseAuth.getInstance().currentUser?.uid
+    val database = FirebaseDatabase.getInstance().reference
+
+    if (userId != null) {
+        val userFavoritesRef = database.child("users").child(userId).child("favorites")
+
+        userFavoritesRef.get().addOnSuccessListener { snapshot ->
+            val currentFavorites =
+                snapshot.children.mapNotNull { it.getValue(String::class.java) }.toMutableList()
+
+            if (isCurrentlyFavorite) {
+                // Hapus dari favorit
+                currentFavorites.remove(laundryName)
+            } else {
+                // Tambahkan ke favorit
+                currentFavorites.add(laundryName)
+            }
+
+            userFavoritesRef.setValue(currentFavorites).addOnSuccessListener {
+                callback(!isCurrentlyFavorite)
+            }.addOnFailureListener {
+                Toast.makeText(
+                    navController.context,
+                    "Gagal memperbarui favorit",
+                    Toast.LENGTH_SHORT
+                ).show()
+                callback(isCurrentlyFavorite)
+            }
+        }.addOnFailureListener {
+            Toast.makeText(
+                navController.context,
+                "Gagal memuat data favorit",
+                Toast.LENGTH_SHORT
+            ).show()
+            callback(isCurrentlyFavorite)
+        }
+    } else {
+        Toast.makeText(
+            navController.context,
+            "Pengguna tidak terautentikasi",
+            Toast.LENGTH_SHORT
+        ).show()
+        callback(isCurrentlyFavorite)
+    }
+}
