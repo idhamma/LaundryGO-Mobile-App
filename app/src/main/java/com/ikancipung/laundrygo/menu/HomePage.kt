@@ -1,10 +1,6 @@
 package com.ikancipung.laundrygo.menu
 
 import android.net.Uri
-<<<<<<< HEAD
-//import com.ikancipung.laundrygo.order.myOrder
-=======
->>>>>>> 1fd4fb4a27667498e6b42cc5443cfb7c63122ce1
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -13,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -45,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -191,14 +189,16 @@ fun Homepage(
                 items(bannerUrls) { imageUrl ->
                     Card(
                         modifier = Modifier
-                            .fillParentMaxWidth() // Ini memastikan elemen memenuhi layar
+                            .fillParentMaxWidth()
+                            .aspectRatio(16f / 9f)// Ini memastikan elemen memenuhi layar
                             .fillMaxHeight(),
                         shape = RoundedCornerShape(16.dp)
                     ) {
                         Image(
                             painter = rememberImagePainter(data = imageUrl),
                             contentDescription = "Banner Image",
-                            modifier = Modifier.fillMaxSize()
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop // Gambar akan memenuhi Card dan memotong sisi yang tidak sesuai
                         )
                     }
                 }
