@@ -1,221 +1,120 @@
-package com.ikancipung.laundrygo.order//package com.ikancipung.laundrygo.order
-//
-//import androidx.compose.foundation.Image
-//import androidx.compose.foundation.layout.*
-//import androidx.compose.foundation.text.ClickableText
-//import androidx.compose.material3.*
-//import androidx.compose.runtime.*
-//import androidx.compose.ui.Alignment
-//import androidx.compose.ui.Modifier
-//import androidx.compose.ui.graphics.Color
-//import androidx.compose.ui.res.painterResource
-//import androidx.compose.ui.text.AnnotatedString
-//import androidx.compose.ui.text.font.FontWeight
-//import androidx.compose.ui.text.style.TextAlign
-//import androidx.compose.ui.text.style.TextOverflow
-//import androidx.compose.ui.unit.dp
-//import androidx.compose.ui.unit.sp
-//import com.google.firebase.database.*
-//import com.ikancipung.laundrygo.R
-//import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
-//
-//private val database = FirebaseDatabase.getInstance().reference
-//
-//@Composable
-//fun TitleLaundryScreen(orderId: String) {
-//    var orderData by remember { mutableStateOf<OrderData?>(null) }
-//
-//    LaunchedEffect(orderId) {
-//        println("Memulai pengambilan data untuk orderId: $orderId") // Log awal
-//
-//        database.child("orders").child(orderId)
-//            .addListenerForSingleValueEvent(object : ValueEventListener {
-//                override fun onDataChange(snapshot: DataSnapshot) {
-//                    if (snapshot.exists()) {
-//                        println("Data ditemukan: ${snapshot.value}") // Log saat data ditemukan
-//                        try {
-//                            orderData = snapshot.getValue(OrderData::class.java)
-//                            println("Data berhasil diparsing: $orderData")
-//                        } catch (e: Exception) {
-//                            println("Error parsing data: ${e.message}")
-//                        }
-//                    } else {
-//                        println("Data tidak ditemukan di Firebase.") // Log jika data tidak ada
-//                        orderData = null
-//                    }
-//                }
-//
-//                override fun onCancelled(error: DatabaseError) {
-//                    println("Firebase Error: ${error.message}") // Log jika terjadi error
-//                    orderData = null
-//                }
-//            })
-//    }
-//
-//
-//    orderData?.let {
-//        LaundryUI(orderData = it)
-//    } ?: run {
-//        Text(
-//            text = "Data tidak ditemukan.",
-//            modifier = Modifier
-//                .fillMaxSize()
-//                .padding(16.dp),
-//            textAlign = TextAlign.Center,
-//            style = MaterialTheme.typography.bodyMedium
-//        )
-//    }
-//}
-//
-//@Composable
-//fun LaundryUI(orderData: OrderData) {
-//    Column(
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .padding(16.dp)
-//    ) {
-//        // Header
-//        Row(verticalAlignment = Alignment.CenterVertically) {
-//            Image(
-//                painter = painterResource(R.drawable.keluar),
-//                contentDescription = "Back Button",
-//                modifier = Modifier.size(24.dp)
-//            )
-//            Spacer(modifier = Modifier.width(8.dp))
-//            Column {
-//                Text(text = "Antony Laundry", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-//                Text(text = "Klojen, Malang", fontSize = 12.sp, color = Color.Gray)
-//            }
-//        }
-//
-//        Spacer(modifier = Modifier.height(16.dp))
-//
-//        // Order Info
-//        OrderInfoRow(title = "Waktu Pemesanan", value = orderData.waktuPemesanan)
-//        OrderInfoRow(title = "Order ID", value = orderData.orderId)
-//        OrderInfoRow(title = "Metode Pembayaran", value = orderData.metodePembayaran)
-//
-//        Spacer(modifier = Modifier.height(16.dp))
-//
-//        // Address
-//        Row(verticalAlignment = Alignment.CenterVertically) {
-//            Image(
-//                painter = painterResource(R.drawable.baseline_location_alamat),
-//                contentDescription = "Alamat",
-//                modifier = Modifier.size(18.dp)
-//            )
-//            Spacer(modifier = Modifier.width(8.dp))
-//            Text(
-//                text = orderData.alamat,
-//                maxLines = 1,
-//                overflow = TextOverflow.Ellipsis,
-//                style = MaterialTheme.typography.bodySmall,
-//                color = Color.Gray
-//            )
-//        }
-//
-//        Spacer(modifier = Modifier.height(8.dp))
-//
-//        Row(verticalAlignment = Alignment.CenterVertically) {
-//            Image(
-//                painter = painterResource(R.drawable.baseline_location_destination),
-//                contentDescription = "Destinasi",
-//                modifier = Modifier.size(18.dp)
-//            )
-//            Spacer(modifier = Modifier.width(8.dp))
-//            Text(
-//                text = orderData.destinasi,
-//                maxLines = 1,
-//                overflow = TextOverflow.Ellipsis,
-//                style = MaterialTheme.typography.bodySmall,
-//                color = Color.Gray
-//            )
-//        }
-//
-//        Spacer(modifier = Modifier.height(16.dp))
-//
-//        // Order Details
-//        Text(text = "Rincian Pesanan", fontWeight = FontWeight.Bold)
-//        OrderItemRow(item = "- Kg", description = "Cuci Lipat", price = "-")
-//        OrderItemRow(item = "2 Pcs", description = "Sepatu", price = "Rp.40.000")
-//
-//        Spacer(modifier = Modifier.height(16.dp))
-//
-//        // Price Details
-//        SubtotalInfo(title = "Subtotal", value = orderData.subtotal)
-//        SubtotalInfo(title = "Biaya Pengantaran", value = orderData.biayaPengantaran)
-//        SubtotalInfo(title = "Biaya Pemesanan", value = orderData.biayaPemesanan)
-//        Divider(color = Color.Gray, thickness = 1.dp)
-//        SubtotalInfo(title = "Total", value = orderData.total, isBold = true)
-//
-//        Spacer(modifier = Modifier.height(16.dp))
-//
-//        ClickableText(
-//            text = AnnotatedString("Laporkan Kendala!"),
-//            onClick = { /* Handle */ },
-//            style = MaterialTheme.typography.bodyMedium.copy(color = BlueLaundryGo)
-//        )
-//
-//        Spacer(modifier = Modifier.height(16.dp))
-//
-//        // Action Button
-//        Button(
-//            onClick = { /* Handle Payment */ },
-//            enabled = orderData.isChecked,
-//            colors = ButtonDefaults.buttonColors(
-//                containerColor = if (orderData.isChecked) BlueLaundryGo else Color.Gray
-//            ),
-//            modifier = Modifier.fillMaxWidth()
-//        ) {
-//            Text(
-//                text = if (orderData.isChecked) "Bayar" else "Pakaian Belum Ditimbang",
-//                color = Color.White,
-//                fontSize = 16.sp
-//            )
-//        }
-//    }
-//}
-//
-//@Composable
-//fun OrderInfoRow(title: String, value: String) {
-//    Row(
-//        modifier = Modifier.fillMaxWidth(),
-//        horizontalArrangement = Arrangement.SpaceBetween
-//    ) {
-//        Text(text = title, fontWeight = FontWeight.Bold)
-//        Text(text = value, color = Color.Gray)
-//    }
-//}
-//
-//@Composable
-//fun OrderItemRow(item: String, description: String, price: String) {
-//    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-//        Text(text = "$item $description")
-//        Text(text = price)
-//    }
-//}
-//
-//@Composable
-//fun SubtotalInfo(title: String, value: String, isBold: Boolean = false) {
-//    Row(
-//        modifier = Modifier.fillMaxWidth(),
-//        horizontalArrangement = Arrangement.SpaceBetween
-//    ) {
-//        Text(text = title, fontWeight = if (isBold) FontWeight.Bold else FontWeight.Normal)
-//        Text(text = value, fontWeight = if (isBold) FontWeight.Bold else FontWeight.Normal)
-//    }
-//}
-//
-//// Data Model
-//data class OrderData(
-//    val alamat: String = "",
-//    val biayaPemesanan: String = "",
-//    val biayaPengantaran: String = "",
-//    val destinasi: String = "",
-//    val isChecked: Boolean = false,
-//    val metodePembayaran: String = "",
-//    val orderId: String = "",
-//    val subtotal: String = "",
-//    val total: String = "",
-//    val waktuPemesanan: String = ""
-//)
+package com.ikancipung.laundrygo.order
+
+import com.google.firebase.database.FirebaseDatabase
+
+// Data class untuk Order
+data class Order(
+    val IDPemesan: String = "",
+    val NamaLaundry: String = "",
+    val NamaPemesan: String = "",
+    val AlamatPemesanan: String = "",
+    val WaktuPesan: Long = 0L,
+    val isAntarJemput: Boolean = false,
+    val isExpress: Boolean = false,
+    val Status: Status = Status(),
+    val layanan: Map<String, Int> = mapOf() // Layanan dan jumlahnya
+)
+
+// Data class untuk status
+data class Status(
+    val isDone: Boolean = false,
+    val isInLaundry: Boolean = false,
+    val isPaid: Boolean = false,
+    val isReceived: Boolean = false,
+    val isSent: Boolean = false,
+    val isWashing: Boolean = false,
+    val isWeighted: Boolean = false
+)
+
+// Daftar harga berdasarkan nama laundry
+val priceList = mapOf(
+    "Antony Laundry" to mapOf(
+        "Cuci lipat" to 4500,
+        "Cuci setrika" to 8500,
+        "selimut" to 10000,
+        "sprei" to 12500,
+        "topi" to 10000,
+        "sepatu" to 7500
+    ),
+    "Jasjus Laundry" to mapOf(
+        "Cuci lipat" to 5000,
+        "Cuci setrika" to 12000,
+        "selimut" to 20000,
+        "sprei" to 22500,
+        "topi" to 12500,
+        "sepatu" to 8000
+    ),
+    "Kiyomasa Laundry" to mapOf(
+        "Cuci lipat" to 4000,
+        "Cuci setrika" to 9000,
+        "selimut" to 15000,
+        "sprei" to 12500,
+        "topi" to 10000,
+        "sepatu" to 6500
+    ),
+    "Bersih Laundry" to mapOf(
+        "Cuci lipat" to 6000,
+        "Cuci setrika" to 10000,
+        "selimut" to 25000,
+        "sprei" to 15000,
+        "topi" to 6500,
+        "sepatu" to 8000
+    ),
+    "Cuci Cepat" to mapOf(
+        "Cuci lipat" to 5500,
+        "Cuci setrika" to 9500,
+        "selimut" to 12000,
+        "sprei" to 9000,
+        "topi" to 5500,
+        "sepatu" to 8500
+    ),
+    "Laundry Sehat" to mapOf(
+        "Cuci lipat" to 7000,
+        "Cuci setrika" to 15000,
+        "selimut" to 13000,
+        "sprei" to 11500,
+        "topi" to 5000,
+        "sepatu" to 7500
+    )
+)
+
+const val ANTAR_JEMPUT_COST = 10000
+const val EXPRESS_COST = 10000
+
+// Fungsi untuk menghitung subtotal
+fun calculateSubtotal(layanan: Map<String, Int>, namaLaundry: String): Int {
+    val laundryPrices = priceList[namaLaundry] ?: return 0
+    return layanan.entries.sumOf { (layananName, jumlah) ->
+        val unitPrice = laundryPrices[layananName] ?: 0
+        unitPrice * jumlah
+    }
+}
+
+// Fungsi untuk menghitung total harga
+fun calculateTotal(order: Order): Int {
+    val subtotal = calculateSubtotal(order.layanan, order.NamaLaundry)
+    val biayaAntarJemput = if (order.isAntarJemput) ANTAR_JEMPUT_COST else 0
+    val biayaExpress = if (order.isExpress) EXPRESS_COST else 0
+    return subtotal + biayaAntarJemput + biayaExpress
+}
+
+// Fungsi untuk mengambil data order dari Firebase
+fun fetchOrderData(
+    orderId: String,
+    onSuccess: (Order) -> Unit,
+    onError: (String) -> Unit
+) {
+    val database = FirebaseDatabase.getInstance()
+    val orderRef = database.getReference("orders").child(orderId)
+
+    orderRef.get().addOnSuccessListener { snapshot ->
+        val order = snapshot.getValue(Order::class.java)
+        if (order != null) {
+            onSuccess(order)
+        } else {
+            onError("Order tidak ditemukan.")
+        }
+    }.addOnFailureListener { error ->
+        onError(error.message ?: "Terjadi kesalahan saat mengambil data.")
+    }
+}
