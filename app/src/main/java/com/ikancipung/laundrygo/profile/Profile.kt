@@ -408,7 +408,8 @@ fun PhotoProfile() {
     Box {
         if (photoUrl.isNotEmpty()) {
             Image(
-                painter = rememberImagePainter(photoUrl),
+//                painter = rememberImagePainter(photoUrl),
+                painter = painterResource(id = R.drawable.bos_cipung),
                 contentDescription = "photo_profile",
                 modifier = Modifier
                     .size(150.dp)
