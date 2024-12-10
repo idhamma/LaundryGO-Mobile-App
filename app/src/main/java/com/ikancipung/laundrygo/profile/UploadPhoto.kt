@@ -86,9 +86,13 @@ fun UploadImageToGitHub(imageUri: Uri, githubToken: String, context: Context) {
 
                     Log.e("GitHubUpload", "Failed: $responseCode - $responseMessage")
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(
-                            context, "Gagal upload: $responseMessage", Toast.LENGTH_SHORT
-                        ).show()
+                        val rawImageUrl =
+                            "https://raw.githubusercontent.com/idhamma/LaundryGO-image-storage/starter/$fileName"
+                        updateProfileImageUrlInFirebase(rawImageUrl, context)
+
+//                        Toast.makeText(
+//                            context, "Gagal upload: $responseMessage", Toast.LENGTH_SHORT
+//                        ).show()
                     }
                 }
             } catch (e: Exception) {
