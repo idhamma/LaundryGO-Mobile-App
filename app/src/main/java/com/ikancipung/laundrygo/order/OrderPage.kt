@@ -1,5 +1,6 @@
 package com.ikancipung.laundrygo.order
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +31,7 @@ import androidx.compose.material3.RadioButtonColors
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,14 +39,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.ikancipung.laundrygo.profile.Profile
 import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
 
 @Composable
-fun LaundryOrderScreen(navController: NavController) {
+fun LaundryOrderScreen(
+    navController: NavController,
+    laundryName: String,
+    services: List<String>,
+    prices: List<String>
+) {
     var isCuciKiloanExpanded by remember { mutableStateOf(false) }
     var isTempatTidurExpanded by remember { mutableStateOf(false) }
     var isAksesorisExpanded by remember { mutableStateOf(false) }
@@ -55,21 +68,69 @@ fun LaundryOrderScreen(navController: NavController) {
     var pembayaran by remember { mutableStateOf("Cash") }
     var selectedCuciKiloanOption by remember { mutableStateOf("") }
 
+    // State for text fields
+    var username by remember { mutableStateOf("") }
+    var address by remember { mutableStateOf("") }
+    var phoneNumber by remember { mutableStateOf("") }
+
+    val currentUser = FirebaseAuth.getInstance().currentUser
+    val uid = currentUser?.uid
+    val context = LocalContext.current
+    var isLoading by remember { mutableStateOf(true) }
+
+    DisposableEffect(uid) {
+        if (uid != null) {
+            val database = FirebaseDatabase.getInstance()
+            val userRef = database.getReference("users").child(uid)
+
+            val listener = object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    snapshot.let {
+                        username = it.child("name").getValue(String::class.java) ?: ""
+                        address = it.child("address").getValue(String::class.java) ?: ""
+                        phoneNumber =
+                            it.child("phoneNumber").getValue(String::class.java) ?: ""
+                    }
+                    isLoading = false
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Toast.makeText(
+                        context, "Gagal memuat data: ${error.message}", Toast.LENGTH_SHORT
+                    ).show()
+                    isLoading = false
+                }
+            }
+
+            userRef.addValueEventListener(listener)
+
+            // Hapus listener saat composable dihancurkan
+            onDispose {
+                userRef.removeEventListener(listener)
+            }
+        } else {
+            navController.navigate("Login")
+        }
+
+        onDispose { } // Dibutuhkan oleh DisposableEffect meskipun tidak ada tambahan logika
+    }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        item{
+        item {
             Header()
         }
+
         item {
             Text("Nama")
             TextField(
-                value = "",
-                onValueChange = {},
-                colors = OutlinedTextFieldDefaults.colors( unfocusedContainerColor = Color(0xFFE4E4E4)),
+                value = username,
+                onValueChange = { username = it },
+                colors = OutlinedTextFieldDefaults.colors(unfocusedContainerColor = Color(0xFFE4E4E4)),
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -77,9 +138,9 @@ fun LaundryOrderScreen(navController: NavController) {
         item {
             Text("Alamat")
             TextField(
-                value = "",
-                onValueChange = {},
-                colors = OutlinedTextFieldDefaults.colors( unfocusedContainerColor = Color(0xFFE4E4E4)),
+                value = address,
+                onValueChange = { address = it },
+                colors = OutlinedTextFieldDefaults.colors(unfocusedContainerColor = Color(0xFFE4E4E4)),
                 modifier = Modifier.fillMaxWidth(),
                 trailingIcon = {
                     Icon(imageVector = Icons.Default.LocationOn, contentDescription = "Map")
@@ -90,9 +151,9 @@ fun LaundryOrderScreen(navController: NavController) {
         item {
             Text("No. HP")
             TextField(
-                value = "",
-                onValueChange = {},
-                colors = OutlinedTextFieldDefaults.colors( unfocusedContainerColor = Color(0xFFE4E4E4)),
+                value = phoneNumber,
+                onValueChange = { phoneNumber = it },
+                colors = OutlinedTextFieldDefaults.colors(unfocusedContainerColor = Color(0xFFE4E4E4)),
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -105,7 +166,9 @@ fun LaundryOrderScreen(navController: NavController) {
             ) {
                 Box(modifier = Modifier.background(Color.LightGray)) {
                     RadioButtonOption(
-                        options = listOf("Cuci Lipat", "Cuci Setrika"),
+                        options = services.zip(prices)
+                            .filter { it.first.contains("Cuci") }
+                            .map { "${it.first} - ${it.second}" },
                         selectedOption = selectedCuciKiloanOption,
                         onOptionSelected = { selectedCuciKiloanOption = it }
                     )
@@ -119,8 +182,11 @@ fun LaundryOrderScreen(navController: NavController) {
                 isExpanded = isTempatTidurExpanded,
                 onToggle = { isTempatTidurExpanded = !isTempatTidurExpanded }
             ) {
-                QuantityOption("Selimut", "12.500/pcs")
-                QuantityOption("Sprei", "10.000/pcs")
+                services.zip(prices)
+                    .filter { it.first.contains("Selimut") || it.first.contains("Sprei") }
+                    .forEach { (service, price) ->
+                        QuantityOption(name = service, price = price)
+                    }
             }
         }
 
@@ -130,15 +196,18 @@ fun LaundryOrderScreen(navController: NavController) {
                 isExpanded = isAksesorisExpanded,
                 onToggle = { isAksesorisExpanded = !isAksesorisExpanded }
             ) {
-                QuantityOption("Topi", "7.500/pcs")
-                QuantityOption("Sepatu", "20.000/pair")
+                services.zip(prices)
+                    .filter { it.first.contains("Topi") || it.first.contains("Sepatu") }
+                    .forEach { (service, price) ->
+                        QuantityOption(name = service, price = price)
+                    }
             }
         }
 
         item {
             Text("Antar Jemput")
             Row(verticalAlignment = Alignment.CenterVertically) {
-                RadioButton(selected = antarJemput == "Ya",colors = RadioButtonColors(
+                RadioButton(selected = antarJemput == "Ya", colors = RadioButtonColors(
                     selectedColor = BlueLaundryGo,
                     unselectedColor = Color.Black,
                     disabledSelectedColor = Color.Black,
@@ -147,7 +216,7 @@ fun LaundryOrderScreen(navController: NavController) {
                 Text("Ya")
                 Spacer(modifier = Modifier.width(16.dp))
                 RadioButton(
-                    selected = antarJemput == "Tidak",colors = RadioButtonColors(
+                    selected = antarJemput == "Tidak", colors = RadioButtonColors(
                         selectedColor = BlueLaundryGo,
                         unselectedColor = Color.Black,
                         disabledSelectedColor = Color.Black,
@@ -162,7 +231,7 @@ fun LaundryOrderScreen(navController: NavController) {
             Text("Tipe Laundry")
             Row(verticalAlignment = Alignment.CenterVertically) {
                 RadioButton(
-                    selected = tipeLaundry == "Regular",colors = RadioButtonColors(
+                    selected = tipeLaundry == "Regular", colors = RadioButtonColors(
                         selectedColor = BlueLaundryGo,
                         unselectedColor = Color.Black,
                         disabledSelectedColor = Color.Black,
@@ -172,7 +241,7 @@ fun LaundryOrderScreen(navController: NavController) {
                 Text("Regular")
                 Spacer(modifier = Modifier.width(16.dp))
                 RadioButton(
-                    selected = tipeLaundry == "Express",colors = RadioButtonColors(
+                    selected = tipeLaundry == "Express", colors = RadioButtonColors(
                         selectedColor = BlueLaundryGo,
                         unselectedColor = Color.Black,
                         disabledSelectedColor = Color.Black,
@@ -186,7 +255,7 @@ fun LaundryOrderScreen(navController: NavController) {
         item {
             Text("Pembayaran")
             Row(verticalAlignment = Alignment.CenterVertically) {
-                RadioButton(selected = pembayaran == "Cash",colors = RadioButtonColors(
+                RadioButton(selected = pembayaran == "Cash", colors = RadioButtonColors(
                     selectedColor = BlueLaundryGo,
                     unselectedColor = Color.Black,
                     disabledSelectedColor = Color.Black,
@@ -194,7 +263,7 @@ fun LaundryOrderScreen(navController: NavController) {
                 ), onClick = { pembayaran = "Cash" })
                 Text("Cash")
                 Spacer(modifier = Modifier.width(16.dp))
-                RadioButton(selected = pembayaran == "QRIS",colors = RadioButtonColors(
+                RadioButton(selected = pembayaran == "QRIS", colors = RadioButtonColors(
                     selectedColor = BlueLaundryGo,
                     unselectedColor = Color.Black,
                     disabledSelectedColor = Color.Black,
@@ -203,7 +272,7 @@ fun LaundryOrderScreen(navController: NavController) {
                 Text("QRIS")
                 Spacer(modifier = Modifier.width(16.dp))
                 RadioButton(
-                    selected = pembayaran == "Virtual Account",colors = RadioButtonColors(
+                    selected = pembayaran == "Virtual Account", colors = RadioButtonColors(
                         selectedColor = BlueLaundryGo,
                         unselectedColor = Color.Black,
                         disabledSelectedColor = Color.Black,
@@ -225,6 +294,7 @@ fun LaundryOrderScreen(navController: NavController) {
         }
     }
 }
+
 
 
 @Composable

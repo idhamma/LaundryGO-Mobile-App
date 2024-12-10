@@ -1,5 +1,6 @@
 package com.ikancipung.laundrygo.profile
 
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberImagePainter
+import com.google.gson.Gson
 import com.ikancipung.laundrygo.R
 import java.util.Locale
 
@@ -183,7 +185,11 @@ fun ProfileLaundry(
 
         // Tombol Pesan
         Button(
-            onClick = { /* Handle booking action */ },
+//            onClick = { navController.navigate("Orderpage") },
+            onClick = { navController.navigate(
+                "Orderpage/${Uri.encode(laundryName)}/${Uri.encode(Gson().toJson(prices))}/${Uri.encode(Gson().toJson(services))}"
+            )
+                      },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(10.dp),
             colors = ButtonDefaults.buttonColors(Color.Blue)
