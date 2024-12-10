@@ -15,6 +15,7 @@ import com.google.firebase.auth.auth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.gson.Gson
 import com.ikancipung.laundrygo.login.LoginScreen
+import com.ikancipung.laundrygo.menu.FavoriteLaundryScreen
 import com.ikancipung.laundrygo.menu.HomepagePage
 import com.ikancipung.laundrygo.menu.ProfileUser
 import com.ikancipung.laundrygo.order.LaundryOrderScreen
@@ -28,6 +29,7 @@ import com.ikancipung.laundrygo.signup.SignUpScreen
 import com.ikancipung.laundrygo.ui.theme.LaundryGOTheme
 
 private lateinit var auth: FirebaseAuth
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,13 +41,12 @@ class MainActivity : ComponentActivity() {
 
             val navController = rememberNavController()
 
-
-
             LaundryGOTheme {
                 NavHost(navController = navController, startDestination = startDestination) {
                     composable("Login") { LoginScreen(navController = navController) }
                     composable("Signup") { SignUpScreen(navController = navController) }
                     composable("Homepage") { HomepagePage(navController = navController) }
+                    composable("FavLaundry") { FavoriteLaundryScreen(navController = navController) }
                     composable("Myorder") { myOrderPage(navController = navController) }
 //                    composable("Orderpage") { LaundryOrderScreen(navController = navController) }
                     composable("Ordersum") { TitleLaundryScreen(navController = navController) }
@@ -70,8 +71,8 @@ class MainActivity : ComponentActivity() {
                         val imageUrl = backStackEntry.arguments?.getString("imageUrl") ?: ""
                         val description = backStackEntry.arguments?.getString("description") ?: ""
                         val hours = backStackEntry.arguments?.getString("hours") ?: ""
-                        val pricesJson = backStackEntry.arguments?.getString("prices")?: ""
-                        val servicesJson = backStackEntry.arguments?.getString("services")?:""
+                        val pricesJson = backStackEntry.arguments?.getString("prices") ?: ""
+                        val servicesJson = backStackEntry.arguments?.getString("services") ?: ""
 
                         val prices = if (pricesJson != null) {
                             Gson().fromJson(pricesJson, object : TypeToken<List<String>>() {}.type)
@@ -80,7 +81,10 @@ class MainActivity : ComponentActivity() {
                         }
 
                         val service = if (servicesJson != null) {
-                            Gson().fromJson(servicesJson, object : TypeToken<List<String>>() {}.type)
+                            Gson().fromJson(
+                                servicesJson,
+                                object : TypeToken<List<String>>() {}.type
+                            )
                         } else {
                             emptyList<String>()
                         }
@@ -105,8 +109,8 @@ class MainActivity : ComponentActivity() {
                         )
                     ) { backStackEntry ->
                         val name = backStackEntry.arguments?.getString("name") ?: ""
-                        val pricesJson = backStackEntry.arguments?.getString("prices")?: ""
-                        val servicesJson = backStackEntry.arguments?.getString("services")?:""
+                        val pricesJson = backStackEntry.arguments?.getString("prices") ?: ""
+                        val servicesJson = backStackEntry.arguments?.getString("services") ?: ""
 
                         val prices = if (pricesJson != null) {
                             Gson().fromJson(pricesJson, object : TypeToken<List<String>>() {}.type)
@@ -115,7 +119,10 @@ class MainActivity : ComponentActivity() {
                         }
 
                         val service = if (servicesJson != null) {
-                            Gson().fromJson(servicesJson, object : TypeToken<List<String>>() {}.type)
+                            Gson().fromJson(
+                                servicesJson,
+                                object : TypeToken<List<String>>() {}.type
+                            )
                         } else {
                             emptyList<String>()
                         }
@@ -136,8 +143,10 @@ class MainActivity : ComponentActivity() {
         val database = FirebaseDatabase.getInstance().getReference("Banner")
 
         val laundries = mapOf(
-            "Banner" to mapOf("imageUrl1" to "https://raw.githubusercontent.com/idhamma/LaundryGO-image-storage/starter/LaundryGO.jpg",
-                "imageUrl2" to "https://raw.githubusercontent.com/idhamma/LaundryGO-image-storage/starter/Promo.jpg"),
+            "Banner" to mapOf(
+                "imageUrl1" to "https://raw.githubusercontent.com/idhamma/LaundryGO-image-storage/starter/LaundryGO.jpg",
+                "imageUrl2" to "https://raw.githubusercontent.com/idhamma/LaundryGO-image-storage/starter/Promo.jpg"
+            ),
         )
 
         database.setValue(laundries).addOnCompleteListener { task ->
