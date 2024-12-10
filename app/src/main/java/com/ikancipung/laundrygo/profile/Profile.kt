@@ -388,6 +388,16 @@ fun PhotoProfile() {
 
     var photoUrl by remember { mutableStateOf("") }
 
+    val databases = FirebaseDatabase.getInstance()
+    val tokenRef = databases.getReference("Token/Token/upload")
+    var tokenVal = ""
+
+    tokenRef.get().addOnSuccessListener { snapshot ->
+        if (snapshot.exists()) {
+            tokenVal = snapshot.value.toString()
+        }
+    }
+
     // Ambil URL gambar profil dari database
     DisposableEffect(Unit) {
         database.child("photoUrl").get().addOnSuccessListener {
@@ -401,7 +411,7 @@ fun PhotoProfile() {
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
-            val token = context.getString(R.string.tokenUpload)
+            val token = tokenVal
             UploadImageToGitHub(it, token, context)
         }
     }
@@ -409,8 +419,7 @@ fun PhotoProfile() {
     Box {
         if (photoUrl.isNotEmpty()) {
             Image(
-//                painter = rememberImagePainter(photoUrl),
-                painter = painterResource(id = R.drawable.bos_cipung),
+                painter = rememberImagePainter(photoUrl),
                 contentDescription = "photo_profile",
                 modifier = Modifier
                     .size(150.dp)
