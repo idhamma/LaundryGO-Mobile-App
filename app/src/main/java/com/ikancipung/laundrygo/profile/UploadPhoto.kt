@@ -19,8 +19,11 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.util.UUID
 
+
 fun UploadImageToGitHub(imageUri: Uri, githubToken: String, context: Context) {
     val scope = CoroutineScope(Dispatchers.Main)
+
+
 
     scope.launch {
         withContext(Dispatchers.IO) {
@@ -72,6 +75,15 @@ fun UploadImageToGitHub(imageUri: Uri, githubToken: String, context: Context) {
                         "https://raw.githubusercontent.com/idhamma/LaundryGO-image-storage/starter/$fileName"
                     updateProfileImageUrlInFirebase(rawImageUrl, context)
                 } else {
+                    val responseCode = connection.responseCode
+                    val responseMessage = connection.responseMessage
+
+                    Log.d("GitHubAPI", "Response Code: $responseCode")
+                    Log.d("GitHubAPI", "Response Message: $responseMessage")
+
+                    val errorStream = connection.errorStream?.bufferedReader()?.use { it.readText() }
+                    Log.e("GitHubAPI", "Error Body: $errorStream")
+
                     Log.e("GitHubUpload", "Failed: $responseCode - $responseMessage")
                     withContext(Dispatchers.Main) {
                         Toast.makeText(
