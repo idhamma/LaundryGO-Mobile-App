@@ -1,10 +1,7 @@
 package com.ikancipung.laundrygo.menu
 
 import android.net.Uri
-<<<<<<< HEAD
 //import com.ikancipung.laundrygo.order.myOrder
-=======
->>>>>>> 1fd4fb4a27667498e6b42cc5443cfb7c63122ce1
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
