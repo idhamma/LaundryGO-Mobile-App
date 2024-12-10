@@ -1,236 +1,129 @@
 package com.ikancipung.laundrygo.order
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.ikancipung.laundrygo.R
-import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
+import androidx.navigation.compose.currentBackStackEntryAsState
 
 @Composable
 fun TitleLaundryScreen(navController: NavController) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Spacer(modifier = Modifier.height(16.dp))
-        // Header Row
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-                .padding(end = 20.dp)
-        ) {
-            // Back Button
-            Image(
-                painter = painterResource(R.drawable.keluar),
-                contentDescription = "Back Button",
-                modifier = Modifier.size(24.dp)
-            )
-//            Spacer(modifier = Modifier.width(8.dp))
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val orderId = backStackEntry?.arguments?.getString("orderId") ?: ""
 
-            // Title and Subtitle Column
+    var orderData by remember { mutableStateOf<Order?>(null) }
+    var isLoading by remember { mutableStateOf(true) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(orderId) {
+        if (orderId.isNotEmpty()) {
+            fetchOrderData(
+                orderId = orderId,
+                onSuccess = { order ->
+                    orderData = order
+                    isLoading = false
+                },
+                onError = { error ->
+                    errorMessage = error
+                    isLoading = false
+                }
+            )
+        } else {
+            errorMessage = "Order ID tidak ditemukan."
+            isLoading = false
+        }
+    }
+
+    if (isLoading) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+    } else if (errorMessage != null) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text(text = errorMessage ?: "Terjadi kesalahan.")
+        }
+    } else {
+        orderData?.let { order ->
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.weight(0.1f)
-
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
             ) {
                 Text(
-                    text = "Antony Laundry",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = Color.Black,
-                    fontSize = 15.sp
+                    text = order.NamaLaundry,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
                 )
                 Text(
-                    text = "Klojen, Malang",
+                    text = "Pemesan: ${order.NamaPemesan}",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray,
-                    fontSize = 12.sp
+                    fontSize = 16.sp,
+                    color = Color.Gray
                 )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text("Rincian Pemesanan", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                Text("Alamat: ${order.AlamatPemesanan}")
+                Text("Waktu Pesan: ${formatTimestamp(order.WaktuPesan)}")
+                Text("Antar Jemput: ${if (order.isAntarJemput) "Ya" else "Tidak"}")
+                Text("Express: ${if (order.isExpress) "Ya" else "Tidak"}")
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text("Detail Layanan", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                order.Orders.forEach { (key, detail) ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "${detail.Service} (${detail.Quantity}x)",
+                            fontSize = 14.sp,
+                            color = Color.Gray
+                        )
+                        Text(
+                            text = "Rp.${detail.Price.toIntOrNull()?.times(detail.Quantity) ?: 0}",
+                            fontSize = 14.sp,
+                            color = Color.Black
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text("Status Pesanan", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                Text("Selesai: ${if (order.Status.isDone) "Ya" else "Tidak"}")
+                Text("Sedang di Laundry: ${if (order.Status.isInLaundry) "Ya" else "Tidak"}")
+                Text("Sudah Dibayar: ${if (order.Status.isPaid) "Ya" else "Tidak"}")
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = { /* Logika pembayaran */ },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(text = "Bayar", color = Color.White)
+                }
             }
         }
-
-        // Other content remains the same
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Order Details Section
-        Column(modifier = Modifier.fillMaxWidth()) {
-            OrderInfoRow(title = "Waktu Pemesanan", value = "14 Oct 2024, 09:39")
-            OrderInfoRow(title = "Order ID", value = "L-93V832NM102")
-            OrderInfoRow(title = "Metode Pembayaran", value = "QRIS")
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Address
-            Row (
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.baseline_location_alamat),
-                    contentDescription = "alamat",
-                    modifier = Modifier.size(18.dp)
-                )
-                Text(
-                    text = "Jl. Green Andara Residences Blok B3 No. 19, Malang",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ){
-                Image(
-                    painter = painterResource(R.drawable.baseline_location_destination),
-                    contentDescription = "destinasi",
-                    modifier = Modifier.size(18.dp)
-                )
-                Text(
-                    text = "Jl. Sigura-gura II Blok C2 No. 20, Klojen",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-        }
-
-        // The rest of your UI (Order items, total price, etc.)
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = "Rincian Pesanan",
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        OrderItemRow(item = "5 Kg", description = "Cuci Lipat", price = "Rp.22.500")
-        OrderItemRow(item = "2 Pcs", description = "Sepatu", price = "Rp.40.000")
-
-        // Price Details Section
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Column {
-            SubtotalInfo(title = "Subtotal", value = "Rp.62.500")
-            SubtotalInfo(title = "Biaya Pengantaran", value = "Rp.10.000")
-            SubtotalInfo(title = "Biaya Pemesanan", value = "Rp.7.500")
-            Divider(color = Color.Gray, thickness = 1.dp, modifier = Modifier.padding(vertical = 8.dp))
-            SubtotalInfo(title = "Total", value = "Rp.80.000", isBold = true)
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-        ClickableText(
-            text = AnnotatedString("Laporkan Kendala!"),
-            onClick = { /* Handle click */ },
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            style = MaterialTheme.typography.bodyMedium.copy(color = BlueLaundryGo)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Action Button
-        Button(
-            onClick = { /* Handle click */ },
-            colors = ButtonDefaults.buttonColors(containerColor = BlueLaundryGo),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(text = "Bayar", color = Color.White, fontSize = 16.sp)
-        }
     }
 }
 
-@Composable
-fun OrderInfoRow(title: String, value: String, isBold: Boolean = false) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(
-            text = title,
-            fontSize = 14.sp, // Atur ukuran font
-            color = Color.Black,
-            fontWeight = FontWeight.Bold // Gaya huruf tebal
-        )
-        Text(
-            text = value,
-            fontSize = if (isBold) 16.sp else 14.sp, // Ukuran font dinamis
-            color = if (isBold) Color.Black else Color.Gray,
-            fontWeight = FontWeight.Bold // Gaya huruf tebal untuk semua teks
-        )
-    }
+fun formatTimestamp(timestamp: Long): String {
+    val sdf = java.text.SimpleDateFormat("dd MMM yyyy, HH:mm", java.util.Locale.getDefault())
+    val date = java.util.Date(timestamp)
+    return sdf.format(date)
 }
 
 
-@Composable
-fun OrderItemRow(item: String, description: String, price: String) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Row {
-            Text(
-                text = item,
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.Black
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = description,
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.Gray
-            )
-        }
-        Text(
-            text = price,
-            style = MaterialTheme.typography.bodySmall,
-            color = Color.Gray
-        )
-    }
-}
-
-@Composable
-fun SubtotalInfo(title: String, value: String, isBold: Boolean = false) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(
-            text = title,
-            fontSize = 14.sp, // Ukuran font tetap
-            color = Color.Black,
-            fontWeight = if (isBold) FontWeight.Bold else FontWeight.Normal // Bold hanya untuk "Total"
-        )
-        Text(
-            text = value,
-            fontSize = if (isBold) 16.sp else 14.sp, // Ukuran font dinamis untuk "Total"
-            color = if (isBold) Color.Black else Color.Gray,
-            fontWeight = if (isBold) FontWeight.Bold else FontWeight.Normal // Bold hanya untuk "Total"
-        )
-    }
-}
-
-
-
-@Preview(showBackground = true)
-@Composable
-fun TitleLaundryPreview() {
-    TitleLaundryScreen(navController = rememberNavController())
-}

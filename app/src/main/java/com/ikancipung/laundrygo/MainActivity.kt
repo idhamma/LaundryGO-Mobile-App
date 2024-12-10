@@ -21,7 +21,7 @@ import com.ikancipung.laundrygo.menu.ProfileUser
 import com.ikancipung.laundrygo.order.LaundryOrderScreen
 import com.ikancipung.laundrygo.order.RatingScreen
 import com.ikancipung.laundrygo.order.TitleLaundryScreen
-import com.ikancipung.laundrygo.order.myOrderPage
+//import com.ikancipung.laundrygo.order.myOrderPage
 import com.ikancipung.laundrygo.payment.QrisPaymentScreen
 import com.ikancipung.laundrygo.payment.VAPaymentScreen
 import com.ikancipung.laundrygo.profile.ProfileLaundry
@@ -47,7 +47,7 @@ class MainActivity : ComponentActivity() {
                     composable("Signup") { SignUpScreen(navController = navController) }
                     composable("Homepage") { HomepagePage(navController = navController) }
                     composable("FavLaundry") { FavoriteLaundryScreen(navController = navController) }
-                    composable("Myorder") { myOrderPage(navController = navController) }
+//                    composable("Myorder") { myOrderPage(navController = navController) }
 //                    composable("Orderpage") { LaundryOrderScreen(navController = navController) }
                     composable("Ordersum") { TitleLaundryScreen(navController = navController) }
                     composable("Rating") { RatingScreen(navController = navController) }
