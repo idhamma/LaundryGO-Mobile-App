@@ -67,7 +67,7 @@ fun LaundryOrderScreen(
     var antarJemput by remember { mutableStateOf("Ya") }
     var tipeLaundry by remember { mutableStateOf("Regular") }
     var pembayaran by remember { mutableStateOf("Cash") } // Track selected payment method
-    var selectedCuciKiloanOption by remember { mutableStateOf("") }
+    var selectedCuciKiloanOption by remember { mutableStateOf("") } // Track selected Cuci Kiloan option
 
     // State for text fields
     var username by remember { mutableStateOf("") }
@@ -154,7 +154,8 @@ fun LaundryOrderScreen(
                 "isWashing" to mapOf("value" to false, "time" to null),
                 "isSent" to mapOf("value" to false, "time" to null),
                 "isDone" to mapOf("value" to false, "time" to null)
-            )
+            ),
+            "CuciKiloanOption" to selectedCuciKiloanOption // Add selected Cuci Kiloan option
         )
 
         val orderRef = database.getReference("orders").child(orderId)
