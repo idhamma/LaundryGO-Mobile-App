@@ -10,16 +10,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
 
 @Composable
-fun TitleLaundryScreen(navController: NavController) {
-    val backStackEntry by navController.currentBackStackEntryAsState()
-    val orderId = backStackEntry?.arguments?.getString("orderId") ?: ""
-
+fun TitleLaundryScreen(navController: NavController, orderId: String) {
     var orderData by remember { mutableStateOf<Order?>(null) }
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var subtotal by remember { mutableStateOf(0) }
+    var total by remember { mutableStateOf(0) }
 
     LaunchedEffect(orderId) {
         if (orderId.isNotEmpty()) {
@@ -27,7 +25,30 @@ fun TitleLaundryScreen(navController: NavController) {
                 orderId = orderId,
                 onSuccess = { order ->
                     orderData = order
-                    isLoading = false
+                    // Hitung subtotal terlebih dahulu
+                    calculateSubtotalFromFirebase(
+                        orders = order.Orders,
+                        namaLaundry = order.NamaLaundry,
+                        onSuccess = { calculatedSubtotal ->
+                            subtotal = calculatedSubtotal
+                            // Setelah subtotal, hitung total
+                            calculateTotalFromFirebase(
+                                order = order,
+                                onSuccess = { calculatedTotal ->
+                                    total = calculatedTotal
+                                    isLoading = false
+                                },
+                                onError = { error ->
+                                    errorMessage = error
+                                    isLoading = false
+                                }
+                            )
+                        },
+                        onError = { error ->
+                            errorMessage = error
+                            isLoading = false
+                        }
+                    )
                 },
                 onError = { error ->
                     errorMessage = error
@@ -55,6 +76,7 @@ fun TitleLaundryScreen(navController: NavController) {
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
+                // Header Information
                 Text(
                     text = order.NamaLaundry,
                     style = MaterialTheme.typography.titleLarge,
@@ -63,24 +85,53 @@ fun TitleLaundryScreen(navController: NavController) {
                     color = Color.Black
                 )
                 Text(
-                    text = "Pemesan: ${order.NamaPemesan}",
+                    text = "Order ID: ${order.OrderID}",
                     style = MaterialTheme.typography.bodyMedium,
-                    fontSize = 16.sp,
+                    color = Color.Gray
+                )
+                Text(
+                    text = "Waktu Pesanan: ${formatTimestamp(order.WaktuPesan)}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
+                )
+                Text(
+                    text = "Metode Pembayaran: ${order.Pembayaran}",
+                    style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text("Rincian Pemesanan", fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                Text("Alamat: ${order.AlamatPemesanan}")
-                Text("Waktu Pesan: ${formatTimestamp(order.WaktuPesan)}")
-                Text("Antar Jemput: ${if (order.isAntarJemput) "Ya" else "Tidak"}")
-                Text("Express: ${if (order.isExpress) "Ya" else "Tidak"}")
+                // Address Information
+                Text("Alamat Pengambilan: ${order.AlamatPemesanan}")
+                Text("Alamat Laundry: ${order.AlamatLaundry}")
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text("Detail Layanan", fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                order.Orders.forEach { (key, detail) ->
+                // Order Details
+                Text("Rincian Pesanan", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+//                order.Orders.forEach { (key, detail) ->
+//                    if (detail.Quantity > 0) { // Only show services with quantities > 0
+//                        Row(
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .padding(vertical = 4.dp),
+//                            horizontalArrangement = Arrangement.SpaceBetween
+//                        ) {
+//                            Text(
+//                                text = "${detail.Service} (${detail.Quantity}x)",
+//                                fontSize = 14.sp,
+//                                color = Color.Gray
+//                            )
+//                            Text(
+//                                text = "Rp.${detail.Price.toIntOrNull()?.times(detail.Quantity) ?: 0}",
+//                                fontSize = 14.sp,
+//                                color = Color.Black
+//                            )
+//                        }
+//                    }
+//                }
+                order.Orders.filter { it.value.Quantity > 0 }.forEach { (key, detail) ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -100,17 +151,18 @@ fun TitleLaundryScreen(navController: NavController) {
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text("Status Pesanan", fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                Text("Selesai: ${if (order.Status.isDone) "Ya" else "Tidak"}")
-                Text("Sedang di Laundry: ${if (order.Status.isInLaundry) "Ya" else "Tidak"}")
-                Text("Sudah Dibayar: ${if (order.Status.isPaid) "Ya" else "Tidak"}")
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Price Calculation
+                Text("Subtotal: Rp.${subtotal}")
+                Text("Total: Rp.${total}", fontWeight = FontWeight.Bold)
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Payment Button
                 Button(
-                    onClick = { /* Logika pembayaran */ },
+                    onClick = { /* Implement payment logic */ },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(text = "Bayar", color = Color.White)

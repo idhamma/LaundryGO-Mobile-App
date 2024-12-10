@@ -49,8 +49,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.ikancipung.laundrygo.profile.Profile
-import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
+
 
 @Composable
 fun LaundryOrderScreen(
@@ -80,11 +79,14 @@ fun LaundryOrderScreen(
         serviceQuantities[service] = 0 // Initialize the quantity for each service
     }
 
-    val currentUser = FirebaseAuth.getInstance().currentUser
-    val uid = currentUser?.uid
-    val context = LocalContext.current
+//    val currentUser = FirebaseAuth.getInstance().currentUser
+//    val uid = currentUser?.uid
+//    val context = LocalContext.current
     var isLoading by remember { mutableStateOf(true) }
+//    val database = FirebaseDatabase.getInstance()
     val database = FirebaseDatabase.getInstance()
+    val uid = FirebaseAuth.getInstance().currentUser?.uid
+    val context = LocalContext.current
 
     DisposableEffect(uid) {
         if (uid != null) {
@@ -126,6 +128,21 @@ fun LaundryOrderScreen(
     fun submitOrder() {
         val orderId = database.reference.push().key ?: return
 
+        val filteredOrders = serviceQuantities.filter { it.value > 0 }.map { (service, quantity) ->
+            service to mapOf("Service" to service, "Price" to prices[services.indexOf(service)], "Quantity" to quantity
+            )
+        }.toMap().toMutableMap()
+
+        if (selectedCuciKiloanOption.isNotEmpty()) {
+            val serviceName = selectedCuciKiloanOption.split(" - ")[0]
+            val servicePrice = selectedCuciKiloanOption.split(" - ")[1].toInt()
+            filteredOrders[serviceName] = mapOf(
+                "Service" to serviceName,
+                "Price" to servicePrice.toString(),
+                "Quantity" to 1 // Asumsikan quantity selalu 1 untuk layanan ini
+            )
+        }
+
         val orderData = mapOf(
             "OrderID" to orderId,
             "NamaLaundry" to laundryName,
@@ -135,14 +152,11 @@ fun LaundryOrderScreen(
             "AlamatLaundry" to laundryName,  // Assuming laundryName is the laundry address
             "WaktuPesan" to System.currentTimeMillis(),
             "WaktuSelesai" to null,  // Assuming you will set this when done
-            "Orders" to services.zip(prices)
-                .map { service ->
-                    mapOf(
-                        "Service" to service.first,
-                        "Price" to service.second,
-                        "Quantity" to (serviceQuantities[service.first] ?: 0)
-                    )
-                },
+//            "Orders" to services.zip(prices).mapIndexed { index, pair ->
+//                val quantity = serviceQuantities[pair.first] ?: 0
+//                pair.first to mapOf("Service" to pair.first, "Price" to pair.second, "Quantity" to quantity)
+//            }.toMap(),
+            "Orders" to filteredOrders,
             "isAntarJemput" to (antarJemput == "Ya"),
             "isExpress" to (tipeLaundry == "Express"),
             "Pembayaran" to pembayaran, // Add the payment method to the order data
@@ -161,9 +175,9 @@ fun LaundryOrderScreen(
         val orderRef = database.getReference("orders").child(orderId)
         orderRef.setValue(orderData).addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                Toast.makeText(context, "Order berhasil ditambahkan", Toast.LENGTH_SHORT).show()
+                navController.navigate("Ordersum/$orderId")
             } else {
-                Toast.makeText(context, "Gagal menambahkan order: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Gagal menambahkan order", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -306,10 +320,12 @@ fun LaundryOrderScreen(
 
         item {
             Button(
-                onClick = { submitOrder() },
+                onClick = {
+                    submitOrder()
+                },
                 enabled = !isLoading,
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = BlueLaundryGo)
+                colors = ButtonDefaults.buttonColors(containerColor =  Color.Black)
             ) {
                 Text("Pesan")
             }
@@ -327,7 +343,7 @@ fun AccordionSection(
     onToggle: () -> Unit,
     content: @Composable () -> Unit
 ) {
-    Box(modifier = Modifier.background(color = BlueLaundryGo)) {
+    Box(modifier = Modifier.background(color =  Color.Black)) {
         Column {
             Row(
                 modifier = Modifier
@@ -423,7 +439,7 @@ fun RadioButtonOption(
                 RadioButton(
                     selected = selectedOption == option,
                     colors = RadioButtonColors(
-                        selectedColor = BlueLaundryGo,
+                        selectedColor =  Color.Black,
                         unselectedColor = Color.Black,
                         disabledSelectedColor = Color.Black,
                         disabledUnselectedColor = Color.Black
