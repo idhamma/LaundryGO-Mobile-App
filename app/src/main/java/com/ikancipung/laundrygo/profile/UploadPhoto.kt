@@ -23,8 +23,6 @@ import java.util.UUID
 fun UploadImageToGitHub(imageUri: Uri, githubToken: String, context: Context) {
     val scope = CoroutineScope(Dispatchers.Main)
 
-
-
     scope.launch {
         withContext(Dispatchers.IO) {
             try {
@@ -86,9 +84,16 @@ fun UploadImageToGitHub(imageUri: Uri, githubToken: String, context: Context) {
 
                     Log.e("GitHubUpload", "Failed: $responseCode - $responseMessage")
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(
-                            context, "Gagal upload: $responseMessage", Toast.LENGTH_SHORT
-                        ).show()
+
+                        if (responseMessage == "Unprocessable Entity") {
+                            val rawImageUrl =
+                                "https://raw.githubusercontent.com/idhamma/LaundryGO-image-storage/starter/$fileName"
+                            updateProfileImageUrlInFirebase(rawImageUrl, context)
+                        } else {
+                            Toast.makeText(
+                                context, "Gagal upload: $responseMessage", Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
                 }
             } catch (e: Exception) {
