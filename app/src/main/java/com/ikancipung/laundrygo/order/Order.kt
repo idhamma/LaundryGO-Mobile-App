@@ -1,3 +1,7 @@
+package com.ikancipung.laundrygo.order
+
+import com.google.firebase.database.Exclude
+
 data class Order(
     val id: String? = null,
     val LaundryName: String = "",
@@ -16,14 +20,13 @@ data class Order(
     val NamaLaundry: String = "",
     val NamaPemesan: String = "",
     val OrderID: String = "",
-    val Orders: Map<String, OrderDetail> = emptyMap(), // Diganti menjadi Map
+    val Orders: Map<String, OrderDetail> = emptyMap(),
     val Pembayaran: String = "",
     val Status: LaundryStatus = LaundryStatus(),
     val WaktuPesan: Long = 0L,
-    val isAntarJemput: Boolean = false,
-    val isExpress: Boolean = false
+    @Exclude var isAntarJemput: Boolean = false, // Nilai default tidak akan menimpa data Firebase
+    @Exclude var isExpress: Boolean = false
 )
-
 data class OrderDetail(
     val Service: String = "",
     val Price: String = "",

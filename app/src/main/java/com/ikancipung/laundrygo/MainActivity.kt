@@ -54,7 +54,13 @@ class MainActivity : ComponentActivity() {
                     }
 //                    composable("Myorder") { myOrderPage(navController = navController) }
 //                    composable("Orderpage") { LaundryOrderScreen(navController = navController) }
-                    composable("Ordersum") { TitleLaundryScreen(navController = navController) }
+                    composable(
+                        route = "Ordersum/{orderId}",
+                        arguments = listOf(navArgument("orderId") { type = NavType.StringType })
+                    ) { backStackEntry ->
+                        val orderId = backStackEntry.arguments?.getString("orderId") ?: ""
+                        TitleLaundryScreen(navController = navController, orderId = orderId)
+                    }
                     composable("Rating") { RatingScreen(navController = navController) }
                     composable("Qris") { QrisPaymentScreen(navController = navController) }
                     composable("Vapayment") { VAPaymentScreen(navController = navController) }
