@@ -235,9 +235,10 @@ fun LaundryOrderScreen(
                 onToggle = { isCuciKiloanExpanded = !isCuciKiloanExpanded }
             ) {
                 Box(modifier = Modifier.background(Color.LightGray)) {
+                    // Filter hanya untuk layanan "Cuci Lipat" dan "Cuci Setrika"
                     RadioButtonOption(
                         options = services.zip(prices)
-                            .filter { it.first.contains("Cuci") }
+                            .filter { it.first.contains("Cuci Lipat") || it.first.contains("Cuci Setrika") }
                             .map { "${it.first} - ${it.second}" },
                         selectedOption = selectedCuciKiloanOption,
                         onOptionSelected = { selectedCuciKiloanOption = it }

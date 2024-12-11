@@ -193,8 +193,6 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
 
                 // Price Calculation
                 Text("Subtotal: Rp.${subtotal}", fontSize = 14.sp, color = Color.Gray)
-                Text("Biaya Pengantaran: Rp.10.000", fontSize = 14.sp, color = Color.Gray)
-                Text("Biaya Pemesanan: Rp.7.500", fontSize = 14.sp, color = Color.Gray)
                 Text("Total: Rp.${total}", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Black)
 
                 Spacer(modifier = Modifier.height(16.dp))

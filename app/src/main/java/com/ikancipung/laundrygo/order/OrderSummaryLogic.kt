@@ -18,21 +18,17 @@ fun calculateSubtotalFromFirebase(
 ) {
     val database = FirebaseDatabase.getInstance()
     val laundryRef = database.getReference("laundry").child("laundry1") // Sesuaikan dengan node laundry Anda
-
     laundryRef.addListenerForSingleValueEvent(object : ValueEventListener {
         override fun onDataChange(snapshot: DataSnapshot) {
             if (snapshot.exists()) {
                 val pricesSnapshot = snapshot.child("prices")
                 val servicesSnapshot = snapshot.child("services")
-
                 // Pastikan data prices dan services ada dan berbentuk list
                 val prices = pricesSnapshot.children.mapNotNull { it.getValue(String::class.java)?.toIntOrNull() }
                 val services = servicesSnapshot.children.mapNotNull { it.getValue(String::class.java) }
-
                 if (prices.size == services.size) {
                     // Buat map layanan ke harga
                     val priceMap = services.zip(prices).toMap()
-
                     // Hitung subtotal
                     try {
                         val subtotal = orders.values.sumOf { detail ->
@@ -50,7 +46,6 @@ fun calculateSubtotalFromFirebase(
                 onError("Data laundry untuk $namaLaundry tidak ditemukan.")
             }
         }
-
         override fun onCancelled(error: DatabaseError) {
             onError("Gagal mengambil data harga: ${error.message}")
         }
