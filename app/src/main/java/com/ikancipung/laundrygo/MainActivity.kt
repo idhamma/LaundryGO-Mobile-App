@@ -22,6 +22,7 @@ import com.ikancipung.laundrygo.menu.ProfileUser
 import com.ikancipung.laundrygo.order.LaundryOrderScreen
 import com.ikancipung.laundrygo.order.RatingScreen
 import com.ikancipung.laundrygo.order.TitleLaundryScreen
+import com.ikancipung.laundrygo.order.myOrderPage
 //import com.ikancipung.laundrygo.order.myOrderPage
 import com.ikancipung.laundrygo.payment.QrisPaymentScreen
 import com.ikancipung.laundrygo.payment.VAPaymentScreen
@@ -52,7 +53,7 @@ class MainActivity : ComponentActivity() {
                         val serviceName = backStackEntry.arguments?.getString("serviceName") ?: ""
                         ServiceLaundryScreen(navController = navController, serviceName = serviceName)
                     }
-//                    composable("Myorder") { myOrderPage(navController = navController) }
+                    composable("Myorder") { myOrderPage(navController = navController) }
 //                    composable("Orderpage") { LaundryOrderScreen(navController = navController) }
                     composable(
                         route = "Ordersum/{orderId}",

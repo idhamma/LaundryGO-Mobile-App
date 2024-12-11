@@ -133,7 +133,10 @@ fun LaundryOrderScreen(
         val orderId = database.reference.push().key ?: return
 
         val filteredOrders = serviceQuantities.filter { it.value > 0 }.map { (service, quantity) ->
-            service to mapOf("Service" to service, "Price" to prices[services.indexOf(service)], "Quantity" to quantity
+            service to mapOf(
+                "Service" to service,
+                "Price" to prices[services.indexOf(service)],
+                "Quantity" to quantity
             )
         }.toMap().toMutableMap()
 
@@ -143,27 +146,22 @@ fun LaundryOrderScreen(
             filteredOrders[serviceName] = mapOf(
                 "Service" to serviceName,
                 "Price" to servicePrice.toString(),
-                "Quantity" to 1 // Asumsikan quantity selalu 1 untuk layanan ini
+                "Quantity" to 1
             )
         }
 
         val orderData = mapOf(
             "OrderID" to orderId,
             "NamaLaundry" to laundryName,
-            "NamaPemesan" to username,
+            "NamaPemesan" to username, // Ambil nama dari form
+            "AlamatPemesanan" to address, // Ambil alamat dari form
             "IDPemesan" to uid,
-            "AlamatPemensanan" to address,
-            "AlamatLaundry" to laundryName,  // Assuming laundryName is the laundry address
+            "AlamatLaundry" to laundryName,
             "WaktuPesan" to System.currentTimeMillis(),
-            "WaktuSelesai" to null,  // Assuming you will set this when done
-//            "Orders" to services.zip(prices).mapIndexed { index, pair ->
-//                val quantity = serviceQuantities[pair.first] ?: 0
-//                pair.first to mapOf("Service" to pair.first, "Price" to pair.second, "Quantity" to quantity)
-//            }.toMap(),
             "Orders" to filteredOrders,
             "isAntarJemput" to (antarJemput == "Ya"),
             "isExpress" to (tipeLaundry == "Express"),
-            "Pembayaran" to pembayaran, // Add the payment method to the order data
+            "Pembayaran" to pembayaran,
             "Status" to mapOf(
                 "isReceived" to mapOf("value" to false, "time" to null),
                 "isInLaundry" to mapOf("value" to false, "time" to null),
@@ -173,7 +171,7 @@ fun LaundryOrderScreen(
                 "isSent" to mapOf("value" to false, "time" to null),
                 "isDone" to mapOf("value" to false, "time" to null)
             ),
-            "CuciKiloanOption" to selectedCuciKiloanOption // Add selected Cuci Kiloan option
+            "CuciKiloanOption" to selectedCuciKiloanOption
         )
 
         val orderRef = database.getReference("orders").child(orderId)

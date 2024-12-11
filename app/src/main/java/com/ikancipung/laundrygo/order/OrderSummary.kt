@@ -24,6 +24,7 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var subtotal by remember { mutableStateOf(0) }
     var total by remember { mutableStateOf(0) }
+    var userAddress by remember { mutableStateOf("") }
 
     LaunchedEffect(orderId) {
         if (orderId.isNotEmpty()) {
@@ -31,6 +32,7 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
                 orderId = orderId,
                 onSuccess = { order ->
                     orderData = order
+                    userAddress = order.AlamatPemesanan // Ambil alamat pengambilan dari order
                     calculateSubtotalFromFirebase(
                         orders = order.Orders,
                         namaLaundry = order.NamaLaundry,
@@ -64,6 +66,7 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
             isLoading = false
         }
     }
+
 
     if (isLoading) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -135,11 +138,12 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Alamat Pengambilan: ${order.AlamatPemesanan}",
+                        text = "Alamat Pengambilan: ${orderData?.AlamatPemesanan ?: "Tidak tersedia"}",
                         fontSize = 14.sp,
                         color = Color.Gray
                     )
                 }
+
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
