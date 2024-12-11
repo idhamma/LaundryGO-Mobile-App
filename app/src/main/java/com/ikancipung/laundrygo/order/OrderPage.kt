@@ -15,7 +15,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
@@ -28,6 +30,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonColors
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -49,6 +52,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
 
 
 @Composable
@@ -188,7 +192,7 @@ fun LaundryOrderScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        item { Header() }
+        item { Header(navController) }
 
         item {
             Text("Nama")
@@ -285,10 +289,18 @@ fun LaundryOrderScreen(
         item {
             Text("Antar Jemput")
             Row(verticalAlignment = Alignment.CenterVertically) {
-                RadioButton(selected = antarJemput == "Ya", onClick = { antarJemput = "Ya" })
+                RadioButton(
+                    selected = antarJemput == "Ya",
+                    onClick = { antarJemput = "Ya" },
+                    colors = RadioButtonDefaults.colors(selectedColor = BlueLaundryGo)
+                )
                 Text("Ya")
                 Spacer(modifier = Modifier.width(16.dp))
-                RadioButton(selected = antarJemput == "Tidak", onClick = { antarJemput = "Tidak" })
+                RadioButton(
+                    selected = antarJemput == "Tidak",
+                    onClick = { antarJemput = "Tidak" },
+                    colors = RadioButtonDefaults.colors(selectedColor = BlueLaundryGo)
+                )
                 Text("Tidak")
             }
         }
@@ -296,10 +308,18 @@ fun LaundryOrderScreen(
         item {
             Text("Tipe Laundry")
             Row(verticalAlignment = Alignment.CenterVertically) {
-                RadioButton(selected = tipeLaundry == "Regular", onClick = { tipeLaundry = "Regular" })
+                RadioButton(
+                    selected = tipeLaundry == "Regular",
+                    onClick = { tipeLaundry = "Regular" },
+                    colors = RadioButtonDefaults.colors(selectedColor = BlueLaundryGo)
+                )
                 Text("Regular")
                 Spacer(modifier = Modifier.width(16.dp))
-                RadioButton(selected = tipeLaundry == "Express", onClick = { tipeLaundry = "Express" })
+                RadioButton(
+                    selected = tipeLaundry == "Express",
+                    onClick = { tipeLaundry = "Express" },
+                    colors = RadioButtonDefaults.colors(selectedColor = BlueLaundryGo)
+                )
                 Text("Express")
             }
         }
@@ -307,13 +327,25 @@ fun LaundryOrderScreen(
         item {
             Text("Pembayaran")
             Row(verticalAlignment = Alignment.CenterVertically) {
-                RadioButton(selected = pembayaran == "Cash", onClick = { pembayaran = "Cash" })
+                RadioButton(
+                    selected = pembayaran == "Cash",
+                    onClick = { pembayaran = "Cash" },
+                    colors = RadioButtonDefaults.colors(selectedColor = BlueLaundryGo)
+                )
                 Text("Cash")
                 Spacer(modifier = Modifier.width(16.dp))
-                RadioButton(selected = pembayaran == "QRIS", onClick = { pembayaran = "QRIS" })
+                RadioButton(
+                    selected = pembayaran == "QRIS",
+                    onClick = { pembayaran = "QRIS" },
+                    colors = RadioButtonDefaults.colors(selectedColor = BlueLaundryGo)
+                )
                 Text("QRIS")
                 Spacer(modifier = Modifier.width(16.dp))
-                RadioButton(selected = pembayaran == "Virtual Account", onClick = { pembayaran = "Virtual Account" })
+                RadioButton(
+                    selected = pembayaran == "Virtual Account",
+                    onClick = { pembayaran = "Virtual Account" },
+                    colors = RadioButtonDefaults.colors(selectedColor = BlueLaundryGo)
+                )
                 Text("Virtual Account")
             }
         }
@@ -325,7 +357,7 @@ fun LaundryOrderScreen(
                 },
                 enabled = !isLoading,
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor =  Color.Black)
+                colors = ButtonDefaults.buttonColors(containerColor =  BlueLaundryGo)
             ) {
                 Text("Pesan")
             }
@@ -343,7 +375,7 @@ fun AccordionSection(
     onToggle: () -> Unit,
     content: @Composable () -> Unit
 ) {
-    Box(modifier = Modifier.background(color =  Color.Black)) {
+    Box(modifier = Modifier.background(color = BlueLaundryGo)) {
         Column {
             Row(
                 modifier = Modifier
@@ -439,10 +471,10 @@ fun RadioButtonOption(
                 RadioButton(
                     selected = selectedOption == option,
                     colors = RadioButtonColors(
-                        selectedColor =  Color.Black,
-                        unselectedColor = Color.Black,
-                        disabledSelectedColor = Color.Black,
-                        disabledUnselectedColor = Color.Black
+                        selectedColor =  BlueLaundryGo,
+                        unselectedColor = BlueLaundryGo,
+                        disabledSelectedColor = BlueLaundryGo,
+                        disabledUnselectedColor = BlueLaundryGo
                     ),
                     onClick = { onOptionSelected(option) })
                 Text(option)
@@ -452,7 +484,7 @@ fun RadioButtonOption(
 }
 
 @Composable
-fun Header() {
+fun Header(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -460,10 +492,10 @@ fun Header() {
     ) {
         // Icon on the left
         IconButton(
-            onClick = { },
+            onClick = { navController.navigateUp() },
             modifier = Modifier.align(Alignment.CenterStart)
         ) {
-            Icon(imageVector = Icons.Default.KeyboardArrowLeft, contentDescription = "Left")
+            Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
         }
 
         // Text in the center
