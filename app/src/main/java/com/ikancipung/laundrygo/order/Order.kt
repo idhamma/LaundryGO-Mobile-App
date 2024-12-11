@@ -27,6 +27,7 @@ data class Order(
     @Exclude var isAntarJemput: Boolean = false, // Nilai default tidak akan menimpa data Firebase
     @Exclude var isExpress: Boolean = false
 )
+
 data class OrderDetail(
     val Service: String = "",
     val Price: String = "",
@@ -34,11 +35,16 @@ data class OrderDetail(
 )
 
 data class LaundryStatus(
-    val isDone: Boolean = false,
-    val isInLaundry: Boolean = false,
-    val isPaid: Boolean = false,
-    val isReceived: Boolean = false,
-    val isSent: Boolean = false,
-    val isWashing: Boolean = false,
-    val isWeighted: Boolean = false
+    val isDone: LaundryStatusDetail = LaundryStatusDetail(),
+    val isInLaundry: LaundryStatusDetail = LaundryStatusDetail(),
+    val isPaid: LaundryStatusDetail = LaundryStatusDetail(),
+    val isReceived: LaundryStatusDetail = LaundryStatusDetail(),
+    val isSent: LaundryStatusDetail = LaundryStatusDetail(),
+    val isWashing: LaundryStatusDetail = LaundryStatusDetail(),
+    val isWeighted: LaundryStatusDetail = LaundryStatusDetail()
+)
+
+data class LaundryStatusDetail(
+    val value: Boolean = false,
+    val time: Long? = null,
 )

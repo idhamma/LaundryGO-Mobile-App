@@ -21,10 +21,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,6 +43,10 @@ import com.ikancipung.laundrygo.R
 import com.ikancipung.laundrygo.menu.Footer
 import com.ikancipung.laundrygo.menu.NavigationItem
 import androidx.navigation.NavController
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.ikancipung.laundrygo.menu.ProfileSettingsScreen
 import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
 
@@ -58,246 +64,115 @@ fun myOrderPage(navController: NavController) {
 
 
 @Composable
-fun myOrder(navController: NavController){
+fun myOrder(navController: NavController) {
+    var orders by remember { mutableStateOf<List<Order>>(emptyList()) }
+    var expandedOrderId by remember { mutableStateOf<String?>(null) }
+    val database = FirebaseDatabase.getInstance()
+    val ordersRef = database.getReference("orders")
 
-    var historyWindow by remember { mutableStateOf(false) }
-
-    val dummyOrders = listOf(
-        Order(id = "1", LaundryName = "Antony Laundry", isCompleted = true, time = "10:00 AM", date = "2024-10-01", category = 1, process = 4, processTimes = listOf(
-            Pair("10:00 AM", "Laundry diterima"),
-            Pair("11:30 AM", "Laundry selesai ditimbang"),
-            Pair("01:00 PM", "Pakaian selesai dicuci"),
-            Pair("02:30 PM", "Pakaian sudah siap diambil")
-        )),
-        Order(id = "2", LaundryName = "Clean & Fresh", isCompleted = true, time = "11:30 AM", date = "2024-10-02", category = 2, process = 3, processTimes = listOf(
-            Pair("11:30 AM", "Laundry diterima"),
-            Pair("01:00 PM", "Laundry selesai ditimbang"),
-            Pair("03:00 PM", "Pakaian sudah selesai dicuci")
-        )),
-        Order(id = "3", LaundryName = "Laundry Express", isCompleted = true, time = "09:15 AM", date = "2024-10-03", category = 1, process = 2, processTimes = listOf(
-            Pair("09:15 AM", "Laundry diterima"),
-            Pair("10:30 AM", "Pakaian selesai dicuci")
-        )),
-        Order(id = "4", LaundryName = "Quick Wash", isCompleted = true, time = "01:00 PM", date = "2024-10-04", category = 3, process = 1, processTimes = listOf(
-            Pair("01:00 PM", "Laundry diterima")
-        )),
-        Order(id = "5", LaundryName = "Eco Laundry", isCompleted = false, time = "08:45 AM", date = "2024-10-05", category = 2, process = 0, processTimes = listOf(
-            Pair("08:45 AM", "Laundry diterima")
-        )),
-        Order(id = "6", LaundryName = "Luxury Laundry", isCompleted = true, time = "02:30 PM", date = "2024-10-06", category = 3, process = 4, processTimes = listOf(
-            Pair("02:30 PM", "Laundry diterima"),
-            Pair("03:45 PM", "Laundry selesai ditimbang"),
-            Pair("05:00 PM", "Pakaian selesai dicuci"),
-            Pair("06:30 PM", "Pakaian sudah siap diambil")
-        )),
-        Order(id = "7", LaundryName = "Speedy Laundry", isCompleted = false, time = "03:00 PM", date = "2024-10-07", category = 1, process = 2, processTimes = listOf(
-            Pair("03:00 PM", "Laundry diterima"),
-            Pair("04:15 PM", "Pakaian selesai ditimbang")
-        )),
-        Order(id = "8", LaundryName = "The Laundry Room", isCompleted = true, time = "12:00 PM", date = "2024-10-08", category = 2, process = 3, processTimes = listOf(
-            Pair("12:00 PM", "Laundry diterima"),
-            Pair("01:30 PM", "Laundry selesai ditimbang"),
-            Pair("03:00 PM", "Pakaian sudah selesai dicuci")
-        )),
-        Order(id = "9", LaundryName = "Fresh Start Laundry", isCompleted = false, time = "10:30 AM", date = "2024-10-09", category = 1, process = 1, processTimes = listOf(
-            Pair("10:30 AM", "Laundry diterima")
-        )),
-        Order(id = "10", LaundryName = "City Laundry", isCompleted = true, time = "04:00 PM", date = "2024-10-10", category = 3, process = 4, processTimes = listOf(
-            Pair("04:00 PM", "Laundry diterima"),
-            Pair("05:30 PM", "Laundry selesai ditimbang"),
-            Pair("07:00 PM", "Pakaian selesai dicuci"),
-            Pair("08:30 PM", "Pakaian sudah siap diambil")
-        ))
-    )
-
-    var expandedOrderId by remember { mutableStateOf<String?>(null) } // Melacak pesanan yang diperluas
-
-
-    Column (
-        modifier = Modifier.fillMaxSize(),
-
-        ) {
-
-        Box(modifier = Modifier.height(24.dp))
-
-
-        Row(
-            modifier = Modifier.fillMaxWidth()
-                .padding(8.dp)
-                .height(48.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-
-        ) {
-            Text(
-                text = "Dalam Proses",
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.clickable {
-                    historyWindow = false
-                }
-            )
-
-            Spacer(modifier = Modifier.width(96.dp))
-
-            Text(
-                text = "Riwayat",
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.clickable {
-                    historyWindow = true
-                }
-            )
-
-        }
-
-        Column {
-            if(historyWindow){
-                LazyColumn {
-                    val completedOrders = dummyOrders.filter { it.isCompleted }
-
-                    items(completedOrders) { order ->
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 4.dp)
-                                .background(color = BlueLaundryGo, shape = RoundedCornerShape(8.dp))
-                                .clickable(onClick = {navController.navigate("Rating")}),
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            val categoryId = when (order.category) {
-                                0 -> R.drawable.icon_category_order_0
-                                1 -> R.drawable.icon_category_order_1
-                                2 -> R.drawable.icon_category_order_2
-
-                                else -> R.drawable.icon_category_order_0
-                            }
-
-                            Row(
-                                modifier = Modifier
-                                    .padding(8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Image(
-                                    painter = painterResource(id = categoryId),
-                                    contentDescription = "Laundry Icon",
-                                    modifier = Modifier
-                                        .size(36.dp)
-                                        .padding(end = 8.dp), // Menambahkan padding horizontal di sebelah kanan icon
-                                    colorFilter = ColorFilter.tint(Color.White)
-                                )
-
-                                Column {
-                                    Text(
-                                        text = order.LaundryName,
-                                        color = Color.White,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        modifier = Modifier.padding(bottom = 2.dp) // Mengurangi jarak antara nama laundry dan waktu
-                                    )
-
-                                    Text(
-                                        text = "${order.time}, ${order.date}",
-                                        color = Color.White,
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
-                                }
-
-                            }
-
-
-                        }
+    // Mendengarkan data Firebase
+    LaunchedEffect(Unit) {
+        ordersRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val fetchedOrders = mutableListOf<Order>()
+                snapshot.children.forEach { orderSnapshot ->
+                    val order = orderSnapshot.getValue(Order::class.java)
+                    if (order != null) {
+                        fetchedOrders.add(order)
                     }
-
-
                 }
-            }else{
-                LazyColumn {
-                    val processingOrder = dummyOrders.filter { !it.isCompleted }
+                orders = fetchedOrders
+            }
 
-                    items(processingOrder) { order ->
-                        Column(
+            override fun onCancelled(error: DatabaseError) {
+                // Tangani error
+            }
+        })
+    }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        LazyColumn {
+            items(orders) { order ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp)
+                        .background(color = BlueLaundryGo, shape = RoundedCornerShape(8.dp))
+                        .clickable { /* Tidak ada aksi utama */ },
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.icon_category_order_1),
+                            contentDescription = "Laundry Icon",
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 4.dp)
-                                .background(color = BlueLaundryGo, shape = RoundedCornerShape(8.dp))
-                                .clickable(onClick = {navController.navigate("Ordersum")}),
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            val categoryId = when (order.category) {
-                                0 -> R.drawable.icon_category_order_0
-                                1 -> R.drawable.icon_category_order_1
-                                2 -> R.drawable.icon_category_order_2
+                                .size(36.dp)
+                                .padding(end = 8.dp),
+                            colorFilter = ColorFilter.tint(Color.White)
+                        )
 
-                                else -> R.drawable.icon_category_order_0
-                            }
-                            val processDescriptions = listOf(
-                                "Pesanan telah diterima",
-                                "Pakaian telah sampai di laundry",
-                                "Pakaian telah selesai ditimbang",
-                                "Pakaian masih dalam proses pencucian",
-                                "Pesanan telah selesai",
-                                "Pesanan menunggu dibayar",
-                                "Pesanan sedang dikirim ke alamat tujuan",
-                                "Pesanan telah selesai"
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = order.NamaLaundry,
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.bodySmall
                             )
 
-                            Row(
-                                modifier = Modifier
-                                    .padding(8.dp)
-                                    .fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Image(
-                                    painter = painterResource(id = categoryId),
-                                    contentDescription = "Category Icon",
-                                    modifier = Modifier
-                                        .size(36.dp)
-                                        .padding(end = 8.dp),
-                                    colorFilter = ColorFilter.tint(Color.White)
-                                )
+                            // Menampilkan status pertama (Pesanan diterima) dengan waktu pemesanan
+                            Text(
+                                text = "${formatTimestamp(order.WaktuPesan)} - Pesanan sudah diterima",
+                                color = Color.White,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
 
-                                Column (
-                                    modifier = Modifier.weight(1f)
-                                ){
-                                    Text(
-                                        text = order.LaundryName,
-                                        color = Color.White,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        modifier = Modifier.padding(bottom = 2.dp)
-                                    )
-
-                                    Text(
-                                        text = "${processDescriptions[order.process]}",
-                                        color = Color.White,
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
+                        // Ikon titik tiga
+                        Icon(
+                            painter = painterResource(id = R.drawable.icon_more),
+                            contentDescription = "More Icon",
+                            modifier = Modifier
+                                .size(28.dp)
+                                .padding(end = 8.dp)
+                                .clickable {
+                                    expandedOrderId = if (expandedOrderId == order.OrderID) null else order.OrderID
                                 }
+                        )
+                    }
 
-                                Image(
-                                    painter = painterResource(id = R.drawable.icon_more),
-                                    contentDescription = "More Icon",
-                                    modifier = Modifier
-                                        .size(28.dp)
-                                        .padding(end = 8.dp)
-                                        .clickable {
-                                            expandedOrderId = if (expandedOrderId == order.id) null else order.id
-                                        },
-                                    colorFilter = ColorFilter.tint(Color.White)
+                    // Dropdown untuk notifikasi status
+                    if (expandedOrderId == order.OrderID) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Color.LightGray)
+                                .padding(8.dp)
+                        ) {
+                            val statusMessages = mapOf(
+                                "isDone" to "Pesanan selesai",
+                                "isInLaundry" to "Pakaian sedang dicuci",
+                                "isPaid" to "Pesanan telah dibayar",
+                                "isReceived" to "Pesanan sudah diterima",
+                                "isSent" to "Pesanan sedang dikirim",
+                                "isWashing" to "Pakaian sedang dicuci",
+                                "isWeighted" to "Pakaian selesai ditimbang"
+                            )
+
+                            val statuses = order.Status::class.java.declaredFields.map {
+                                it.isAccessible = true
+                                it.name to it.get(order.Status) as Boolean
+                            }.filter { it.second }
+
+                            statuses.forEach { (status, _) ->
+                                Text(
+                                    text = "${formatTimestamp(order.WaktuPesan)} - ${statusMessages[status]}",
+                                    style = MaterialTheme.typography.bodySmall
                                 )
-                            }
-
-                            if (expandedOrderId == order.id) {
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .background(Color.LightGray)
-                                        .padding(8.dp)
-                                ) {
-                                    order.processTimes.reversed().forEach { processTime ->
-                                        Text(
-                                            text = "${processTime.first} - ${processTime.second}",
-                                            style = MaterialTheme.typography.bodySmall
-                                        )
-                                    }
-                                }
                             }
                         }
                     }
@@ -306,7 +181,6 @@ fun myOrder(navController: NavController){
         }
     }
 }
-
 @Composable
 fun Footer() {
     Row(
