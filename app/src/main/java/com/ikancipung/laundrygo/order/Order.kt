@@ -3,48 +3,48 @@ package com.ikancipung.laundrygo.order
 import com.google.firebase.database.Exclude
 
 data class Order(
-    val id: String? = null,
-    val LaundryName: String = "",
-    val isCompleted: Boolean = false,
-    val time: String = "",
-    val date: String = "",
-    val category: Int = 0,
-    val process: Int = 0,
-    val processTimes: List<Pair<String, String>> = emptyList(),
+    var id: String? = null,
+    var LaundryName: String = "",
+    var isCompleted: Boolean = false,
+    var time: String = "",
+    var date: String = "",
+    var category: Int = 0,
+    var process: Int = 0,
+    var processTimes: List<Pair<String, String>> = emptyList(),
 
     // Properti tambahan dari struktur database
-    val AlamatLaundry: String = "",
-    val AlamatPemesanan: String = "",
-    val CuciKiloanOption: String = "",
-    val IDPemesan: String = "",
-    val NamaLaundry: String = "",
-    val NamaPemesan: String = "",
-    val OrderID: String = "",
-    val Orders: Map<String, OrderDetail> = emptyMap(),
-    val Pembayaran: String = "",
-    val Status: LaundryStatus = LaundryStatus(),
-    val WaktuPesan: Long = 0L,
+    var AlamatLaundry: String = "",
+    var AlamatPemesanan: String = "",
+    var CuciKiloanOption: String = "",
+    var IDPemesan: String = "",
+    var NamaLaundry: String = "",
+    var NamaPemesan: String = "",
+    var OrderID: String = "",
+    var Orders: Map<String, OrderDetail> = emptyMap(),
+    var Pembayaran: String = "",
+    var Status: LaundryStatus = LaundryStatus(),
+    var WaktuPesan: Long = 0L,
     @Exclude var isAntarJemput: Boolean = false, // Nilai default tidak akan menimpa data Firebase
     @Exclude var isExpress: Boolean = false
 )
 
 data class OrderDetail(
-    val Service: String = "",
-    val Price: String = "",
-    val Quantity: Int = 0
+    var Service: String = "",
+    var Price: String = "",
+    var Quantity: Int = 0
 )
 
 data class LaundryStatus(
-    val isDone: LaundryStatusDetail = LaundryStatusDetail(),
-    val isInLaundry: LaundryStatusDetail = LaundryStatusDetail(),
-    val isPaid: LaundryStatusDetail = LaundryStatusDetail(),
-    val isReceived: LaundryStatusDetail = LaundryStatusDetail(),
-    val isSent: LaundryStatusDetail = LaundryStatusDetail(),
-    val isWashing: LaundryStatusDetail = LaundryStatusDetail(),
-    val isWeighted: LaundryStatusDetail = LaundryStatusDetail()
+    @Exclude var isPaid: LaundryStatusDetail? = null,
+    @Exclude var isInLaundry: LaundryStatusDetail? = null,
+    @Exclude var isDone: LaundryStatusDetail? = null,
+    @Exclude var isReceived: LaundryStatusDetail? = null,
+    @Exclude  var isSent: LaundryStatusDetail? = null,
+    @Exclude var isWashing: LaundryStatusDetail? = null,
+    @Exclude var isWeighted: LaundryStatusDetail? = null
 )
 
 data class LaundryStatusDetail(
-    val value: Boolean = false,
-    val time: Long? = null,
+    var value: Boolean = true,
+    var time: Long? = null
 )

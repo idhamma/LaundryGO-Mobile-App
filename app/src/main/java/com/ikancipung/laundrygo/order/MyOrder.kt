@@ -1,5 +1,6 @@
 package com.ikancipung.laundrygo.order
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -48,6 +49,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.ikancipung.laundrygo.menu.ProfileSettingsScreen
+import com.ikancipung.laundrygo.menu.userId
 import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
 
 @Composable
@@ -72,20 +74,44 @@ fun myOrder(navController: NavController) {
 
     // Mendengarkan data Firebase
     LaunchedEffect(Unit) {
+
+        val ordersQuery = FirebaseDatabase.getInstance().getReference("Orders")
+            .orderByChild("IDUser")
+            .equalTo(userId)  // Make sure this matches the user's ID in the database
+
+        ordersQuery.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val orders = snapshot.children.mapNotNull { it.getValue(Order::class.java) }
+                Log.d("FirebaseData", "Fetched orders: $orders")
+
+                // You can now pass this data to your UI (e.g., LiveData, state, etc.)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("FirebaseData", "Error fetching orders: $error")
+            }
+        })
+
         ordersRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val fetchedOrders = mutableListOf<Order>()
+                Log.d("FirebaseData", "onDataChange: snapshot children count: ${snapshot.childrenCount}")
+
                 snapshot.children.forEach { orderSnapshot ->
+                    Log.d("FirebaseData", "Order ID: ${orderSnapshot.key}") // Log order ID to ensure data is being fetched
                     val order = orderSnapshot.getValue(Order::class.java)
                     if (order != null) {
+                        // Log the status to check if the values are being parsed correctly
+                        Log.d("FirebaseData", "Order status: ${order.Status}")
                         fetchedOrders.add(order)
                     }
                 }
                 orders = fetchedOrders
+                Log.d("FirebaseData", "Fetched orders: $fetchedOrders")
             }
 
             override fun onCancelled(error: DatabaseError) {
-                // Tangani error
+                Log.e("FirebaseData", "Error: ${error.message}")
             }
         })
     }
@@ -163,19 +189,95 @@ fun myOrder(navController: NavController) {
                                 "isWeighted" to "Pakaian selesai ditimbang"
                             )
 
-                            val statuses = order.Status::class.java.declaredFields.map {
-                                it.isAccessible = true
-                                it.name to it.get(order.Status) as Boolean
-                            }.filter { it.second }
-
-                            statuses.forEach { (status, _) ->
+                            // Use safe calls or null checks to avoid NullPointerException
+                            if (order.Status.isDone?.value == true) {
                                 Text(
-                                    text = "${formatTimestamp(order.WaktuPesan)} - ${statusMessages[status]}",
+                                    text = "${formatTimestamp(order.WaktuPesan)} - ${statusMessages["isDone"]}",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            } else {
+                                Text(
+                                    text = "${formatTimestamp(order.WaktuPesan)} - Status not updated",
                                     style = MaterialTheme.typography.bodySmall
                                 )
                             }
+
+                            if (order.Status.isInLaundry?.value == true) {
+                                Text(
+                                    text = "${formatTimestamp(order.WaktuPesan)} - ${statusMessages["isInLaundry"]}",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            } else {
+                                Text(
+                                    text = "${formatTimestamp(order.WaktuPesan)} - Status not updated",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+
+                            if (order.Status.isPaid?.value == true) {
+                                Text(
+                                    text = "${formatTimestamp(order.WaktuPesan)} - ${statusMessages["isPaid"]}",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            } else {
+                                Text(
+                                    text = "${formatTimestamp(order.WaktuPesan)} - Status not updated",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+
+                            if (order.Status.isReceived?.value == true) {
+                                Text(
+                                    text = "${formatTimestamp(order.WaktuPesan)} - ${statusMessages["isReceived"]}",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            } else {
+                                Text(
+                                    text = "${formatTimestamp(order.WaktuPesan)} - Status not updated",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+
+                            if (order.Status.isSent?.value == true) {
+                                Text(
+                                    text = "${formatTimestamp(order.WaktuPesan)} - ${statusMessages["isSent"]}",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            } else {
+                                Text(
+                                    text = "${formatTimestamp(order.WaktuPesan)} - Status not updated",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+
+                            if (order.Status.isWashing?.value == true) {
+                                Text(
+                                    text = "${formatTimestamp(order.WaktuPesan)} - ${statusMessages["isWashing"]}",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            } else {
+                                Text(
+                                    text = "${formatTimestamp(order.WaktuPesan)} - Status not updated",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+
+                            if (order.Status.isWeighted?.value == true) {
+                                Text(
+                                    text = "${formatTimestamp(order.WaktuPesan)} - ${statusMessages["isWeighted"]}",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            } else {
+                                Text(
+                                    text = "${formatTimestamp(order.WaktuPesan)} - Status not updated",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                            Log.d("Order Status", "Status: ${order.Status}")
+
                         }
                     }
+
                 }
             }
         }
