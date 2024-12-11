@@ -57,7 +57,6 @@ fun calculateSubtotalFromFirebase(
     })
 }
 
-
 // Fungsi untuk menghitung total harga
 fun calculateTotalFromFirebase(
     order: Order,
@@ -104,4 +103,32 @@ fun fetchOrderData(
     }.addOnFailureListener { error ->
         onError("Terjadi kesalahan saat mengambil data: ${error.message}")
     }
+}
+
+// Fungsi untuk mengambil alamat laundry dari Firebase
+fun fetchLaundryData(
+    laundryId: String,
+    onSuccess: (String) -> Unit,
+    onError: (String) -> Unit
+) {
+    val database = FirebaseDatabase.getInstance()
+    val ref = database.getReference("laundry").child(laundryId).child("address")
+
+    ref.addListenerForSingleValueEvent(object : ValueEventListener {
+        override fun onDataChange(snapshot: DataSnapshot) {
+            println("DEBUG: Snapshot exists = ${snapshot.exists()}")
+            println("DEBUG: Snapshot value = ${snapshot.value}")
+
+            val address = snapshot.getValue(String::class.java)
+            if (address != null && address.isNotBlank()) {
+                onSuccess(address)
+            } else {
+                onError("Alamat Laundry tidak ditemukan.")
+            }
+        }
+
+        override fun onCancelled(error: DatabaseError) {
+            onError("Gagal mengambil data: ${error.message}")
+        }
+    })
 }

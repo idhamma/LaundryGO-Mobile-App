@@ -1,15 +1,21 @@
 package com.ikancipung.laundrygo.order
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.ikancipung.laundrygo.R
 
 @Composable
 fun TitleLaundryScreen(navController: NavController, orderId: String) {
@@ -25,13 +31,11 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
                 orderId = orderId,
                 onSuccess = { order ->
                     orderData = order
-                    // Hitung subtotal terlebih dahulu
                     calculateSubtotalFromFirebase(
                         orders = order.Orders,
                         namaLaundry = order.NamaLaundry,
                         onSuccess = { calculatedSubtotal ->
                             subtotal = calculatedSubtotal
-                            // Setelah subtotal, hitung total
                             calculateTotalFromFirebase(
                                 order = order,
                                 onSuccess = { calculatedTotal ->
@@ -76,94 +80,132 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
-                // Header Information
+                // Header Row with Back Button
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Kembali"
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = order.NamaLaundry,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Order Information
                 Text(
-                    text = order.NamaLaundry,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontSize = 24.sp,
+                    text = "Order ID: ${order.OrderID}",
+                    style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black
                 )
                 Text(
-                    text = "Order ID: ${order.OrderID}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray
-                )
-                Text(
                     text = "Waktu Pesanan: ${formatTimestamp(order.WaktuPesan)}",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
                 )
                 Text(
                     text = "Metode Pembayaran: ${order.Pembayaran}",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Address Information
-                Text("Alamat Pengambilan: ${order.AlamatPemesanan}")
-                Text("Alamat Laundry: ${order.AlamatLaundry}")
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_location_alamat),
+                        contentDescription = "Alamat Pengambilan",
+                        tint = Color(0xFF6438E2),
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Alamat Pengambilan: ${order.AlamatPemesanan}",
+                        fontSize = 14.sp,
+                        color = Color.Gray
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_location_destination),
+                        contentDescription = "Alamat Laundry",
+                        tint = Color(0xFFE2000B),
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Alamat Laundry: ${order.AlamatLaundry}",
+                        fontSize = 14.sp,
+                        color = Color.Gray
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Order Details
                 Text("Rincian Pesanan", fontWeight = FontWeight.Bold, fontSize = 20.sp)
-//                order.Orders.forEach { (key, detail) ->
-//                    if (detail.Quantity > 0) { // Only show services with quantities > 0
-//                        Row(
-//                            modifier = Modifier
-//                                .fillMaxWidth()
-//                                .padding(vertical = 4.dp),
-//                            horizontalArrangement = Arrangement.SpaceBetween
-//                        ) {
-//                            Text(
-//                                text = "${detail.Service} (${detail.Quantity}x)",
-//                                fontSize = 14.sp,
-//                                color = Color.Gray
-//                            )
-//                            Text(
-//                                text = "Rp.${detail.Price.toIntOrNull()?.times(detail.Quantity) ?: 0}",
-//                                fontSize = 14.sp,
-//                                color = Color.Black
-//                            )
-//                        }
-//                    }
-//                }
-                order.Orders.filter { it.value.Quantity > 0 }.forEach { (key, detail) ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = "${detail.Service} (${detail.Quantity}x)",
-                            fontSize = 14.sp,
-                            color = Color.Gray
-                        )
-                        Text(
-                            text = "Rp.${detail.Price.toIntOrNull()?.times(detail.Quantity) ?: 0}",
-                            fontSize = 14.sp,
-                            color = Color.Black
-                        )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color(0xFFF5F5F5), shape = RoundedCornerShape(8.dp))
+                        .padding(12.dp)
+                ) {
+                    Column {
+                        order.Orders.filter { it.value.Quantity > 0 }.forEach { (key, detail) ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = "${detail.Service} (${detail.Quantity}x)",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.Black
+                                )
+                                Text(
+                                    text = "Rp.${detail.Price.toIntOrNull()?.times(detail.Quantity) ?: 0}",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.Black
+                                )
+                            }
+                        }
                     }
                 }
-
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Price Calculation
-                Text("Subtotal: Rp.${subtotal}")
-                Text("Total: Rp.${total}", fontWeight = FontWeight.Bold)
+                Text("Subtotal: Rp.${subtotal}", fontSize = 14.sp, color = Color.Gray)
+                Text("Biaya Pengantaran: Rp.10.000", fontSize = 14.sp, color = Color.Gray)
+                Text("Biaya Pemesanan: Rp.7.500", fontSize = 14.sp, color = Color.Gray)
+                Text("Total: Rp.${total}", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Black)
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Payment Button
                 Button(
                     onClick = { /* Implement payment logic */ },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF007BFF))
                 ) {
                     Text(text = "Bayar", color = Color.White)
                 }
@@ -177,5 +219,3 @@ fun formatTimestamp(timestamp: Long): String {
     val date = java.util.Date(timestamp)
     return sdf.format(date)
 }
-
-
