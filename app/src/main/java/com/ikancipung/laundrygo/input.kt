@@ -31,7 +31,7 @@ class Activity : ComponentActivity() {
                 "imageUrl" to "https://example.com/cuci_cepat.jpg",
                 "address" to "Jl. Sudirman No. 12, Medan",
                 "services" to listOf("Cuci Lipat", "Cuci Setrika", "Cuci Baju"),
-                "prices" to listOf("5.500/kg", "9.500/kg", "12.000/kg"),
+                "prices" to listOf("5 500", "9500", "12000"),
                 "hours" to "24 Jam",
                 "description" to "Layanan laundry cepat dan terpercaya, buka 24 jam."
             ),
@@ -40,8 +40,8 @@ class Activity : ComponentActivity() {
                 "name" to "Laundry Sehat",
                 "imageUrl" to "https://example.com/laundry_sehat.jpg",
                 "address" to "Jl. Siliwangi No. 8, Bandung",
-                "services" to listOf("Cuci Lipat", "Cuci Selimut", "Cuci Bantal"),
-                "prices" to listOf("7.000/kg", "15.000/pcs", "18.000/pcs"),
+                "services" to listOf("Cuci Lipat", "Cuci Selimut", "Cuci Sepatu"),
+                "prices" to listOf("7000", "15000", "18000"),
                 "hours" to "09.00 - 21.00 WIB",
                 "description" to "Laundry dengan produk ramah lingkungan dan aman."
             )
