@@ -30,6 +30,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonColors
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -288,10 +289,18 @@ fun LaundryOrderScreen(
         item {
             Text("Antar Jemput")
             Row(verticalAlignment = Alignment.CenterVertically) {
-                RadioButton(selected = antarJemput == "Ya", onClick = { antarJemput = "Ya" })
+                RadioButton(
+                    selected = antarJemput == "Ya",
+                    onClick = { antarJemput = "Ya" },
+                    colors = RadioButtonDefaults.colors(selectedColor = BlueLaundryGo)
+                )
                 Text("Ya")
                 Spacer(modifier = Modifier.width(16.dp))
-                RadioButton(selected = antarJemput == "Tidak", onClick = { antarJemput = "Tidak" })
+                RadioButton(
+                    selected = antarJemput == "Tidak",
+                    onClick = { antarJemput = "Tidak" },
+                    colors = RadioButtonDefaults.colors(selectedColor = BlueLaundryGo)
+                )
                 Text("Tidak")
             }
         }
@@ -299,10 +308,18 @@ fun LaundryOrderScreen(
         item {
             Text("Tipe Laundry")
             Row(verticalAlignment = Alignment.CenterVertically) {
-                RadioButton(selected = tipeLaundry == "Regular", onClick = { tipeLaundry = "Regular" })
+                RadioButton(
+                    selected = tipeLaundry == "Regular",
+                    onClick = { tipeLaundry = "Regular" },
+                    colors = RadioButtonDefaults.colors(selectedColor = BlueLaundryGo)
+                )
                 Text("Regular")
                 Spacer(modifier = Modifier.width(16.dp))
-                RadioButton(selected = tipeLaundry == "Express", onClick = { tipeLaundry = "Express" })
+                RadioButton(
+                    selected = tipeLaundry == "Express",
+                    onClick = { tipeLaundry = "Express" },
+                    colors = RadioButtonDefaults.colors(selectedColor = BlueLaundryGo)
+                )
                 Text("Express")
             }
         }
@@ -310,13 +327,25 @@ fun LaundryOrderScreen(
         item {
             Text("Pembayaran")
             Row(verticalAlignment = Alignment.CenterVertically) {
-                RadioButton(selected = pembayaran == "Cash", onClick = { pembayaran = "Cash" })
+                RadioButton(
+                    selected = pembayaran == "Cash",
+                    onClick = { pembayaran = "Cash" },
+                    colors = RadioButtonDefaults.colors(selectedColor = BlueLaundryGo)
+                )
                 Text("Cash")
                 Spacer(modifier = Modifier.width(16.dp))
-                RadioButton(selected = pembayaran == "QRIS", onClick = { pembayaran = "QRIS" })
+                RadioButton(
+                    selected = pembayaran == "QRIS",
+                    onClick = { pembayaran = "QRIS" },
+                    colors = RadioButtonDefaults.colors(selectedColor = BlueLaundryGo)
+                )
                 Text("QRIS")
                 Spacer(modifier = Modifier.width(16.dp))
-                RadioButton(selected = pembayaran == "Virtual Account", onClick = { pembayaran = "Virtual Account" })
+                RadioButton(
+                    selected = pembayaran == "Virtual Account",
+                    onClick = { pembayaran = "Virtual Account" },
+                    colors = RadioButtonDefaults.colors(selectedColor = BlueLaundryGo)
+                )
                 Text("Virtual Account")
             }
         }
