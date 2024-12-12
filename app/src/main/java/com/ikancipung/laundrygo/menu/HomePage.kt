@@ -234,7 +234,7 @@ fun Homepage(
                     .background(Color.Gray),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "Loading Banners...", color = Color.White)
+                Text(text = "Memuat spanduk...", color = Color.White)
             }
         }
 
@@ -247,7 +247,7 @@ fun Homepage(
                 .fillMaxWidth()
         ) {
             Text(
-                text = "Outlet",
+                text = "Gerai",
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold
             )
