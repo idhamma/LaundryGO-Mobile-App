@@ -28,11 +28,13 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -45,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -55,6 +58,8 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.gson.Gson
+import com.ikancipung.laundrygo.R
+import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
 
 
 @Composable
@@ -112,6 +117,7 @@ fun HomepagePage(navController: NavController) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Homepage(
     outlets: List<Laundry>,
@@ -142,27 +148,43 @@ fun Homepage(
                 TextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
+                    placeholder = {
+                        Text(text = "Cari di sini", color = Color.Gray)
+                    },
+                    shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
-                        .weight(1f)
-                        .padding(end = 8.dp),
+                        .padding(end = 8.dp)
+                        .width(24.dp)
+                        .weight(1f),
+                    colors = TextFieldDefaults.textFieldColors(
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    ),
                     singleLine = true
                 )
+            } else {
+                Image(
+                    painter = painterResource(id = R.drawable.laundrygo2_1),
+                    contentDescription = "LaundryGo",
+                    modifier = Modifier
+                        .size(56.dp),
+                )
             }
-            Icon(
-                imageVector = if (isSearchActive) Icons.Filled.Close else Icons.Filled.Search,
-                contentDescription = "Search",
-                modifier = Modifier
-                    .size(24.dp)
-                    .clickable {
-                        isSearchActive = !isSearchActive
-                        if (!isSearchActive) {
-                            searchQuery = "" // Reset search query ketika search bar ditutup
-                        }
-                    },
-                tint = Color.Black
-            )
 
             Row {
+                Icon(
+                    imageVector = if (isSearchActive) Icons.Filled.Close else Icons.Filled.Search,
+                    contentDescription = "Search",
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable {
+                            isSearchActive = !isSearchActive
+                            if (!isSearchActive) {
+                                searchQuery = "" // Reset search query ketika search bar ditutup
+                            }
+                        },
+                    tint = Color.Black
+                )
                 Icon(
                     imageVector = Icons.Filled.FavoriteBorder,
                     contentDescription = "Favorites",
@@ -205,6 +227,7 @@ fun Homepage(
         if (bannerUrls.isNotEmpty()) {
             LazyRow(
                 modifier = Modifier
+                    .padding(8.dp)
                     .fillMaxWidth()
                     .height(200.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -234,11 +257,9 @@ fun Homepage(
                     .background(Color.Gray),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "Loading Banners...", color = Color.White)
+                Text(text = "Memuat spanduk...", color = Color.White)
             }
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
 
         // Outlet Section
         Column(
@@ -247,20 +268,19 @@ fun Homepage(
                 .fillMaxWidth()
         ) {
             Text(
-                text = "Outlet",
-                style = MaterialTheme.typography.bodyMedium,
+                text = "Gerai",
+                style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold
             )
             Text(
                 text = "Laundry Terdekat dengan Anda",
                 color = Color.Gray,
                 style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 8.dp)
             )
             ImageLazyRow(dataList = filteredOutlets, navController = navController)
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
 
         // Services Section
         Column(
@@ -270,14 +290,15 @@ fun Homepage(
         ) {
             Text(
                 text = "Layanan",
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold
             )
             Text(
                 text = "Layanan Laundry untuk Anda",
                 color = Color.Gray,
                 style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 8.dp)
             )
             ImageLazyRowService(dataList = filteredServices, navController = navController)
         }
@@ -318,13 +339,15 @@ fun ImageLazyRow(dataList: List<Laundry>, navController: NavController) {
                         painter = rememberImagePainter(laundry.imageUrl),
                         contentDescription = null,
                         modifier = Modifier
+                            .padding(8.dp, 8.dp, 8.dp, 0.dp)
                             .size(100.dp)
-                            .clip(RoundedCornerShape(8.dp))
+                            .clip(RoundedCornerShape(8.dp)),
+                        contentScale = ContentScale.Crop,
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = laundry.name,
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
@@ -351,8 +374,7 @@ fun ImageLazyRowService(dataList: List<Service>, navController: NavController) {
                     .width(120.dp)
                     .clickable {
                         navController.navigate("ServiceLaundryScreen/${Uri.encode(service.name)}")
-                    }
-                ,
+                    },
                 shape = RoundedCornerShape(8.dp),
             ) {
                 Column(
@@ -365,13 +387,15 @@ fun ImageLazyRowService(dataList: List<Service>, navController: NavController) {
                         painter = rememberImagePainter(service.imageUrl),
                         contentDescription = null,
                         modifier = Modifier
+                            .padding(8.dp, 8.dp, 8.dp, 0.dp)
                             .size(100.dp)
-                            .clip(RoundedCornerShape(8.dp))
+                            .clip(RoundedCornerShape(8.dp)),
+                        contentScale = ContentScale.Crop
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = service.name,
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Bold
                     )
 

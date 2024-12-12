@@ -1,13 +1,15 @@
-
 package com.ikancipung.laundrygo.signup
 
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -74,7 +76,7 @@ fun SignUpScreen(navController: NavController) {
         database.child("users").child(userId).setValue(user)
             .addOnSuccessListener {
                 Toast.makeText(context, "Account created successfully!", Toast.LENGTH_SHORT).show()
-                navController.navigate("Login")
+                navController.navigate("Masuk")
             }
             .addOnFailureListener {
                 Toast.makeText(context, "Failed to save user data", Toast.LENGTH_SHORT).show()
@@ -88,15 +90,29 @@ fun SignUpScreen(navController: NavController) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Tombol back
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.TopStart
+        ) {
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Color.Black
+                )
+            }
+        }
+
         Text(
-            text = "Sign up",
+            text = "Daftar",
             fontSize = 24.sp,
             color = Color.Black,
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Create an account to get started",
+            text = "Buat akun untuk memulai",
             fontSize = 14.sp,
             color = Color.Gray,
             textAlign = TextAlign.Center
@@ -107,7 +123,7 @@ fun SignUpScreen(navController: NavController) {
         OutlinedTextField(
             value = name,
             onValueChange = { name = it },
-            label = { Text("Name") },
+            label = { Text("Nama") },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -116,7 +132,7 @@ fun SignUpScreen(navController: NavController) {
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
-            label = { Text("Email Address") },
+            label = { Text("Alamat Email") },
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
         )
@@ -126,7 +142,7 @@ fun SignUpScreen(navController: NavController) {
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text("Create a password") },
+            label = { Text("Buat Kata Sandi") },
             modifier = Modifier.fillMaxWidth(),
             visualTransformation = PasswordVisualTransformation()
         )
@@ -136,7 +152,7 @@ fun SignUpScreen(navController: NavController) {
         OutlinedTextField(
             value = confirmPassword,
             onValueChange = { confirmPassword = it },
-            label = { Text("Confirm password") },
+            label = { Text("Konfirmasi Kata Sandi") },
             modifier = Modifier.fillMaxWidth(),
             visualTransformation = PasswordVisualTransformation()
         )
@@ -155,29 +171,51 @@ fun SignUpScreen(navController: NavController) {
             Column {
                 Row {
                     Text(
-                        text = "I've read and agree with the ",
+                        text = "Saya sudah menyetujui ",
                         fontSize = 14.sp,
                         color = Color.Gray
                     )
                     Text(
-                        text = "Terms and Conditions",
+                        text = "Syarat dan Ketentuan",
                         fontSize = 14.sp,
                         color = Color.Blue
                     )
                 }
                 Row {
                     Text(
-                        text = "and the ",
+                        text = "beserta dengan ",
                         fontSize = 14.sp,
                         color = Color.Gray
                     )
                     Text(
-                        text = "Privacy Policy",
+                        text = "Kebijakan Privasi",
                         fontSize = 14.sp,
                         color = Color.Blue
                     )
                 }
             }
+        }
+
+        // Tambahan untuk "Sudah punya akun? Login"
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = "Sudah punya akun? ",
+                fontSize = 14.sp,
+                color = Color.Gray
+            )
+            Text(
+                text = "Login",
+                fontSize = 14.sp,
+                color = Color.Blue,
+                modifier = Modifier.clickable {
+                    navController.navigate("Login")
+                }
+            )
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -213,7 +251,7 @@ fun SignUpScreen(navController: NavController) {
                 contentColor = Color.White
             )
         ) {
-            Text("Sign Up", fontSize = 16.sp)
+            Text("Daftar", fontSize = 16.sp)
         }
     }
 }
