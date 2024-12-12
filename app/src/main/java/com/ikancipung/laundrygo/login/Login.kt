@@ -77,7 +77,7 @@ fun LoginScreen(navController: NavController) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Welcome!",
+            text = "Selamat Datang!",
             fontSize = 24.sp,
             color = MaterialTheme.colors.primary,
             textAlign = TextAlign.Center
@@ -89,7 +89,7 @@ fun LoginScreen(navController: NavController) {
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
-            label = { Text("Email Address") },
+            label = { Text("Alamat Email") },
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
         )
@@ -100,7 +100,7 @@ fun LoginScreen(navController: NavController) {
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text("Password") },
+            label = { Text("Kata Sandi") },
             modifier = Modifier.fillMaxWidth(),
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
@@ -148,7 +148,7 @@ fun LoginScreen(navController: NavController) {
                     modifier = Modifier.size(24.dp)
                 )
             } else {
-                Text("Login")
+                Text("Masuk")
             }
         }
 
@@ -156,9 +156,9 @@ fun LoginScreen(navController: NavController) {
 
         // Registration Prompt
         val annotatedText = buildAnnotatedString {
-            append("Not a member? ")
+            append("Belum punya akun? ")
             withStyle(style = SpanStyle(color = MaterialTheme.colors.primary)) {
-                append("Register now")
+                append("Daftar Sekarang")
             }
         }
 
@@ -178,12 +178,12 @@ fun performLogin(
     onLoading: (Boolean) -> Unit
 ) {
     if (email.isBlank() || password.isBlank()) {
-        onError("Please fill in both email and password.")
+        onError("Silahkan isi email dan password dahulu")
         return
     }
 
     if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-        onError("Invalid email format.")
+        onError("Format email salah")
         return
     }
 
@@ -196,9 +196,9 @@ fun performLogin(
                 onSuccess()
             } else {
                 val errorMessage = when (task.exception) {
-                    is FirebaseAuthInvalidCredentialsException -> "Incorrect password."
-                    is FirebaseAuthInvalidUserException -> "No user found with this email."
-                    else -> "Login failed. Please try again."
+                    is FirebaseAuthInvalidCredentialsException -> "Password Salah"
+                    is FirebaseAuthInvalidUserException -> "user belum terdaftar"
+                    else -> "Login gagal. Silahkan coba lagi"
                 }
                 onError(errorMessage)
             }
