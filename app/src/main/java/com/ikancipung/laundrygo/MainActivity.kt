@@ -101,7 +101,13 @@ class MainActivity : ComponentActivity() {
                         val imageUrl = backStackEntry.arguments?.getString("imageUrl")?:""
                         ChatScreen(navController = navController, laundryName = name, laundryLogo = imageUrl)
                     }
-                    composable("Rating") { RatingScreen(navController = navController) }
+                    composable(
+                        route = "Rating/{orderId}",
+                        arguments = listOf(navArgument("orderId") { type = NavType.StringType })
+                    ) { backStackEntry ->
+                        val orderId = backStackEntry.arguments?.getString("orderId") ?: ""
+                        RatingScreen(navController = navController, orderId = orderId)
+                    }
                     composable("Qris") { QrisPaymentScreen(navController = navController) }
                     composable("Vapayment/{total}", arguments = listOf(navArgument("total"){type = NavType.StringType})){
                         backStackEntry ->
@@ -208,7 +214,7 @@ class MainActivity : ComponentActivity() {
                         notificationService.showBasicNotification()
 
                         // Update isDone menjadi false agar tidak dikirim ulang
-                        ordersRef.child(orderSnapshot.key!!).child("Status/isDone/value").setValue(false)
+//                        ordersRef.child(orderSnapshot.key!!).child("Status/isDone/value").setValue(false)
                     }
                 }
             }
