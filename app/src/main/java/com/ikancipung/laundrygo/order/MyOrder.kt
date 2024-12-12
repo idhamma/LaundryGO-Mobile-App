@@ -8,10 +8,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -70,6 +73,7 @@ fun updateStatusTimeIfNeeded(orderId: String, statusName: String, statusDetail: 
 
 @Composable
 fun myOrder(navController: NavController) {
+    var historyWindow by remember { mutableStateOf(false) }
     var orders by remember { mutableStateOf<List<Order>>(emptyList()) }
     val database = FirebaseDatabase.getInstance()
     val ordersRef = database.getReference("orders")
@@ -171,12 +175,200 @@ fun myOrder(navController: NavController) {
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        LazyColumn {
-            items(orders) { order ->
-                OrderCard(order, navController)
+        Row(
+            modifier = Modifier.fillMaxWidth()
+                .padding(8.dp)
+                .height(48.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+
+        ) {
+            Text(
+                text = "Dalam Proses",
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.clickable {
+                    historyWindow = false
+                }
+            )
+
+            Spacer(modifier = Modifier.width(96.dp))
+
+            Text(
+                text = "Riwayat",
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.clickable {
+                    historyWindow = true
+                }
+            )
+
+        }
+
+        if(!historyWindow) {
+            LazyColumn {
+                items(orders) { order ->
+                    OrderCard(order, navController)
+                }
+            }
+        }
+        else{
+            LazyColumn {
+                items(orders) { order ->
+                    CompletedOrderCard(order, navController)
+                }
             }
         }
     }
+}
+
+@Composable
+fun CompletedOrderCard(order: Order, navController: NavController) {
+    val displayTime = formatTimestampNotif(order.WaktuPesan)
+    val trueStatuses = getDoneStatus(order)
+
+    if (trueStatuses.equals("Pesanan selesai")) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp)
+                .background(color = BlueLaundryGo, shape = RoundedCornerShape(8.dp)),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.icon_category_order_1),
+                    contentDescription = "Laundry Icon",
+                    modifier = Modifier
+                        .size(36.dp)
+                        .padding(end = 8.dp),
+                    colorFilter = ColorFilter.tint(Color.White)
+                )
+
+                Column(modifier = Modifier.weight(1f)) {
+                    // Laundry name clickable: Navigate to the order page
+                    Text(
+                        text = order.NamaLaundry,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.clickable {
+                            // Navigate to the ratingpage
+                            navController.navigate("Rating/${order.id}")
+                        }
+                    )
+                    Text(
+                        text = "$displayTime",
+                        color = Color.White,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+
+                }
+
+            }
+        }
+    }
+}
+
+@Composable
+fun OrderCard(order: Order, navController: NavController) {
+    var expanded by remember { mutableStateOf(false) }
+
+    val trueStatuses = getTrueStatuses(order)
+    val (currentStatusMessage, currentStatusTime) = if (trueStatuses.isNotEmpty()) {
+        trueStatuses.first()
+    } else {
+        "Status not updated" to null
+    }
+
+    val doneStatus = getDoneStatus(order)
+
+
+    val displayTime =
+        if (currentStatusTime != null) formatTimestampNotif(currentStatusTime) else "No timestamp available"
+
+    // The blue rectangle container (not clickable anymore for expanding)
+    if (!doneStatus.equals("Pesanan selesai")) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp)
+                .background(color = BlueLaundryGo, shape = RoundedCornerShape(8.dp)),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.icon_category_order_1),
+                    contentDescription = "Laundry Icon",
+                    modifier = Modifier
+                        .size(36.dp)
+                        .padding(end = 8.dp),
+                    colorFilter = ColorFilter.tint(Color.White)
+                )
+
+                Column(modifier = Modifier.weight(1f)) {
+                    // Laundry name clickable: Navigate to the order page
+                    Text(
+                        text = order.NamaLaundry,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.clickable {
+                            // Navigate to the same order
+                            navController.navigate("Ordersum/${order.id}")
+                        }
+                    )
+
+                    Text(
+                        text = "$displayTime - $currentStatusMessage",
+                        color = Color.White,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+
+                // icon_more to toggle dropdown
+                Image(
+                    painter = painterResource(id = R.drawable.icon_more),
+                    contentDescription = "More Options",
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable { expanded = !expanded },
+                    colorFilter = ColorFilter.tint(Color.White)
+                )
+            }
+
+            if (expanded) {
+                StatusList(order = order)
+            }
+        }
+    }
+}
+
+fun getDoneStatus(order: Order): String? {
+    val statusMapping = listOf(
+        order.Status.isDone.value to "Pesanan selesai",  // Assuming 'value' is a Boolean
+        order.Status.isSent.value to "Pesanan sedang dikirim",
+        order.Status.isWashing.value to "Pakaian sedang dicuci",
+        order.Status.isInLaundry.value to "Pakaian sedang di laundry",
+        order.Status.isWeighted.value to "Pakaian selesai ditimbang",
+        order.Status.isPaid.value to "Pesanan telah dibayar",
+        order.Status.isReceived.value to "Pesanan sudah diterima"
+    )
+
+    // Find the first status that is true
+    val doneStatus = statusMapping
+        .firstOrNull { it.first == true } // Find the first status where 'value' is true
+        ?.second // Extract the message (status string)
+
+    return doneStatus
 }
 
 fun getTrueStatuses(order: Order): List<Pair<String, Long?>> {
@@ -198,79 +390,6 @@ fun getTrueStatuses(order: Order): List<Pair<String, Long?>> {
     }
 
     return trueStatuses.sortedByDescending { it.second ?: Long.MIN_VALUE }
-}
-
-@Composable
-fun OrderCard(order: Order, navController: NavController) {
-    var expanded by remember { mutableStateOf(false) }
-
-    val trueStatuses = getTrueStatuses(order)
-    val (currentStatusMessage, currentStatusTime) = if (trueStatuses.isNotEmpty()) {
-        trueStatuses.first()
-    } else {
-        "Status not updated" to null
-    }
-
-    val displayTime = if (currentStatusTime != null) formatTimestampNotif(currentStatusTime) else "No timestamp available"
-
-    // The blue rectangle container (not clickable anymore for expanding)
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp)
-            .background(color = BlueLaundryGo, shape = RoundedCornerShape(8.dp)),
-        verticalArrangement = Arrangement.Center
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.icon_category_order_1),
-                contentDescription = "Laundry Icon",
-                modifier = Modifier
-                    .size(36.dp)
-                    .padding(end = 8.dp),
-                colorFilter = ColorFilter.tint(Color.White)
-            )
-
-            Column(modifier = Modifier.weight(1f)) {
-                // Laundry name clickable: Navigate to the order page
-                Text(
-                    text = order.NamaLaundry,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.clickable {
-                        // Navigate to the same order
-                        navController.navigate("Ordersum/${order.id}")
-                    }
-                )
-
-                Text(
-                    text = "$displayTime - $currentStatusMessage",
-                    color = Color.White,
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-
-            // icon_more to toggle dropdown
-            Image(
-                painter = painterResource(id = R.drawable.icon_more),
-                contentDescription = "More Options",
-                modifier = Modifier
-                    .size(24.dp)
-                    .clickable { expanded = !expanded },
-                colorFilter = ColorFilter.tint(Color.White)
-            )
-        }
-
-        if (expanded) {
-            StatusList(order = order)
-        }
-    }
 }
 
 @Composable
