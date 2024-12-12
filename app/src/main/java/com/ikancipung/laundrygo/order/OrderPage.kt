@@ -131,6 +131,7 @@ fun LaundryOrderScreen(
     // Handle order submission
     fun submitOrder() {
         val orderId = database.reference.push().key ?: return
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
         val filteredOrders = serviceQuantities.filter { it.value > 0 }.map { (service, quantity) ->
             service to mapOf(
@@ -160,7 +161,7 @@ fun LaundryOrderScreen(
             "WaktuPesan" to System.currentTimeMillis(),
             "Orders" to filteredOrders,
             "isAntarJemput" to (antarJemput == "Ya"),
-            "isExpress" to (tipeLaundry == "Express"),
+            "isExpress" to (tipeLaundry == "Kilat"),
             "Pembayaran" to pembayaran,
             "Status" to mapOf(
                 "isReceived" to mapOf("value" to false, "time" to null),
@@ -319,7 +320,7 @@ fun LaundryOrderScreen(
                     onClick = { tipeLaundry = "Kilat" },
                     colors = RadioButtonDefaults.colors(selectedColor = BlueLaundryGo)
                 )
-                Text("Express")
+                Text("Kilat")
             }
         }
 

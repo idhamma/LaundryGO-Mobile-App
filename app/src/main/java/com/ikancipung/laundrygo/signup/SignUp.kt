@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
 
 @Composable
 fun SignUpScreen(navController: NavController) {
@@ -247,7 +248,7 @@ fun SignUpScreen(navController: NavController) {
             },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = Color.Blue,
+                backgroundColor = BlueLaundryGo,
                 contentColor = Color.White
             )
         ) {

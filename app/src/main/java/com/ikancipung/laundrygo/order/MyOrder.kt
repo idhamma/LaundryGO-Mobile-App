@@ -44,6 +44,7 @@ import com.ikancipung.laundrygo.R
 import com.ikancipung.laundrygo.menu.Footer
 import com.ikancipung.laundrygo.menu.NavigationItem
 import androidx.navigation.NavController
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -63,227 +64,142 @@ fun myOrderPage(navController: NavController) {
     }
 }
 
-
-
 @Composable
 fun myOrder(navController: NavController) {
     var orders by remember { mutableStateOf<List<Order>>(emptyList()) }
-    var expandedOrderId by remember { mutableStateOf<String?>(null) }
     val database = FirebaseDatabase.getInstance()
     val ordersRef = database.getReference("orders")
+    val uid = FirebaseAuth.getInstance().currentUser?.uid
 
     // Mendengarkan data Firebase
-    LaunchedEffect(Unit) {
-
-        val ordersQuery = FirebaseDatabase.getInstance().getReference("Orders")
-            .orderByChild("IDUser")
-            .equalTo(userId)  // Make sure this matches the user's ID in the database
-
-        ordersQuery.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val orders = snapshot.children.mapNotNull { it.getValue(Order::class.java) }
-                Log.d("FirebaseData", "Fetched orders: $orders")
-
-                // You can now pass this data to your UI (e.g., LiveData, state, etc.)
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.e("FirebaseData", "Error fetching orders: $error")
-            }
-        })
-
-        ordersRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val fetchedOrders = mutableListOf<Order>()
-                Log.d("FirebaseData", "onDataChange: snapshot children count: ${snapshot.childrenCount}")
-
-                snapshot.children.forEach { orderSnapshot ->
-                    Log.d("FirebaseData", "Order ID: ${orderSnapshot.key}") // Log order ID to ensure data is being fetched
-                    val order = orderSnapshot.getValue(Order::class.java)
-                    if (order != null) {
-                        // Log the status to check if the values are being parsed correctly
-                        Log.d("FirebaseData", "Order status: ${order.Status}")
-                        fetchedOrders.add(order)
+    LaunchedEffect(uid) {
+        if (uid != null) {
+            ordersRef.addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val fetchedOrders = snapshot.children.mapNotNull { orderSnapshot ->
+                        val order = orderSnapshot.getValue(Order::class.java)?.apply {
+                            id = orderSnapshot.key
+                        }
+                        // Filter hanya pesanan milik pengguna yang sedang login
+                        if (order?.IDPemesan == uid) order else null
                     }
+                    orders = fetchedOrders // Perbarui state dengan data baru
+                    Log.d("FirebaseData", "Orders updated: $fetchedOrders")
                 }
-                orders = fetchedOrders
-                Log.d("FirebaseData", "Fetched orders: $fetchedOrders")
-            }
 
-            override fun onCancelled(error: DatabaseError) {
-                Log.e("FirebaseData", "Error: ${error.message}")
-            }
-        })
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("FirebaseData", "Error fetching orders: ${error.message}")
+                }
+            })
+        } else {
+            Log.e("FirebaseAuth", "User is not logged in.")
+            navController.navigate("Login")
+        }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
         LazyColumn {
             items(orders) { order ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 4.dp)
-                        .background(color = BlueLaundryGo, shape = RoundedCornerShape(8.dp))
-                        .clickable { /* Tidak ada aksi utama */ },
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.icon_category_order_1),
-                            contentDescription = "Laundry Icon",
-                            modifier = Modifier
-                                .size(36.dp)
-                                .padding(end = 8.dp),
-                            colorFilter = ColorFilter.tint(Color.White)
-                        )
-
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = order.NamaLaundry,
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold,
-                                style = MaterialTheme.typography.bodySmall
-                            )
-
-                            // Menampilkan status pertama (Pesanan diterima) dengan waktu pemesanan
-                            Text(
-                                text = "${formatTimestamp(order.WaktuPesan)} - Pesanan sudah diterima",
-                                color = Color.White,
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                        }
-
-                        // Ikon titik tiga
-                        Icon(
-                            painter = painterResource(id = R.drawable.icon_more),
-                            contentDescription = "More Icon",
-                            modifier = Modifier
-                                .size(28.dp)
-                                .padding(end = 8.dp)
-                                .clickable {
-                                    expandedOrderId = if (expandedOrderId == order.OrderID) null else order.OrderID
-                                }
-                        )
-                    }
-
-                    // Dropdown untuk notifikasi status
-                    if (expandedOrderId == order.OrderID) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(Color.LightGray)
-                                .padding(8.dp)
-                        ) {
-                            val statusMessages = mapOf(
-                                "isDone" to "Pesanan selesai",
-                                "isInLaundry" to "Pakaian sedang dicuci",
-                                "isPaid" to "Pesanan telah dibayar",
-                                "isReceived" to "Pesanan sudah diterima",
-                                "isSent" to "Pesanan sedang dikirim",
-                                "isWashing" to "Pakaian sedang dicuci",
-                                "isWeighted" to "Pakaian selesai ditimbang"
-                            )
-
-                            // Use safe calls or null checks to avoid NullPointerException
-                            if (order.Status.isDone?.value == true) {
-                                Text(
-                                    text = "${formatTimestamp(order.WaktuPesan)} - ${statusMessages["isDone"]}",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            } else {
-                                Text(
-                                    text = "${formatTimestamp(order.WaktuPesan)} - Status not updated",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            }
-
-                            if (order.Status.isInLaundry?.value == true) {
-                                Text(
-                                    text = "${formatTimestamp(order.WaktuPesan)} - ${statusMessages["isInLaundry"]}",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            } else {
-                                Text(
-                                    text = "${formatTimestamp(order.WaktuPesan)} - Status not updated",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            }
-
-                            if (order.Status.isPaid?.value == true) {
-                                Text(
-                                    text = "${formatTimestamp(order.WaktuPesan)} - ${statusMessages["isPaid"]}",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            } else {
-                                Text(
-                                    text = "${formatTimestamp(order.WaktuPesan)} - Status not updated",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            }
-
-                            if (order.Status.isReceived?.value == true) {
-                                Text(
-                                    text = "${formatTimestamp(order.WaktuPesan)} - ${statusMessages["isReceived"]}",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            } else {
-                                Text(
-                                    text = "${formatTimestamp(order.WaktuPesan)} - Status not updated",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            }
-
-                            if (order.Status.isSent?.value == true) {
-                                Text(
-                                    text = "${formatTimestamp(order.WaktuPesan)} - ${statusMessages["isSent"]}",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            } else {
-                                Text(
-                                    text = "${formatTimestamp(order.WaktuPesan)} - Status not updated",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            }
-
-                            if (order.Status.isWashing?.value == true) {
-                                Text(
-                                    text = "${formatTimestamp(order.WaktuPesan)} - ${statusMessages["isWashing"]}",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            } else {
-                                Text(
-                                    text = "${formatTimestamp(order.WaktuPesan)} - Status not updated",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            }
-
-                            if (order.Status.isWeighted?.value == true) {
-                                Text(
-                                    text = "${formatTimestamp(order.WaktuPesan)} - ${statusMessages["isWeighted"]}",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            } else {
-                                Text(
-                                    text = "${formatTimestamp(order.WaktuPesan)} - Status not updated",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            }
-                            Log.d("Order Status", "Status: ${order.Status}")
-
-                        }
-                    }
-
-                }
+                OrderCard(order)
             }
         }
     }
 }
 
+@Composable
+fun OrderCard(order: Order) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .background(color = BlueLaundryGo, shape = RoundedCornerShape(8.dp))
+            .clickable { expanded = !expanded },
+        verticalArrangement = Arrangement.Center
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.icon_category_order_1),
+                contentDescription = "Laundry Icon",
+                modifier = Modifier
+                    .size(36.dp)
+                    .padding(end = 8.dp),
+                colorFilter = ColorFilter.tint(Color.White)
+            )
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = order.NamaLaundry,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.bodySmall
+                )
+
+                Text(
+                    text = "${formatTimestamp(order.WaktuPesan)} - Pesanan sudah diterima",
+                    color = Color.White,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
+
+        // Dropdown untuk menampilkan detail status
+        if (expanded) {
+            StatusList(order = order)
+        }
+    }
+}
+
+@Composable
+fun StatusList(order: Order) {
+    val statusMessages = mapOf(
+        "isDone" to "Pesanan selesai",
+        "isInLaundry" to "Pakaian sedang dicuci",
+        "isPaid" to "Pesanan telah dibayar",
+        "isReceived" to "Pesanan sudah diterima",
+        "isSent" to "Pesanan sedang dikirim",
+        "isWashing" to "Pakaian sedang dicuci",
+        "isWeighted" to "Pakaian selesai ditimbang"
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.LightGray)
+            .padding(8.dp)
+    ) {
+        statusMessages.forEach { (key, message) ->
+            val statusDetail = when (key) {
+                "isDone" -> order.Status.isDone
+                "isInLaundry" -> order.Status.isInLaundry
+                "isPaid" -> order.Status.isPaid
+                "isReceived" -> order.Status.isReceived
+                "isSent" -> order.Status.isSent
+                "isWashing" -> order.Status.isWashing
+                "isWeighted" -> order.Status.isWeighted
+                else -> null
+            }
+
+            val statusText = if (statusDetail?.value == true) {
+                "${formatTimestamp(statusDetail.time ?: System.currentTimeMillis())} - $message"
+            } else {
+                "Status not updated"
+            }
+
+            Text(
+                text = statusText,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(vertical = 2.dp)
+            )
+        }
+    }
+}
 
 //@Preview(showBackground = true)
 //@Composable

@@ -35,16 +35,16 @@ data class OrderDetail(
 )
 
 data class LaundryStatus(
-    @Exclude var isPaid: LaundryStatusDetail? = null,
-    @Exclude var isInLaundry: LaundryStatusDetail? = null,
-    @Exclude var isDone: LaundryStatusDetail? = null,
-    @Exclude var isReceived: LaundryStatusDetail? = null,
-    @Exclude  var isSent: LaundryStatusDetail? = null,
-    @Exclude var isWashing: LaundryStatusDetail? = null,
-    @Exclude var isWeighted: LaundryStatusDetail? = null
+    var isDone: LaundryStatusDetail? = LaundryStatusDetail(),
+    var isInLaundry: LaundryStatusDetail? = LaundryStatusDetail(),
+    var isPaid: LaundryStatusDetail? = LaundryStatusDetail(),
+    var isReceived: LaundryStatusDetail? = LaundryStatusDetail(),
+    var isSent: LaundryStatusDetail? = LaundryStatusDetail(),
+    var isWashing: LaundryStatusDetail? = LaundryStatusDetail(),
+    var isWeighted: LaundryStatusDetail? = LaundryStatusDetail()
 )
 
 data class LaundryStatusDetail(
-    var value: Boolean = true,
+    var value: Boolean = false,
     var time: Long? = null
 )
