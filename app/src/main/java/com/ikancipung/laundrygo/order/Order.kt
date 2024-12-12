@@ -35,13 +35,13 @@ data class OrderDetail(
 )
 
 data class LaundryStatus(
-    var isDone: LaundryStatusDetail? = LaundryStatusDetail(),
-    var isInLaundry: LaundryStatusDetail? = LaundryStatusDetail(),
-    var isPaid: LaundryStatusDetail? = LaundryStatusDetail(),
-    var isReceived: LaundryStatusDetail? = LaundryStatusDetail(),
-    var isSent: LaundryStatusDetail? = LaundryStatusDetail(),
-    var isWashing: LaundryStatusDetail? = LaundryStatusDetail(),
-    var isWeighted: LaundryStatusDetail? = LaundryStatusDetail()
+    var isDone: LaundryStatusDetail = LaundryStatusDetail(),
+    var isInLaundry: LaundryStatusDetail = LaundryStatusDetail(),
+    var isPaid: LaundryStatusDetail = LaundryStatusDetail(),
+    var isReceived: LaundryStatusDetail = LaundryStatusDetail(),
+    var isSent: LaundryStatusDetail = LaundryStatusDetail(),
+    var isWashing: LaundryStatusDetail = LaundryStatusDetail(),
+    var isWeighted: LaundryStatusDetail = LaundryStatusDetail()
 )
 
 data class LaundryStatusDetail(

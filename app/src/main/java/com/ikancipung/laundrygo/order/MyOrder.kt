@@ -8,21 +8,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -38,20 +30,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.*
 import com.ikancipung.laundrygo.R
 import com.ikancipung.laundrygo.menu.Footer
 import com.ikancipung.laundrygo.menu.NavigationItem
-import androidx.navigation.NavController
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
-import com.ikancipung.laundrygo.menu.ProfileSettingsScreen
-import com.ikancipung.laundrygo.menu.userId
 import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @Composable
 fun myOrderPage(navController: NavController) {
@@ -64,6 +52,26 @@ fun myOrderPage(navController: NavController) {
     }
 }
 
+/**
+ * Updates the 'time' field in the database for a specific status if it's true and has no time yet.
+ */
+fun updateStatusTimeIfNeeded(orderId: String, statusName: String, statusDetail: LaundryStatusDetail) {
+    if (statusDetail.value && statusDetail.time == null) {
+        val currentTime = System.currentTimeMillis()
+        val updates = mapOf(
+            "Status/$statusName/time" to currentTime
+        )
+        val orderRef = FirebaseDatabase.getInstance().getReference("orders").child(orderId)
+        orderRef.updateChildren(updates).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Log.d("FirebaseData", "Set time for $statusName in order $orderId to $currentTime")
+            } else {
+                Log.e("FirebaseData", "Failed to set time for $statusName in order $orderId: ${task.exception?.message}")
+            }
+        }
+    }
+}
+
 @Composable
 fun myOrder(navController: NavController) {
     var orders by remember { mutableStateOf<List<Order>>(emptyList()) }
@@ -71,19 +79,91 @@ fun myOrder(navController: NavController) {
     val ordersRef = database.getReference("orders")
     val uid = FirebaseAuth.getInstance().currentUser?.uid
 
-    // Mendengarkan data Firebase
     LaunchedEffect(uid) {
         if (uid != null) {
             ordersRef.addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    val fetchedOrders = snapshot.children.mapNotNull { orderSnapshot ->
-                        val order = orderSnapshot.getValue(Order::class.java)?.apply {
-                            id = orderSnapshot.key
+                    val fetchedOrders = mutableListOf<Order>()
+                    for (orderSnapshot in snapshot.children) {
+                        val idPemesan = orderSnapshot.child("IDPemesan").getValue(String::class.java) ?: ""
+                        if (idPemesan == uid) {
+                            val orderId = orderSnapshot.key ?: continue
+                            val order = Order()
+                            order.id = orderId
+                            order.LaundryName = orderSnapshot.child("LaundryName").getValue(String::class.java) ?: ""
+                            order.LaundryName = orderSnapshot.child("NamaLaundry").getValue(String::class.java) ?: ""
+                            order.AlamatLaundry = orderSnapshot.child("AlamatLaundry").getValue(String::class.java) ?: ""
+                            order.AlamatPemesanan = orderSnapshot.child("AlamatPemesanan").getValue(String::class.java) ?: ""
+                            order.CuciKiloanOption = orderSnapshot.child("CuciKiloanOption").getValue(String::class.java) ?: ""
+                            order.IDPemesan = idPemesan
+                            order.NamaLaundry = orderSnapshot.child("NamaLaundry").getValue(String::class.java) ?: ""
+                            order.NamaPemesan = orderSnapshot.child("NamaPemesan").getValue(String::class.java) ?: ""
+                            order.OrderID = orderSnapshot.child("OrderID").getValue(String::class.java) ?: ""
+                            order.Pembayaran = orderSnapshot.child("Pembayaran").getValue(String::class.java) ?: ""
+                            order.WaktuPesan = orderSnapshot.child("WaktuPesan").getValue(Long::class.java) ?: 0L
+                            order.isAntarJemput = orderSnapshot.child("isAntarJemput").getValue(Boolean::class.java) ?: false
+                            order.isExpress = orderSnapshot.child("isExpress").getValue(Boolean::class.java) ?: false
+
+                            // Mapping Orders
+                            val ordersMap = mutableMapOf<String, OrderDetail>()
+                            val ordersChild = orderSnapshot.child("Orders")
+                            for (orderDetailSnapshot in ordersChild.children) {
+                                val service = orderDetailSnapshot.child("Service").getValue(String::class.java) ?: ""
+                                val price = orderDetailSnapshot.child("Price").getValue(String::class.java) ?: ""
+                                val quantity = orderDetailSnapshot.child("Quantity").getValue(Int::class.java) ?: 0
+                                val od = OrderDetail(Service = service, Price = price, Quantity = quantity)
+                                ordersMap[orderDetailSnapshot.key ?: ""] = od
+                            }
+                            order.Orders = ordersMap
+
+                            // Mapping Status
+                            val statusSnapshot = orderSnapshot.child("Status")
+                            val status = LaundryStatus(
+                                isDone = LaundryStatusDetail(
+                                    value = statusSnapshot.child("isDone").child("value").getValue(Boolean::class.java) ?: false,
+                                    time = statusSnapshot.child("isDone").child("time").getValue(Long::class.java)
+                                ),
+                                isInLaundry = LaundryStatusDetail(
+                                    value = statusSnapshot.child("isInLaundry").child("value").getValue(Boolean::class.java) ?: false,
+                                    time = statusSnapshot.child("isInLaundry").child("time").getValue(Long::class.java)
+                                ),
+                                isPaid = LaundryStatusDetail(
+                                    value = statusSnapshot.child("isPaid").child("value").getValue(Boolean::class.java) ?: false,
+                                    time = statusSnapshot.child("isPaid").child("time").getValue(Long::class.java)
+                                ),
+                                isReceived = LaundryStatusDetail(
+                                    value = statusSnapshot.child("isReceived").child("value").getValue(Boolean::class.java) ?: false,
+                                    time = statusSnapshot.child("isReceived").child("time").getValue(Long::class.java)
+                                ),
+                                isSent = LaundryStatusDetail(
+                                    value = statusSnapshot.child("isSent").child("value").getValue(Boolean::class.java) ?: false,
+                                    time = statusSnapshot.child("isSent").child("time").getValue(Long::class.java)
+                                ),
+                                isWashing = LaundryStatusDetail(
+                                    value = statusSnapshot.child("isWashing").child("value").getValue(Boolean::class.java) ?: false,
+                                    time = statusSnapshot.child("isWashing").child("time").getValue(Long::class.java)
+                                ),
+                                isWeighted = LaundryStatusDetail(
+                                    value = statusSnapshot.child("isWeighted").child("value").getValue(Boolean::class.java) ?: false,
+                                    time = statusSnapshot.child("isWeighted").child("time").getValue(Long::class.java)
+                                )
+                            )
+                            order.Status = status
+
+                            // Update time if needed
+                            // For each status that is true but has null time, set the time now.
+                            updateStatusTimeIfNeeded(orderId, "isDone", status.isDone)
+                            updateStatusTimeIfNeeded(orderId, "isInLaundry", status.isInLaundry)
+                            updateStatusTimeIfNeeded(orderId, "isPaid", status.isPaid)
+                            updateStatusTimeIfNeeded(orderId, "isReceived", status.isReceived)
+                            updateStatusTimeIfNeeded(orderId, "isSent", status.isSent)
+                            updateStatusTimeIfNeeded(orderId, "isWashing", status.isWashing)
+                            updateStatusTimeIfNeeded(orderId, "isWeighted", status.isWeighted)
+
+                            fetchedOrders.add(order)
                         }
-                        // Filter hanya pesanan milik pengguna yang sedang login
-                        if (order?.IDPemesan == uid) order else null
                     }
-                    orders = fetchedOrders // Perbarui state dengan data baru
+                    orders = fetchedOrders
                     Log.d("FirebaseData", "Orders updated: $fetchedOrders")
                 }
 
@@ -106,9 +186,46 @@ fun myOrder(navController: NavController) {
     }
 }
 
+/**
+ * Return a list of all true statuses sorted by time descending.
+ * If time is null (which should now never happen after the update), we show "No timestamp available".
+ */
+fun getTrueStatuses(order: Order): List<Pair<String, Long?>> {
+    val statusMapping = listOf(
+        order.Status.isDone to "Pesanan selesai",
+        order.Status.isSent to "Pesanan sedang dikirim",
+        order.Status.isWashing to "Pakaian sedang dicuci",
+        order.Status.isInLaundry to "Pakaian sedang di laundry",
+        order.Status.isWeighted to "Pakaian selesai ditimbang",
+        order.Status.isPaid to "Pesanan telah dibayar",
+        order.Status.isReceived to "Pesanan sudah diterima"
+    )
+
+    val trueStatuses = statusMapping.mapNotNull { (detail, message) ->
+        if (detail?.value == true) {
+            val t = detail.time
+            message to t
+        } else null
+    }
+
+    // Sort by time descending, if time is null show them last
+    return trueStatuses.sortedByDescending { it.second ?: Long.MIN_VALUE }
+}
+
 @Composable
 fun OrderCard(order: Order) {
     var expanded by remember { mutableStateOf(false) }
+
+    val trueStatuses = getTrueStatuses(order)
+    val (currentStatusMessage, currentStatusTime) = if (trueStatuses.isNotEmpty()) {
+        // If we have statuses, take the first one after sorting by time (newest)
+        trueStatuses.first()
+    } else {
+        // No true status, show no timestamp available
+        "Status not updated" to null
+    }
+
+    val displayTime = if (currentStatusTime != null) formatTimestampNotif(currentStatusTime) else "No timestamp available"
 
     Column(
         modifier = Modifier
@@ -142,14 +259,13 @@ fun OrderCard(order: Order) {
                 )
 
                 Text(
-                    text = "${formatTimestamp(order.WaktuPesan)} - Pesanan sudah diterima",
+                    text = "$displayTime - $currentStatusMessage",
                     color = Color.White,
                     style = MaterialTheme.typography.bodySmall
                 )
             }
         }
 
-        // Dropdown untuk menampilkan detail status
         if (expanded) {
             StatusList(order = order)
         }
@@ -158,15 +274,7 @@ fun OrderCard(order: Order) {
 
 @Composable
 fun StatusList(order: Order) {
-    val statusMessages = mapOf(
-        "isDone" to "Pesanan selesai",
-        "isInLaundry" to "Pakaian sedang dicuci",
-        "isPaid" to "Pesanan telah dibayar",
-        "isReceived" to "Pesanan sudah diterima",
-        "isSent" to "Pesanan sedang dikirim",
-        "isWashing" to "Pakaian sedang dicuci",
-        "isWeighted" to "Pakaian selesai ditimbang"
-    )
+    val trueStatuses = getTrueStatuses(order)
 
     Column(
         modifier = Modifier
@@ -174,35 +282,28 @@ fun StatusList(order: Order) {
             .background(Color.LightGray)
             .padding(8.dp)
     ) {
-        statusMessages.forEach { (key, message) ->
-            val statusDetail = when (key) {
-                "isDone" -> order.Status.isDone
-                "isInLaundry" -> order.Status.isInLaundry
-                "isPaid" -> order.Status.isPaid
-                "isReceived" -> order.Status.isReceived
-                "isSent" -> order.Status.isSent
-                "isWashing" -> order.Status.isWashing
-                "isWeighted" -> order.Status.isWeighted
-                else -> null
-            }
-
-            val statusText = if (statusDetail?.value == true) {
-                "${formatTimestamp(statusDetail.time ?: System.currentTimeMillis())} - $message"
-            } else {
-                "Status not updated"
-            }
-
+        if (trueStatuses.isEmpty()) {
             Text(
-                text = statusText,
+                text = "No updated status",
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(vertical = 2.dp)
             )
+        } else {
+            trueStatuses.forEach { (message, time) ->
+                val displayTime = if (time != null) formatTimestampNotif(time) else "No timestamp available"
+                val statusText = "$displayTime - $message"
+                Text(
+                    text = statusText,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(vertical = 2.dp)
+                )
+            }
         }
     }
 }
 
-//@Preview(showBackground = true)
-//@Composable
-//fun MyOrderPreview(){
-//    myOrderPage()
-//}
+fun formatTimestampNotif(time: Long): String {
+    val date = java.util.Date(time)
+    val format = SimpleDateFormat("HH:mm", Locale.getDefault())
+    return format.format(date)
+}
