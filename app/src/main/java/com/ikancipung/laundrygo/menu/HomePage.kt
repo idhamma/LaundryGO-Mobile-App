@@ -303,6 +303,7 @@ fun Homepage(
             )
             ImageLazyRowService(dataList = filteredServices, navController = navController)
         }
+        Box(){}
     }
 }
 
