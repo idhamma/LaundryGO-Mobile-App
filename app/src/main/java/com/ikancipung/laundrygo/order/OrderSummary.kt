@@ -1,6 +1,7 @@
 package com.ikancipung.laundrygo.order
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -84,47 +85,114 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
                     .padding(16.dp)
             ) {
                 // Header Row with Back Button
+//                Row(
+//                    modifier = Modifier.fillMaxWidth(),
+//                    verticalAlignment = Alignment.CenterVertically,
+//                    horizontalArrangement = Arrangement.Center
+//                ) {
+//                    IconButton(onClick = { navController.popBackStack() }) {
+//                        Icon(
+//                            imageVector = Icons.Default.ArrowBack,
+//                            contentDescription = "Kembali"
+//                        )
+//                    }
+//                    Spacer(modifier = Modifier.width(8.dp))
+//                    Text(
+//                        text = order.NamaLaundry,
+//                        style = MaterialTheme.typography.titleLarge,
+//                        fontSize = 24.sp,
+//                        fontWeight = FontWeight.Bold,
+//                        color = Color.Black
+//                    )
+//                }
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Kembali"
+                    Icon(
+                        imageVector = Icons.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clickable { navController.popBackStack() },
+                        tint = Color.Black
+                    )
+
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = order.NamaLaundry,
+                            style = MaterialTheme.typography.titleLarge,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black,
+                            modifier = Modifier.padding(end=96.dp)
                         )
                     }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = order.NamaLaundry,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
-                    )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Order Information
-                Text(
-                    text = "Order ID: ${order.OrderID}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
-                )
-                Text(
-                    text = "Waktu Pesanan: ${formatTimestamp(order.WaktuPesan)}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
-                )
-                Text(
-                    text = "Metode Pembayaran: ${order.Pembayaran}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
-                )
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "Order ID:",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                        Text(
+                            text = "${order.OrderID}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "Waktu Pesanan:",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                        Text(
+                            text = "${formatTimestamp(order.WaktuPesan)}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "Metode Pembayaran:",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                        Text(
+                            text = "${order.Pembayaran}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                    }
+                }
+
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -191,20 +259,49 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
                             }
                         }
                     }
+
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Price Calculation
-                Text("Subtotal: Rp.${subtotal}", fontSize = 14.sp, color = Color.Gray)
-                if (order.isAntarJemput) {
-                    Text("Biaya Antar Jemput: Rp.10000", fontSize = 14.sp, color = Color.Gray)
-                }
+                Column {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Subtotal:", fontSize = 14.sp, color = Color.Gray)
+                        Text("Rp.${subtotal}", fontSize = 14.sp, color = Color.Gray)
+                    }
 
-                if (order.isExpress) {
-                    Text("Biaya Express: Rp.10000", fontSize = 14.sp, color = Color.Gray)
+                    if (order.isAntarJemput) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("Biaya Antar Jemput:", fontSize = 14.sp, color = Color.Gray)
+                            Text("Rp.10000", fontSize = 14.sp, color = Color.Gray)
+                        }
+                    }
+
+                    if (order.isExpress) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("Biaya Express:", fontSize = 14.sp, color = Color.Gray)
+                            Text("Rp.10000", fontSize = 14.sp, color = Color.Gray)
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Total:", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Black)
+                        Text("Rp.${total}", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Black)
+                    }
                 }
-                Text("Total: Rp.${total}", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Black)
 
                 Spacer(modifier = Modifier.height(16.dp))
 
