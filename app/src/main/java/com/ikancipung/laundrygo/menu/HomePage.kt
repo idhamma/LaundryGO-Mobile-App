@@ -413,7 +413,7 @@ fun ImageLazyRowService(dataList: List<Service>, navController: NavController) {
                 shape = RoundedCornerShape(8.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFFF3F3F3)
+                    containerColor = Color(0xFFF3F3F3 )
                 )
             ) {
                 Column(
