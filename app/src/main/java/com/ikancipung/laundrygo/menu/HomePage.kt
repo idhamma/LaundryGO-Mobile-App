@@ -270,7 +270,7 @@ fun Homepage(
         ) {
             Text(
                 text = "Gerai",
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold
             )
             Text(
