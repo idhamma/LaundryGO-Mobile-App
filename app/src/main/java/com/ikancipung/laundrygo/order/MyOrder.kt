@@ -69,7 +69,6 @@ fun myOrder(navController: NavController) {
     var orders by remember { mutableStateOf<List<Order>>(emptyList()) }
     val database = FirebaseDatabase.getInstance()
     val ordersRef = database.getReference("orders")
-    ordersRef.keepSynced(true)
     val uid = FirebaseAuth.getInstance().currentUser?.uid
 
     // Mendengarkan data Firebase
@@ -84,8 +83,8 @@ fun myOrder(navController: NavController) {
                         // Filter hanya pesanan milik pengguna yang sedang login
                         if (order?.IDPemesan == uid) order else null
                     }
-                    orders = fetchedOrders
-                    Log.d("FilteredOrders", "Fetched orders for user $uid: $fetchedOrders")
+                    orders = fetchedOrders // Perbarui state dengan data baru
+                    Log.d("FirebaseData", "Orders updated: $fetchedOrders")
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -190,7 +189,7 @@ fun StatusList(order: Order) {
             val statusText = if (statusDetail?.value == true) {
                 "${formatTimestamp(statusDetail.time ?: System.currentTimeMillis())} - $message"
             } else {
-                "${formatTimestamp(System.currentTimeMillis())} - Status not updated"
+                "Status not updated"
             }
 
             Text(

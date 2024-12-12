@@ -161,7 +161,7 @@ fun LaundryOrderScreen(
             "WaktuPesan" to System.currentTimeMillis(),
             "Orders" to filteredOrders,
             "isAntarJemput" to (antarJemput == "Ya"),
-            "isExpress" to (tipeLaundry == "Express"),
+            "isExpress" to (tipeLaundry == "Kilat"),
             "Pembayaran" to pembayaran,
             "Status" to mapOf(
                 "isReceived" to mapOf("value" to false, "time" to null),
@@ -320,7 +320,7 @@ fun LaundryOrderScreen(
                     onClick = { tipeLaundry = "Kilat" },
                     colors = RadioButtonDefaults.colors(selectedColor = BlueLaundryGo)
                 )
-                Text("Express")
+                Text("Kilat")
             }
         }
 
