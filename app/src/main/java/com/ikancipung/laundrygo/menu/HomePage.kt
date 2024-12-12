@@ -1,6 +1,11 @@
+@file:OptIn(ExperimentalPermissionsApi::class)
+
 package com.ikancipung.laundrygo.menu
 
+import android.Manifest
 import android.net.Uri
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,6 +32,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -47,21 +53,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.gson.Gson
 import com.ikancipung.laundrygo.R
+import com.ikancipung.laundrygo.notification.NotificationStatus
 import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
 
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun HomepagePage(navController: NavController) {
     val outlets = remember { mutableStateListOf<Laundry>() }
@@ -81,7 +93,6 @@ fun HomepagePage(navController: NavController) {
                     }
                 }
             }
-
             override fun onCancelled(error: DatabaseError) {
                 // Handle error
             }
@@ -117,6 +128,7 @@ fun HomepagePage(navController: NavController) {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Homepage(
@@ -124,9 +136,21 @@ fun Homepage(
     services: List<Service>,
     navController: NavController
 ) {
+    val context = LocalContext.current
+    val waterNotificationService = NotificationStatus(context)
+    val ordersRef = FirebaseDatabase.getInstance().getReference("orders") // Referensi Firebase
+
+    val postNotificationPermission =
+        rememberPermissionState(permission = Manifest.permission.POST_NOTIFICATIONS)
+
     var isSearchActive by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
 
+    LaunchedEffect(key1 = true) {
+        if (!postNotificationPermission.status.isGranted) {
+            postNotificationPermission.launchPermissionRequest()
+        }
+    }
     val filteredOutlets = outlets.filter { it.name.contains(searchQuery, ignoreCase = true) }
     val filteredServices = services.filter { it.name.contains(searchQuery, ignoreCase = true) }
 
