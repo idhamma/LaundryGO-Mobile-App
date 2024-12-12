@@ -43,7 +43,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
 import androidx.annotation.RequiresApi
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.firebase.database.ValueEventListener
 
 
@@ -51,7 +50,6 @@ private lateinit var auth: FirebaseAuth
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
