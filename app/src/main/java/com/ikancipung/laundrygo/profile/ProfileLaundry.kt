@@ -20,11 +20,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -45,6 +47,7 @@ import coil.compose.rememberImagePainter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.gson.Gson
+import com.ikancipung.laundrygo.menu.Laundry
 import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
 import java.util.Locale
 
@@ -216,6 +219,7 @@ fun ProfileLaundry(
         Spacer(modifier = Modifier.weight(1f))
 
         // Tombol Pesan
+       ChatScreen(navController, laundryName, laundryLogo)
         Button(
             onClick = {
                 navController.navigate(
@@ -231,6 +235,25 @@ fun ProfileLaundry(
             colors = ButtonDefaults.buttonColors(BlueLaundryGo)
         ) {
             Text(text = "Pesan Sekarang!", color = Color.White)
+        }
+    }
+}
+
+@Composable
+fun ChatScreen(navController: NavController, laundryName: String, laundryLogo: String) {
+    Box() {
+        FloatingActionButton(
+            onClick = {
+                navController.navigate("chat/${Uri.encode(laundryName)}/${Uri.encode(laundryLogo)}")
+            },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.AccountCircle,
+                contentDescription = "Chat"
+            )
         }
     }
 }

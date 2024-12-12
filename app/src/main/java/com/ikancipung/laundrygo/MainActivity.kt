@@ -93,7 +93,14 @@ class MainActivity : ComponentActivity() {
                         val orderId = backStackEntry.arguments?.getString("orderId") ?: ""
                         TitleLaundryScreen(navController = navController, orderId = orderId)
                     }
-                    composable("chat"){ ChatScreen(navController = navController) }
+                    composable("chat/{name}/{imageUrl}", arguments = listOf(
+                        navArgument("name"){type = NavType.StringType},
+                        navArgument("imageUrl"){type = NavType.StringType}
+                    )){ backStackEntry ->
+                        val name = backStackEntry.arguments?.getString("name")?:""
+                        val imageUrl = backStackEntry.arguments?.getString("imageUrl")?:""
+                        ChatScreen(navController = navController, laundryName = name, laundryLogo = imageUrl)
+                    }
                     composable("Rating") { RatingScreen(navController = navController) }
                     composable("Qris") { QrisPaymentScreen(navController = navController) }
                     composable("Vapayment") { VAPaymentScreen(navController = navController) }

@@ -331,20 +331,26 @@ fun Homepage(
             )
             ImageLazyRowService(dataList = filteredServices, navController = navController)
         }
-        Box() {
-            FloatingActionButton(
-                onClick = {
-                    navController.navigate("chat") // Replace "chat" with your chat screen route
-                },
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp) // Padding for placement above and away from edges
-            ) {
-                Icon(
-                    imageVector = Icons.Default.AccountCircle, // Replace with your desired icon
-                    contentDescription = "Chat"
-                )
-            }
+        ChatScreen(filteredOutlets, navController = navController)
+    }
+}
+
+@Composable
+fun ChatScreen(datalist: List<Laundry>, navController: NavController){
+
+    Box() {
+        FloatingActionButton(
+            onClick = {
+                navController.navigate("chat") // Replace "chat" with your chat screen route
+            },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp) // Padding for placement above and away from edges
+        ) {
+            Icon(
+                imageVector = Icons.Default.AccountCircle, // Replace with your desired icon
+                contentDescription = "Chat"
+            )
         }
     }
 }
