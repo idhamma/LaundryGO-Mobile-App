@@ -14,6 +14,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.gson.Gson
+import com.ikancipung.laundrygo.chat.ChatScreen
 import com.ikancipung.laundrygo.login.LoginScreen
 import com.ikancipung.laundrygo.menu.FavoriteLaundryScreen
 import com.ikancipung.laundrygo.menu.ServiceLaundryScreen
@@ -62,6 +63,7 @@ class MainActivity : ComponentActivity() {
                         val orderId = backStackEntry.arguments?.getString("orderId") ?: ""
                         TitleLaundryScreen(navController = navController, orderId = orderId)
                     }
+                    composable("chat"){ ChatScreen(navController = navController) }
                     composable("Rating") { RatingScreen(navController = navController) }
                     composable("Qris") { QrisPaymentScreen(navController = navController) }
                     composable("Vapayment") { VAPaymentScreen(navController = navController) }

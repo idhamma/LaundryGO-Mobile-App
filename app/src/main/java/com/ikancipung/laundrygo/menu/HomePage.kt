@@ -23,12 +23,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -302,6 +305,21 @@ fun Homepage(
             )
             ImageLazyRowService(dataList = filteredServices, navController = navController)
         }
+        Box() {
+            FloatingActionButton(
+                onClick = {
+                    navController.navigate("chat") // Replace "chat" with your chat screen route
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp) // Padding for placement above and away from edges
+            ) {
+                Icon(
+                    imageVector = Icons.Default.AccountCircle, // Replace with your desired icon
+                    contentDescription = "Chat"
+                )
+            }
+        }
     }
 }
 
@@ -329,7 +347,8 @@ fun ImageLazyRow(dataList: List<Laundry>, navController: NavController) {
                             }/${Uri.encode(Gson().toJson(laundry.services))}"
                         )
                     },
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(8.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
             ) {
                 Column(
                     modifier = Modifier.padding(8.dp),
@@ -376,6 +395,8 @@ fun ImageLazyRowService(dataList: List<Service>, navController: NavController) {
                         navController.navigate("ServiceLaundryScreen/${Uri.encode(service.name)}")
                     },
                 shape = RoundedCornerShape(8.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+
             ) {
                 Column(
                     modifier = Modifier
