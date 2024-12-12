@@ -109,11 +109,9 @@ fun HomepagePage(navController: NavController) {
     Scaffold(
         bottomBar = { Footer(navController) }
     ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-        ) {
+        Box(modifier = Modifier
+            .padding(innerPadding)
+            .verticalScroll(rememberScrollState())) {
             Homepage(outlets, services, navController)
         }
     }
@@ -259,7 +257,7 @@ fun Homepage(
                     .background(Color.Gray),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "Loading Banners...", color = Color.White)
+                Text(text = "Memuat spanduk...", color = Color.White)
             }
         }
 
@@ -270,8 +268,8 @@ fun Homepage(
                 .fillMaxWidth()
         ) {
             Text(
-                text = "Outlet",
-                style = MaterialTheme.typography.bodyLarge,
+                text = "Gerai",
+                style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold
             )
             Text(
