@@ -76,7 +76,7 @@ fun SignUpScreen(navController: NavController) {
         database.child("users").child(userId).setValue(user)
             .addOnSuccessListener {
                 Toast.makeText(context, "Account created successfully!", Toast.LENGTH_SHORT).show()
-                navController.navigate("Login")
+                navController.navigate("Masuk")
             }
             .addOnFailureListener {
                 Toast.makeText(context, "Failed to save user data", Toast.LENGTH_SHORT).show()
