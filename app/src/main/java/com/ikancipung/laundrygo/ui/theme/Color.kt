@@ -12,3 +12,8 @@ val Pink40 = Color(0xFF7D5260)
 
 val BlueLaundryGo = Color(0xFF006FFD)
 val RedLaundryGo = Color(0xFFFF0000)
+
+
+val GreenPrimary = Color(0xFF388E3C)
+val GreenLight = Color(0xFFE8F5E9)
+val WhiteText = Color(0xFFFFFFFF)

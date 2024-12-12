@@ -50,6 +50,8 @@ dependencies {
     implementation("com.google.firebase:firebase-database-ktx")
     implementation("com.google.code.gson:gson:2.8.9")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0")
+    implementation("com.google.accompanist:accompanist-permissions:0.31.2-alpha")
+
 
 
     implementation(libs.androidx.compose.material)

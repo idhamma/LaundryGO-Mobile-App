@@ -9,12 +9,10 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
@@ -22,23 +20,47 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.rememberImagePainter
 import com.ikancipung.laundrygo.R
+import com.ikancipung.laundrygo.menu.Laundry
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
-fun ChatScreen(navController: NavController) {
+fun ChatScreen(navController: NavController, laundryLogo: String, laundryName: String) {
+    var messages by remember { mutableStateOf(listOf<Pair<Boolean, String>>()) }
+    val coroutineScope = rememberCoroutineScope()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        ChatToolbar(onBackClick = { navController.popBackStack() })
-        Spacer(modifier = Modifier.weight(1f)) // Placeholder for chat messages
-        ChatInputArea()
+        ChatToolbar(onBackClick = { navController.popBackStack() }, laundryLogo, laundryName)
+//        Spacer(modifier = Modifier.weight(1f))
+        // Display chat messages
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 16.dp)
+        ) {
+            for ((isUser, message) in messages) {
+                ChatMessage(isUser = isUser, message = message)
+            }
+        }
+        ChatInputArea(onSendMessage = { userMessage ->
+            messages = messages + (true to userMessage)
+            coroutineScope.launch {
+                delay(1000) // Simulate delay for bot reply
+                messages = messages + (false to "This is A Dummy")
+            }
+        })
     }
 }
 
+
 @Composable
-fun ChatToolbar(onBackClick: () -> Unit) {
+fun ChatToolbar(onBackClick: () -> Unit, laundryLogo: String, laundryName: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -56,7 +78,7 @@ fun ChatToolbar(onBackClick: () -> Unit) {
         )
         Spacer(modifier = Modifier.width(8.dp))
         Image(
-            painter = painterResource(id = R.drawable.avatar),
+            painter = rememberImagePainter(laundryLogo),
             contentDescription = "Avatar",
             modifier = Modifier
                 .size(40.dp)
@@ -64,7 +86,7 @@ fun ChatToolbar(onBackClick: () -> Unit) {
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
-            text = "Antony Laundry",
+            text = laundryName,
             fontSize = 18.sp,
             color = Color.Black
         )
@@ -72,7 +94,9 @@ fun ChatToolbar(onBackClick: () -> Unit) {
 }
 
 @Composable
-fun ChatInputArea() {
+fun ChatInputArea(onSendMessage: (String) -> Unit) {
+    var textState by remember { mutableStateOf(TextFieldValue()) }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -86,10 +110,9 @@ fun ChatInputArea() {
             modifier = Modifier.size(30.dp)
         )
         Spacer(modifier = Modifier.width(20.dp))
-        val textState = remember { TextFieldValue() }
         BasicTextField(
             value = textState,
-            onValueChange = {},
+            onValueChange = { textState = it },
             modifier = Modifier
                 .weight(1f)
                 .background(Color.LightGray, shape = MaterialTheme.shapes.small)
@@ -105,13 +128,45 @@ fun ChatInputArea() {
         Icon(
             painter = painterResource(id = R.drawable.send),
             contentDescription = "Send Message",
-            modifier = Modifier.size(40.dp)
+            modifier = Modifier
+                .size(40.dp)
+                .clickable {
+                    if (textState.text.isNotBlank()) {
+                        onSendMessage(textState.text)
+                        textState = TextFieldValue() // Clear input field
+                    }
+                }
         )
     }
 }
 
 @Composable
-@Preview
-fun PreviewChatScreen() {
-    ChatScreen(navController = rememberNavController())
+fun ChatMessage(isUser: Boolean, message: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start
+    ) {
+        Box(
+            modifier = Modifier
+                .background(
+                    if (isUser) Color.Blue else Color.LightGray,
+                    shape = MaterialTheme.shapes.medium
+                )
+                .padding(horizontal = 12.dp, vertical = 8.dp)
+        ) {
+            Text(
+                text = message,
+                color = if (isUser) Color.White else Color.Black,
+                fontSize = 16.sp
+            )
+        }
+    }
 }
+
+//@Composable
+//@Preview
+//fun PreviewChatScreen() {
+//    ChatScreen(navController = rememberNavController())
+//}

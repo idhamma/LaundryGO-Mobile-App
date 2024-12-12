@@ -17,6 +17,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ikancipung.laundrygo.R
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 
 @Composable
 fun TitleLaundryScreen(navController: NavController, orderId: String) {
@@ -84,27 +86,6 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
-                // Header Row with Back Button
-//                Row(
-//                    modifier = Modifier.fillMaxWidth(),
-//                    verticalAlignment = Alignment.CenterVertically,
-//                    horizontalArrangement = Arrangement.Center
-//                ) {
-//                    IconButton(onClick = { navController.popBackStack() }) {
-//                        Icon(
-//                            imageVector = Icons.Default.ArrowBack,
-//                            contentDescription = "Kembali"
-//                        )
-//                    }
-//                    Spacer(modifier = Modifier.width(8.dp))
-//                    Text(
-//                        text = order.NamaLaundry,
-//                        style = MaterialTheme.typography.titleLarge,
-//                        fontSize = 24.sp,
-//                        fontWeight = FontWeight.Bold,
-//                        color = Color.Black
-//                    )
-//                }
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -193,10 +174,8 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
                     }
                 }
 
-
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Address Information
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         painter = painterResource(id = R.drawable.baseline_location_alamat),
@@ -230,7 +209,6 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Order Details
                 Text("Rincian Pesanan", fontWeight = FontWeight.Bold, fontSize = 20.sp)
                 Box(
                     modifier = Modifier
@@ -264,7 +242,6 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Price Calculation
                 Column {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -305,9 +282,38 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Payment Button
                 Button(
-                    onClick = { /* Implement payment logic */ },
+                    onClick = {
+                        val database = Firebase.database.reference.child("laundry")
+                        val donebayarValue = total
+                        val laundryName = order.NamaLaundry
+                        val targetNode = when(laundryName) {
+                            "Antony Laundry" -> "laundry1"
+                            "Jasjus Laundry" -> "laundry2"
+                            "Kiyomasa Laundry" -> "laundry3"
+                            "Bersih Laundry" -> "laundry4"
+                            "Cuci Cepat" -> "laundry5"
+                            "Laundry Sehat" -> "laundry6"
+                            else -> null
+                        }
+
+                        // Tambahan kode: Mengambil jumlah order yang sudah ada, lalu menambah "Order x"
+                        if (targetNode != null) {
+                            val donebayarRef = database.child(targetNode).child("donebayar")
+                            donebayarRef.get().addOnSuccessListener { snapshot ->
+                                val orderCount = snapshot.childrenCount
+                                val newOrderKey = "Order ${(orderCount + 1)}"
+                                donebayarRef.child(newOrderKey).setValue(donebayarValue).addOnSuccessListener {
+                                    navController.navigate("Donebayar")
+                                }
+                            }.addOnFailureListener {
+                                // Jika gagal mengambil data, tetap navigasi atau tampilkan pesan error
+                                navController.navigate("Donebayar")
+                            }
+                        } else {
+                            navController.navigate("Donebayar")
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
