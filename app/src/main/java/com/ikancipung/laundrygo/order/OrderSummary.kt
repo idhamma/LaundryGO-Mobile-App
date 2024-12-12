@@ -16,9 +16,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.ikancipung.laundrygo.R
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.ikancipung.laundrygo.R
 
 @Composable
 fun TitleLaundryScreen(navController: NavController, orderId: String) {
@@ -28,6 +31,10 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
     var subtotal by remember { mutableStateOf(0) }
     var total by remember { mutableStateOf(0) }
     var userAddress by remember { mutableStateOf("") }
+    var isBayarEnabled by remember { mutableStateOf(false) }
+
+    val statusName = "isWeighted" // We explicitly use isWeighted as statusName
+    val database = Firebase.database.reference
 
     LaunchedEffect(orderId) {
         if (orderId.isNotEmpty()) {
@@ -35,7 +42,7 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
                 orderId = orderId,
                 onSuccess = { order ->
                     orderData = order
-                    userAddress = order.AlamatPemesanan // Ambil alamat pengambilan dari order
+                    userAddress = order.AlamatPemesanan
                     calculateSubtotalFromFirebase(
                         orders = order.Orders,
                         namaLaundry = order.NamaLaundry,
@@ -45,7 +52,20 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
                                 order = order,
                                 onSuccess = { calculatedTotal ->
                                     total = calculatedTotal
-                                    isLoading = false
+                                    // Once we have all order data loaded, now we read Status/$statusName/value
+                                    val valueRef = database.child("orders").child(orderId).child("Status").child(statusName).child("value")
+                                    valueRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                                        override fun onDataChange(snapshot: DataSnapshot) {
+                                            val weightedValue = snapshot.getValue(Boolean::class.java) ?: false
+                                            isBayarEnabled = weightedValue
+                                            isLoading = false
+                                        }
+
+                                        override fun onCancelled(error: DatabaseError) {
+                                            errorMessage = "Gagal membaca status $statusName: ${error.message}"
+                                            isLoading = false
+                                        }
+                                    })
                                 },
                                 onError = { error ->
                                     errorMessage = error
@@ -69,7 +89,6 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
             isLoading = false
         }
     }
-
 
     if (isLoading) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -217,7 +236,7 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
                         .padding(12.dp)
                 ) {
                     Column {
-                        order.Orders.filter { it.value.Quantity > 0 }.forEach { (key, detail) ->
+                        order.Orders.filter { it.value.Quantity > 0 }.forEach { (_, detail) ->
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
@@ -248,7 +267,7 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("Subtotal:", fontSize = 14.sp, color = Color.Gray)
-                        Text("Rp.${subtotal}", fontSize = 14.sp, color = Color.Gray)
+                        Text("Rp.$subtotal", fontSize = 14.sp, color = Color.Gray)
                     }
 
                     if (order.isAntarJemput) {
@@ -276,48 +295,51 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("Total:", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Black)
-                        Text("Rp.${total}", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Black)
+                        Text("Rp.$total", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Black)
                     }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Now isBayarEnabled is obtained from reading "Status/$statusName/value"
                 Button(
                     onClick = {
-                        val database = Firebase.database.reference.child("laundry")
-                        val donebayarValue = total
-                        val laundryName = order.NamaLaundry
-                        val targetNode = when(laundryName) {
-                            "Antony Laundry" -> "laundry1"
-                            "Jasjus Laundry" -> "laundry2"
-                            "Kiyomasa Laundry" -> "laundry3"
-                            "Bersih Laundry" -> "laundry4"
-                            "Cuci Cepat" -> "laundry5"
-                            "Laundry Sehat" -> "laundry6"
-                            else -> null
-                        }
+                        if (isBayarEnabled) {
+                            val donebayarValue = total
+                            val laundryName = order.NamaLaundry
+                            val targetNode = when(laundryName) {
+                                "Antony Laundry" -> "laundry1"
+                                "Jasjus Laundry" -> "laundry2"
+                                "Kiyomasa Laundry" -> "laundry3"
+                                "Bersih Laundry" -> "laundry4"
+                                "Cuci Cepat" -> "laundry5"
+                                "Laundry Sehat" -> "laundry6"
+                                else -> null
+                            }
 
-                        // Tambahan kode: Mengambil jumlah order yang sudah ada, lalu menambah "Order x"
-                        if (targetNode != null) {
-                            val donebayarRef = database.child(targetNode).child("donebayar")
-                            donebayarRef.get().addOnSuccessListener { snapshot ->
-                                val orderCount = snapshot.childrenCount
-                                val newOrderKey = "Order ${(orderCount + 1)}"
-                                donebayarRef.child(newOrderKey).setValue(donebayarValue).addOnSuccessListener {
+                            if (targetNode != null) {
+                                val donebayarRef = database.child("laundry").child(targetNode).child("donebayar")
+                                donebayarRef.get().addOnSuccessListener { snapshot ->
+                                    val orderCount = snapshot.childrenCount
+                                    val newOrderKey = "Order ${(orderCount + 1)}"
+                                    donebayarRef.child(newOrderKey).setValue(donebayarValue).addOnSuccessListener {
+                                        navController.navigate("Donebayar")
+                                    }
+                                }.addOnFailureListener {
                                     navController.navigate("Donebayar")
                                 }
-                            }.addOnFailureListener {
-                                // Jika gagal mengambil data, tetap navigasi atau tampilkan pesan error
+                            } else {
                                 navController.navigate("Donebayar")
                             }
-                        } else {
-                            navController.navigate("Donebayar")
                         }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF007BFF))
+                    enabled = isBayarEnabled,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (isBayarEnabled) Color(0xFF007BFF) else Color.Gray
+                    )
                 ) {
                     Text(text = "Bayar", color = Color.White)
                 }

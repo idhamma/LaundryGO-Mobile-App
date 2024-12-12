@@ -36,7 +36,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.ikancipung.laundrygo.R
 import com.ikancipung.laundrygo.menu.Footer
-import com.ikancipung.laundrygo.menu.NavigationItem
 import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -52,9 +51,6 @@ fun myOrderPage(navController: NavController) {
     }
 }
 
-/**
- * Updates the 'time' field in the database for a specific status if it's true and has no time yet.
- */
 fun updateStatusTimeIfNeeded(orderId: String, statusName: String, statusDetail: LaundryStatusDetail) {
     if (statusDetail.value && statusDetail.time == null) {
         val currentTime = System.currentTimeMillis()
@@ -104,7 +100,6 @@ fun myOrder(navController: NavController) {
                             order.isAntarJemput = orderSnapshot.child("isAntarJemput").getValue(Boolean::class.java) ?: false
                             order.isExpress = orderSnapshot.child("isExpress").getValue(Boolean::class.java) ?: false
 
-                            // Mapping Orders
                             val ordersMap = mutableMapOf<String, OrderDetail>()
                             val ordersChild = orderSnapshot.child("Orders")
                             for (orderDetailSnapshot in ordersChild.children) {
@@ -116,7 +111,6 @@ fun myOrder(navController: NavController) {
                             }
                             order.Orders = ordersMap
 
-                            // Mapping Status
                             val statusSnapshot = orderSnapshot.child("Status")
                             val status = LaundryStatus(
                                 isDone = LaundryStatusDetail(
@@ -150,8 +144,7 @@ fun myOrder(navController: NavController) {
                             )
                             order.Status = status
 
-                            // Update time if needed
-                            // For each status that is true but has null time, set the time now.
+                            // Update times if needed
                             updateStatusTimeIfNeeded(orderId, "isDone", status.isDone)
                             updateStatusTimeIfNeeded(orderId, "isInLaundry", status.isInLaundry)
                             updateStatusTimeIfNeeded(orderId, "isPaid", status.isPaid)
@@ -180,16 +173,12 @@ fun myOrder(navController: NavController) {
     Column(modifier = Modifier.fillMaxSize()) {
         LazyColumn {
             items(orders) { order ->
-                OrderCard(order)
+                OrderCard(order, navController)
             }
         }
     }
 }
 
-/**
- * Return a list of all true statuses sorted by time descending.
- * If time is null (which should now never happen after the update), we show "No timestamp available".
- */
 fun getTrueStatuses(order: Order): List<Pair<String, Long?>> {
     val statusMapping = listOf(
         order.Status.isDone to "Pesanan selesai",
@@ -208,31 +197,28 @@ fun getTrueStatuses(order: Order): List<Pair<String, Long?>> {
         } else null
     }
 
-    // Sort by time descending, if time is null show them last
     return trueStatuses.sortedByDescending { it.second ?: Long.MIN_VALUE }
 }
 
 @Composable
-fun OrderCard(order: Order) {
+fun OrderCard(order: Order, navController: NavController) {
     var expanded by remember { mutableStateOf(false) }
 
     val trueStatuses = getTrueStatuses(order)
     val (currentStatusMessage, currentStatusTime) = if (trueStatuses.isNotEmpty()) {
-        // If we have statuses, take the first one after sorting by time (newest)
         trueStatuses.first()
     } else {
-        // No true status, show no timestamp available
         "Status not updated" to null
     }
 
     val displayTime = if (currentStatusTime != null) formatTimestampNotif(currentStatusTime) else "No timestamp available"
 
+    // The blue rectangle container (not clickable anymore for expanding)
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp)
-            .background(color = BlueLaundryGo, shape = RoundedCornerShape(8.dp))
-            .clickable { expanded = !expanded },
+            .background(color = BlueLaundryGo, shape = RoundedCornerShape(8.dp)),
         verticalArrangement = Arrangement.Center
     ) {
         Row(
@@ -251,11 +237,16 @@ fun OrderCard(order: Order) {
             )
 
             Column(modifier = Modifier.weight(1f)) {
+                // Laundry name clickable: Navigate to the order page
                 Text(
                     text = order.NamaLaundry,
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.clickable {
+                        // Navigate to the same order
+                        navController.navigate("Ordersum/${order.id}")
+                    }
                 )
 
                 Text(
@@ -264,6 +255,16 @@ fun OrderCard(order: Order) {
                     style = MaterialTheme.typography.bodySmall
                 )
             }
+
+            // icon_more to toggle dropdown
+            Image(
+                painter = painterResource(id = R.drawable.icon_more),
+                contentDescription = "More Options",
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable { expanded = !expanded },
+                colorFilter = ColorFilter.tint(Color.White)
+            )
         }
 
         if (expanded) {
