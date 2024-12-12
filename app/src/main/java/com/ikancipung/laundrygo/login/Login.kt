@@ -178,7 +178,7 @@ fun performLogin(
     onLoading: (Boolean) -> Unit
 ) {
     if (email.isBlank() || password.isBlank()) {
-        onError("Silahkan isi email dan password dahulu")
+        onError("Silahkan isi email dan kata sandi dahulu")
         return
     }
 
@@ -196,7 +196,7 @@ fun performLogin(
                 onSuccess()
             } else {
                 val errorMessage = when (task.exception) {
-                    is FirebaseAuthInvalidCredentialsException -> "Password Salah"
+                    is FirebaseAuthInvalidCredentialsException -> "Kata sandi salah"
                     is FirebaseAuthInvalidUserException -> "Pengguna belum terdaftar"
                     else -> "Gagal masuk. Silahkan coba lagi"
                 }
