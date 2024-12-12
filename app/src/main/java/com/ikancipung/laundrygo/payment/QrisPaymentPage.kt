@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -65,107 +66,128 @@ fun QrisPaymentScreen(navController: NavController) {
     val minutes = remainingTime / 60
     val seconds = remainingTime % 60
 
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp, 0.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Header
-        Header()
+        item {
+            Header()
+        }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        item {
+            Spacer(modifier = Modifier.height(24.dp))
+        }
 
         // Instruction Text
-        Text(
-            modifier = Modifier
-                .padding(16.dp, 8.dp)
-                .align(Alignment.Start),
-            text = "Silakan lakukan\npembayaran",
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Bold,
-            fontSize = 20.sp,
-        )
-        Text(
-            modifier = Modifier
-                .padding(16.dp, 0.dp)
-                .align(Alignment.Start),
-            text = "Anda dapat scan atau download QR di bawah ini",
-            style = MaterialTheme.typography.bodySmall,
-            color = Color.Gray
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Gambar QRIS dari Drawable
-        Image(
-            painter = painterResource(id = R.drawable.qris), // Ganti dengan ID drawable QRIS Anda
-            contentDescription = "QRIS",
-            modifier = Modifier
-                .size(400.dp)
-                .padding(16.dp)
-        )
-
-        // Teks untuk mendownload QRIS
-        Row(
-            modifier = Modifier
-                .clickable {
-                    // Implementasikan fungsi download di sini
-                    Toast.makeText(context, "Download QRIS", Toast.LENGTH_SHORT).show()
-                }
-                .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Ikon Download
-            Icon(
-                painter = painterResource(id = R.drawable.download), // Ganti dengan ID drawable ikon download Anda
-                contentDescription = "Download Icon",
-                tint = Color.Black, // Sesuaikan warna ikon
-                modifier = Modifier.size(20.dp) // Ukuran ikon
-            )
-
-            Spacer(modifier = Modifier.width(8.dp)) // Jarak antara ikon dan teks
-
-            // Teks Download
+        item {
             Text(
-                text = "Download QRIS",
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.Black,
-                fontWeight = FontWeight.Bold
+                modifier = Modifier
+                    .padding(16.dp, 8.dp),
+                text = "Silakan lakukan\npembayaran",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp,
             )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        item {
+            Text(
+                modifier = Modifier
+                    .padding(16.dp, 0.dp),
+                text = "Anda dapat scan atau download QR di bawah ini",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray
+            )
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+
+        // Gambar QRIS dari Drawable
+        item {
+            Image(
+                painter = painterResource(id = R.drawable.qris), // Ganti dengan ID drawable QRIS Anda
+                contentDescription = "QRIS",
+                modifier = Modifier
+                    .size(400.dp)
+                    .padding(16.dp)
+            )
+        }
+
+        // Teks untuk mendownload QRIS
+        item {
+            Row(
+                modifier = Modifier
+                    .clickable {
+                        // Implementasikan fungsi download di sini
+                        Toast.makeText(context, "Download QRIS", Toast.LENGTH_SHORT).show()
+                    }
+                    .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Ikon Download
+                Icon(
+                    painter = painterResource(id = R.drawable.download), // Ganti dengan ID drawable ikon download Anda
+                    contentDescription = "Download Icon",
+                    tint = Color.Black, // Sesuaikan warna ikon
+                    modifier = Modifier.size(20.dp) // Ukuran ikon
+                )
+
+                Spacer(modifier = Modifier.width(8.dp)) // Jarak antara ikon dan teks
+
+                // Teks Download
+                Text(
+                    text = "Download QRIS",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Black,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(24.dp))
+        }
 
         // Countdown Timer
-        Text(
-            modifier = Modifier.padding(0.dp, 16.dp),
-            text = String.format("Waktu tersisa: %02d:%02d", minutes, seconds),
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Bold,
-            fontSize = 14.sp,
-            textAlign = TextAlign.Center,
-            color = RedLaundryGo
-        )
+        item {
+            Text(
+                modifier = Modifier.padding(0.dp, 16.dp),
+                text = String.format("Waktu tersisa: %02d:%02d", minutes, seconds),
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold,
+                fontSize = 14.sp,
+                textAlign = TextAlign.Center,
+                color = RedLaundryGo
+            )
+        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
+        }
 
         // Payment Button
-        Button(
-            onClick = {
-                navController.navigate("Donebayar")
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = BlueLaundryGo)
-        ) {
-            Text(
-                text = "Saya Sudah Bayar",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.White,
-                fontWeight = FontWeight.Bold
-            )
+        item {
+            Button(
+                onClick = {
+                    navController.navigate("Donebayar")
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = BlueLaundryGo)
+            ) {
+                Text(
+                    text = "Saya Sudah Bayar",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 }
