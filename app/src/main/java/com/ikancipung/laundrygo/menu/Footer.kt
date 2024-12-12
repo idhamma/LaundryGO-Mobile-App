@@ -138,9 +138,8 @@ fun Footer(navController: NavController) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
-            .background(Color.White)
-            .padding(vertical = 8.dp),
+            .padding(16.dp, 8.dp)
+            .background(Color.White),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
