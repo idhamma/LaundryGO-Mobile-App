@@ -131,6 +131,7 @@ fun LaundryOrderScreen(
     // Handle order submission
     fun submitOrder() {
         val orderId = database.reference.push().key ?: return
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
         val filteredOrders = serviceQuantities.filter { it.value > 0 }.map { (service, quantity) ->
             service to mapOf(
