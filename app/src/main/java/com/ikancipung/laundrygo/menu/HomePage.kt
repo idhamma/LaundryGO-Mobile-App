@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -329,7 +330,8 @@ fun ImageLazyRow(dataList: List<Laundry>, navController: NavController) {
                             }/${Uri.encode(Gson().toJson(laundry.services))}"
                         )
                     },
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(8.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
             ) {
                 Column(
                     modifier = Modifier.padding(8.dp),
@@ -376,6 +378,8 @@ fun ImageLazyRowService(dataList: List<Service>, navController: NavController) {
                         navController.navigate("ServiceLaundryScreen/${Uri.encode(service.name)}")
                     },
                 shape = RoundedCornerShape(8.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+
             ) {
                 Column(
                     modifier = Modifier
