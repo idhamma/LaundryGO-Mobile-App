@@ -197,8 +197,8 @@ fun performLogin(
             } else {
                 val errorMessage = when (task.exception) {
                     is FirebaseAuthInvalidCredentialsException -> "Password Salah"
-                    is FirebaseAuthInvalidUserException -> "user belum terdaftar"
-                    else -> "Login gagal. Silahkan coba lagi"
+                    is FirebaseAuthInvalidUserException -> "Pengguna belum terdaftar"
+                    else -> "Gagal masuk. Silahkan coba lagi"
                 }
                 onError(errorMessage)
             }
