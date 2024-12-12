@@ -202,34 +202,6 @@ fun StatusList(order: Order) {
     }
 }
 
-@Composable
-fun Footer() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-            .background(Color.White)
-            .padding(vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // Tombol Explore
-        NavigationItem(icon = Icons.Filled.Person, title = "Explore") {
-            // Tindakan yang akan dilakukan saat tombol di klik
-        }
-
-        // Tombol My Order
-        NavigationItem(icon = Icons.Filled.Person, title = "My Order") {
-            // Tindakan yang akan dilakukan saat tombol di klik
-        }
-
-        // Tombol Profile
-        NavigationItem(icon = Icons.Filled.Person, title = "Profile") {
-            // Tindakan yang akan dilakukan saat tombol di klik
-        }
-    }
-}
-
 //@Preview(showBackground = true)
 //@Composable
 //fun MyOrderPreview(){

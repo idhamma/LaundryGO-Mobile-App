@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -138,27 +139,51 @@ fun Footer(navController: NavController) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
-            .background(Color.White)
-            .padding(vertical = 8.dp),
+            .padding(16.dp, 8.dp)
+            .background(Color.White),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // Navigation Item untuk Jelajahi
         NavigationItem(
-            icon = Icons.Filled.Person,
-            title = "Explore",
+            icon = {
+                Image(
+                    painter = painterResource(R.drawable.icon_jelajahi),
+                    contentDescription = "Jelajahi",
+                    colorFilter = if (currentRoute == "Homepage")
+                        ColorFilter.tint(BlueLaundryGo) else ColorFilter.tint(Color.Gray)
+                )
+            },
+            title = "Jelajahi",
             isSelected = currentRoute == "Homepage",
             onClick = { navController.navigate("Homepage") }
         )
+
+        // Navigation Item untuk Pesananku
         NavigationItem(
-            icon = Icons.Filled.Person,
-            title = "My Order",
+            icon = {
+                Image(
+                    painter = painterResource(R.drawable.icon_pesananku),
+                    contentDescription = "Pesananku",
+                    colorFilter = if (currentRoute == "Myorder")
+                        ColorFilter.tint(BlueLaundryGo) else ColorFilter.tint(Color.Gray)
+                )
+            },
+            title = "Pesananku",
             isSelected = currentRoute == "Myorder",
             onClick = { navController.navigate("MyOrder") }
         )
+
+        // Navigation Item untuk Profil
         NavigationItem(
-            icon = Icons.Filled.Person,
-            title = "Profile",
+            icon = {
+                Icon(
+                    imageVector = Icons.Filled.Person,
+                    contentDescription = "Profil",
+                    tint = if (currentRoute == "Profile") BlueLaundryGo else Color.Gray
+                )
+            },
+            title = "Profil",
             isSelected = currentRoute == "Profile",
             onClick = { navController.navigate("Profile") }
         )
@@ -167,7 +192,7 @@ fun Footer(navController: NavController) {
 
 @Composable
 fun NavigationItem(
-    icon: ImageVector,
+    icon: @Composable () -> Unit,
     title: String,
     isSelected: Boolean,
     onClick: () -> Unit
@@ -178,11 +203,10 @@ fun NavigationItem(
             .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = title,
-            tint = if (isSelected) BlueLaundryGo else Color.Gray
-        )
+        // Tampilkan ikon
+        icon()
+
+        // Tampilkan teks
         Text(
             text = title,
             color = if (isSelected) BlueLaundryGo else Color.Gray
@@ -190,18 +214,108 @@ fun NavigationItem(
     }
 }
 
-@Composable
-fun NavigationItem(icon: ImageVector, title: String, onClick: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .clickable(onClick = onClick)
-            .padding(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Icon(imageVector = icon, contentDescription = null)
-        Text(text = title, modifier = Modifier.padding(top = 4.dp))
-    }
-}
+
+
+//
+//@Composable
+//fun Footer(navController: NavController) {
+//    val currentRoute = navController.currentBackStackEntry?.destination?.route
+//
+//    Row(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .padding(16.dp)
+//            .background(Color.White)
+//            .padding(vertical = 8.dp),
+//        horizontalArrangement = Arrangement.SpaceBetween,
+//        verticalAlignment = Alignment.CenterVertically
+//    ) {
+//        NavigationItem(
+//            icon = Icons.Filled.Person,
+//            title = "Jelajahi",
+//            isSelected = currentRoute == "Homepage",
+//            onClick = { navController.navigate("Homepage") }
+//        )
+//        NavigationItem(
+//            icon = {
+//                Image(
+//                    painter = painterResource(R.drawable.icon_pesananku),
+//                    contentDescription = "Pesananku"
+//                )
+//            },
+//            title = "Pesananku",
+//            isSelected = currentRoute == "MyOrder",
+//            onClick = { navController.navigate("MyOrder") }
+//        )
+//        NavigationItem(
+//            icon = Icons.Filled.Person,
+//            title = "Profil",
+//            isSelected = currentRoute == "Profile",
+//            onClick = { navController.navigate("Profile") }
+//        )
+//    }
+//}
+//
+//@Composable
+//fun NavigationItem(
+//    icon: @Composable () -> Unit,
+//    title: String,
+//    isSelected: Boolean,
+//    onClick: () -> Unit
+//) {
+//
+//    Column(
+//        modifier = Modifier
+//            .clickable(onClick = onClick)
+//            .padding(8.dp),
+//        horizontalAlignment = Alignment.CenterHorizontally
+//    ) {
+//        icon()
+//        Text(
+//            text = title,
+//            color = if (isSelected) BlueLaundryGo else Color.Gray
+//        )
+//    }
+//}
+//
+//
+//@Composable
+//fun NavigationItem(
+//    icon: ImageVector,
+//    title: String,
+//    isSelected: Boolean,
+//    onClick: () -> Unit
+//) {
+//    Column(
+//        modifier = Modifier
+//            .clickable(onClick = onClick)
+//            .padding(8.dp),
+//        horizontalAlignment = Alignment.CenterHorizontally
+//    ) {
+//        Icon(
+//            imageVector = icon,
+//            contentDescription = title,
+//            tint = if (isSelected) BlueLaundryGo else Color.Gray
+//        )
+//        Text(
+//            text = title,
+//            color = if (isSelected) BlueLaundryGo else Color.Gray
+//        )
+//    }
+//}
+//
+//@Composable
+//fun NavigationItem(icon: ImageVector, title: String, onClick: () -> Unit) {
+//    Column(
+//        modifier = Modifier
+//            .clickable(onClick = onClick)
+//            .padding(8.dp),
+//        horizontalAlignment = Alignment.CenterHorizontally
+//    ) {
+//        Icon(imageVector = icon, contentDescription = null)
+//        Text(text = title, modifier = Modifier.padding(top = 4.dp))
+//    }
+//}
 
 //@Preview(showBackground = true)
 //@Composable
