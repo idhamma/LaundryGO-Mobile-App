@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -48,6 +49,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -333,6 +335,11 @@ fun ImageLazyRow(dataList: List<Laundry>, navController: NavController) {
             Card(
                 modifier = Modifier
                     .width(150.dp)
+                    .shadow(
+                        elevation = 3.dp,
+                        shape = RoundedCornerShape(8.dp),
+                        clip = false // Agar shadow tidak terpotong oleh bentuk kartu
+                    )
                     .clickable {
                         // Navigasi ke halaman profil laundry
                         navController.navigate(
@@ -348,7 +355,10 @@ fun ImageLazyRow(dataList: List<Laundry>, navController: NavController) {
                         )
                     },
                 shape = RoundedCornerShape(8.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFFF3F3F3)
+                )
             ) {
                 Column(
                     modifier = Modifier.padding(8.dp),
@@ -384,19 +394,27 @@ fun ImageLazyRow(dataList: List<Laundry>, navController: NavController) {
 @Composable
 fun ImageLazyRowService(dataList: List<Service>, navController: NavController) {
     LazyRow(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(dataList) { service ->
             Card(
                 modifier = Modifier
                     .width(120.dp)
+                    .shadow(
+                        elevation = 3.dp,
+                        shape = RoundedCornerShape(8.dp),
+                        clip = false // Agar shadow tidak terpotong oleh bentuk kartu
+                    )
                     .clickable {
                         navController.navigate("ServiceLaundryScreen/${Uri.encode(service.name)}")
                     },
                 shape = RoundedCornerShape(8.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFFF3F3F3)
+                )
             ) {
                 Column(
                     modifier = Modifier
@@ -419,7 +437,6 @@ fun ImageLazyRowService(dataList: List<Service>, navController: NavController) {
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Bold
                     )
-
                 }
             }
         }
