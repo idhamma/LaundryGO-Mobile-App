@@ -95,8 +95,7 @@ fun VAPaymentScreen(navController: NavController) {
         // Payment Button
         Button(
             onClick = {
-                // Navigasi ke halaman lain
-                // navController.navigate("confirmation_screen")  Ganti dengan route sesuai
+                navController.navigate("Donebayar")
             },
             modifier = Modifier
                 .fillMaxWidth()

@@ -32,6 +32,7 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
     var total by remember { mutableStateOf(0) }
     var userAddress by remember { mutableStateOf("") }
     var isBayarEnabled by remember { mutableStateOf(false) }
+    var pembayaran by remember { mutableStateOf("") }
 
     val statusName = "isWeighted" // We explicitly use isWeighted as statusName
     val database = Firebase.database.reference
@@ -43,6 +44,7 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
                 onSuccess = { order ->
                     orderData = order
                     userAddress = order.AlamatPemesanan
+                    pembayaran = order.Pembayaran
                     calculateSubtotalFromFirebase(
                         orders = order.Orders,
                         namaLaundry = order.NamaLaundry,
@@ -322,8 +324,17 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
                                 donebayarRef.get().addOnSuccessListener { snapshot ->
                                     val orderCount = snapshot.childrenCount
                                     val newOrderKey = "Order ${(orderCount + 1)}"
-                                    donebayarRef.child(newOrderKey).setValue(donebayarValue).addOnSuccessListener {
-                                        navController.navigate("Donebayar")
+                                    if (pembayaran.equals("QRIS")) {
+                                        donebayarRef.child(newOrderKey).setValue(donebayarValue)
+                                            .addOnSuccessListener {
+                                                navController.navigate("Qris")
+                                            }
+                                    }
+                                    if (pembayaran.equals("Virtual Account")) {
+                                        donebayarRef.child(newOrderKey).setValue(donebayarValue)
+                                            .addOnSuccessListener {
+                                                navController.navigate("Vapayment")
+                                            }
                                     }
                                 }.addOnFailureListener {
                                     navController.navigate("Donebayar")
