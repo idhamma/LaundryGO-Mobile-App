@@ -37,7 +37,7 @@ fun ChatScreen(navController: NavController, laundryLogo: String, laundryName: S
             .background(MaterialTheme.colorScheme.background)
     ) {
         ChatToolbar(onBackClick = { navController.popBackStack() }, laundryLogo, laundryName)
-        Spacer(modifier = Modifier.weight(1f))
+//        Spacer(modifier = Modifier.weight(1f))
         // Display chat messages
         Column(
             modifier = Modifier
@@ -57,6 +57,7 @@ fun ChatScreen(navController: NavController, laundryLogo: String, laundryName: S
         })
     }
 }
+
 
 @Composable
 fun ChatToolbar(onBackClick: () -> Unit, laundryLogo: String, laundryName: String) {

@@ -95,7 +95,8 @@ class MainActivity : ComponentActivity() {
                     }
                     composable("chat/{name}/{imageUrl}", arguments = listOf(
                         navArgument("name"){type = NavType.StringType},
-                        navArgument("imageUrl"){type = NavType.StringType}
+                        navArgument("imageUrl"){type = NavType.StringType},
+
                     )){ backStackEntry ->
                         val name = backStackEntry.arguments?.getString("name")?:""
                         val imageUrl = backStackEntry.arguments?.getString("imageUrl")?:""
