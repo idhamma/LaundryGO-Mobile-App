@@ -146,19 +146,19 @@ fun Footer(navController: NavController) {
     ) {
         NavigationItem(
             icon = Icons.Filled.Person,
-            title = "Explore",
+            title = "Jelajahi",
             isSelected = currentRoute == "Homepage",
             onClick = { navController.navigate("Homepage") }
         )
         NavigationItem(
             icon = Icons.Filled.Person,
-            title = "My Order",
+            title = "Pesananku",
             isSelected = currentRoute == "Myorder",
             onClick = { navController.navigate("MyOrder") }
         )
         NavigationItem(
             icon = Icons.Filled.Person,
-            title = "Profile",
+            title = "Profil",
             isSelected = currentRoute == "Profile",
             onClick = { navController.navigate("Profile") }
         )

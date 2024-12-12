@@ -179,7 +179,7 @@ fun LaundryOrderScreen(
             if (task.isSuccessful) {
                 navController.navigate("Ordersum/$orderId")
             } else {
-                Toast.makeText(context, "Gagal menambahkan order", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Gagal menambahkan Pesanan", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -315,8 +315,8 @@ fun LaundryOrderScreen(
                 Text("Regular")
                 Spacer(modifier = Modifier.width(16.dp))
                 RadioButton(
-                    selected = tipeLaundry == "Express",
-                    onClick = { tipeLaundry = "Express" },
+                    selected = tipeLaundry == "Kilat",
+                    onClick = { tipeLaundry = "Kilat" },
                     colors = RadioButtonDefaults.colors(selectedColor = BlueLaundryGo)
                 )
                 Text("Express")
@@ -331,7 +331,7 @@ fun LaundryOrderScreen(
                     onClick = { pembayaran = "Cash" },
                     colors = RadioButtonDefaults.colors(selectedColor = BlueLaundryGo)
                 )
-                Text("Cash")
+                Text("Tunai")
                 Spacer(modifier = Modifier.width(16.dp))
                 RadioButton(
                     selected = pembayaran == "QRIS",
@@ -345,7 +345,7 @@ fun LaundryOrderScreen(
                     onClick = { pembayaran = "Virtual Account" },
                     colors = RadioButtonDefaults.colors(selectedColor = BlueLaundryGo)
                 )
-                Text("Virtual Account")
+                Text("Akun Virtual")
             }
         }
 
