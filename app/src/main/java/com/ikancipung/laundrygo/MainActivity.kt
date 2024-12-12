@@ -103,7 +103,10 @@ class MainActivity : ComponentActivity() {
                     }
                     composable("Rating") { RatingScreen(navController = navController) }
                     composable("Qris") { QrisPaymentScreen(navController = navController) }
-                    composable("Vapayment") { VAPaymentScreen(navController = navController) }
+                    composable("Vapayment/{total}", arguments = listOf(navArgument("total"){type = NavType.StringType})){
+                        backStackEntry ->
+                        val total = backStackEntry.arguments?.getString(("total"))?:""
+                        VAPaymentScreen(navController = navController, total) }
                     composable("Profile") { ProfileUser(navController = navController) }
                     composable("Donebayar"){ DonebayarScreen(navController = navController) }
                     composable(

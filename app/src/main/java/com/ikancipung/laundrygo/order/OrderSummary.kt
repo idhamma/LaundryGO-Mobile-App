@@ -1,5 +1,6 @@
 package com.ikancipung.laundrygo.order
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -333,7 +334,7 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
                                     if (pembayaran.equals("Virtual Account")) {
                                         donebayarRef.child(newOrderKey).setValue(donebayarValue)
                                             .addOnSuccessListener {
-                                                navController.navigate("Vapayment")
+                                                navController.navigate("Vapayment/${Uri.encode(total.toString())}")
                                             }
                                     }
                                 }.addOnFailureListener {

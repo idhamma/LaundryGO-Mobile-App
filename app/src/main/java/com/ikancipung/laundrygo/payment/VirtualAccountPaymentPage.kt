@@ -42,7 +42,7 @@ import com.ikancipung.laundrygo.R
 import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
 
 @Composable
-fun VAPaymentScreen(navController: NavController) {
+fun VAPaymentScreen(navController: NavController, price: String) {
 
     val context = LocalContext.current
 
@@ -85,9 +85,10 @@ fun VAPaymentScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
+
         // Price Section
         VAPaymentInfoRow(label = "Harga",
-            value = "80.000",
+            value = price,
             onCopy = { copyToClipboard(context, "80000") })
 
         Spacer(modifier = Modifier.height(24.dp))
