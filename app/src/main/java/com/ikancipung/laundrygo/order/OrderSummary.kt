@@ -307,7 +307,7 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
 
                 // Payment Button
                 Button(
-                    onClick = { /* Implement payment logic */ },
+                    onClick = { navController.navigate("Donebayar") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),

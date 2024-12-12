@@ -26,6 +26,7 @@ import com.ikancipung.laundrygo.menu.FavoriteLaundryScreen
 import com.ikancipung.laundrygo.menu.ServiceLaundryScreen
 import com.ikancipung.laundrygo.menu.HomepagePage
 import com.ikancipung.laundrygo.menu.ProfileUser
+import com.ikancipung.laundrygo.order.DonebayarScreen
 import com.ikancipung.laundrygo.order.LaundryOrderScreen
 import com.ikancipung.laundrygo.order.RatingScreen
 import com.ikancipung.laundrygo.order.TitleLaundryScreen
@@ -42,7 +43,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
 import androidx.annotation.RequiresApi
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.firebase.database.ValueEventListener
 
 
@@ -50,7 +50,6 @@ private lateinit var auth: FirebaseAuth
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -106,6 +105,7 @@ class MainActivity : ComponentActivity() {
                     composable("Qris") { QrisPaymentScreen(navController = navController) }
                     composable("Vapayment") { VAPaymentScreen(navController = navController) }
                     composable("Profile") { ProfileUser(navController = navController) }
+                    composable("Donebayar"){ DonebayarScreen(navController = navController) }
                     composable(
                         route = "ProfileLaundry/{name}/{address}/{imageUrl}/{description}/{hours}/{prices}/{services}",
                         arguments = listOf(
