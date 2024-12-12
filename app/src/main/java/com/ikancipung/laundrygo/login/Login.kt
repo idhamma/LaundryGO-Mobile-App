@@ -43,6 +43,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
 
 
 @Composable
@@ -79,7 +80,7 @@ fun LoginScreen(navController: NavController) {
         Text(
             text = "Selamat Datang!",
             fontSize = 24.sp,
-            color = MaterialTheme.colors.primary,
+            color = BlueLaundryGo,
             textAlign = TextAlign.Center
         )
 
@@ -112,7 +113,7 @@ fun LoginScreen(navController: NavController) {
         errorMessage?.let {
             Text(
                 text = it,
-                color = MaterialTheme.colors.error,
+                color = Color.Red,
                 fontSize = 14.sp,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
@@ -140,11 +141,15 @@ fun LoginScreen(navController: NavController) {
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
-            enabled = !isLoading
+            enabled = !isLoading,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = BlueLaundryGo, // Warna tombol latar belakang
+                contentColor = Color.White     // Warna teks tombol
+            )
         ) {
             if (isLoading) {
                 CircularProgressIndicator(
-                    color = MaterialTheme.colors.onPrimary,
+                    color = Color.White, // Warna indikator loading
                     modifier = Modifier.size(24.dp)
                 )
             } else {
@@ -157,7 +162,7 @@ fun LoginScreen(navController: NavController) {
         // Registration Prompt
         val annotatedText = buildAnnotatedString {
             append("Belum punya akun? ")
-            withStyle(style = SpanStyle(color = MaterialTheme.colors.primary)) {
+            withStyle(style = SpanStyle(color = BlueLaundryGo)) {
                 append("Daftar Sekarang")
             }
         }
