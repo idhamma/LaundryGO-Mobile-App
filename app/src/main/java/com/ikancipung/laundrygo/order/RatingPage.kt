@@ -1,5 +1,6 @@
 package com.ikancipung.laundrygo.order
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -45,6 +46,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.ikancipung.laundrygo.R
+import com.ikancipung.laundrygo.menu.userId
 import com.ikancipung.laundrygo.profile.checkFavoriteStatus
 import com.ikancipung.laundrygo.profile.toggleFavorite
 import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
@@ -190,8 +192,18 @@ fun RatingScreen(navController: NavController, orderId: String) {
                 }
                 // Order Details Section
                 val displayTime = formatTimestampNotif(order.WaktuPesan)
-                val doneTime: Long = order.Status.isDone.time ?: 0L
-                val formattedTime = formatTimestampNotif(doneTime)
+                var formattedTime by remember { mutableStateOf("") }
+
+                LaunchedEffect(order.OrderID) {
+                    val doneTimeRef = database.child("orders").child(order.OrderID).child("Status").child("isDone").child("time")
+                    doneTimeRef.get().addOnSuccessListener { dataSnapshot ->
+                        val doneTime = dataSnapshot.value as? Long ?: 0L
+                        formattedTime = formatTimestampNotif(doneTime)
+                    }.addOnFailureListener {
+                        Log.e("Firebase", "Error getting doneTime", it)
+                        formattedTime = "Belum selesai"
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(32.dp))
                 Column(
@@ -200,7 +212,7 @@ fun RatingScreen(navController: NavController, orderId: String) {
                         .padding(16.dp)
                 ) {
                     InfoRow(label = "Waktu Pemesanan", value = displayTime)
-                    InfoRow(label = "Waktu Selesai", value = formattedTime)
+                    InfoRow(label = "Waktu Selesai", value = if (formattedTime.isNotEmpty()) formattedTime else "Loading...")
                     InfoRow(label = "Order ID", value = order.OrderID)
                     InfoRow(label = "Metode Pembayaran", value = order.Pembayaran)
                     InfoRow(label = "Biaya", value = "Rp." + total.toString())

@@ -35,6 +35,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.ikancipung.laundrygo.R
@@ -182,20 +183,21 @@ fun myOrder(navController: NavController) {
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
 
-        ) {
-            Text(
-                text = "Dalam Proses",
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.clickable {
-                    historyWindow = false
-                }
-            )
+        ) {    Text(
+            text = "Dalam Proses",
+            fontWeight = if (!historyWindow) FontWeight.Bold else FontWeight.Normal,
+            color = if (!historyWindow) BlueLaundryGo else Color.Gray,
+            modifier = Modifier.clickable {
+                historyWindow = false
+            }
+        )
 
             Spacer(modifier = Modifier.width(96.dp))
 
             Text(
                 text = "Riwayat",
-                fontWeight = FontWeight.Bold,
+                fontWeight = if (historyWindow) FontWeight.Bold else FontWeight.Normal,
+                color = if (historyWindow) BlueLaundryGo else Color.Gray,
                 modifier = Modifier.clickable {
                     historyWindow = true
                 }
@@ -222,7 +224,19 @@ fun myOrder(navController: NavController) {
 
 @Composable
 fun CompletedOrderCard(order: Order, navController: NavController) {
-    val displayTime = formatTimestampNotif(order.WaktuPesan)
+    val database = Firebase.database.reference
+    var formattedTime by remember { mutableStateOf("") }
+
+    LaunchedEffect(order.OrderID) {
+        val doneTimeRef = database.child("orders").child(order.OrderID).child("Status").child("isDone").child("time")
+        doneTimeRef.get().addOnSuccessListener { dataSnapshot ->
+            val doneTime = dataSnapshot.value as? Long ?: 0L
+            formattedTime = formatTimestampNotif(doneTime)
+        }.addOnFailureListener {
+            Log.e("Firebase", "Error getting doneTime", it)
+            formattedTime = "Belum selesai"
+        }
+    }
     val trueStatuses = getDoneStatus(order)
 
     if (trueStatuses.equals("Pesanan selesai")) {
@@ -261,11 +275,10 @@ fun CompletedOrderCard(order: Order, navController: NavController) {
                         }
                     )
                     Text(
-                        text = "$displayTime",
+                        text = formattedTime,
                         color = Color.White,
                         style = MaterialTheme.typography.bodySmall
                     )
-
                 }
 
             }

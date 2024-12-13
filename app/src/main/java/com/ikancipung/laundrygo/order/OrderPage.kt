@@ -133,6 +133,12 @@ fun LaundryOrderScreen(
         val orderId = database.reference.push().key ?: return
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
+        // Ensure Cuci Kiloan option is selected
+        if (selectedCuciKiloanOption.isEmpty()) {
+            Toast.makeText(context, "Harap pilih opsi Cuci Kiloan", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val filteredOrders = serviceQuantities.filter { it.value > 0 }.map { (service, quantity) ->
             service to mapOf(
                 "Service" to service,
@@ -141,16 +147,16 @@ fun LaundryOrderScreen(
             )
         }.toMap().toMutableMap()
 
-        if (selectedCuciKiloanOption.isNotEmpty()) {
-            val serviceName = selectedCuciKiloanOption.split(" - ")[0]
-            val servicePrice = selectedCuciKiloanOption.split(" - ")[1].toInt()
-            filteredOrders[serviceName] = mapOf(
-                "Service" to serviceName,
-                "Price" to servicePrice.toString(),
-                "Quantity" to 1
-            )
-        }
+        // Add the selected Cuci Kiloan option to the order
+        val serviceName = selectedCuciKiloanOption.split(" - ")[0]
+        val servicePrice = selectedCuciKiloanOption.split(" - ")[1].toInt()
+        filteredOrders[serviceName] = mapOf(
+            "Service" to serviceName,
+            "Price" to servicePrice.toString(),
+            "Quantity" to 1
+        )
 
+        // Build the order data
         val orderData = mapOf(
             "OrderID" to orderId,
             "NamaLaundry" to laundryName,
@@ -175,6 +181,7 @@ fun LaundryOrderScreen(
             "CuciKiloanOption" to selectedCuciKiloanOption
         )
 
+        // Push the order data to Firebase
         val orderRef = database.getReference("orders").child(orderId)
         orderRef.setValue(orderData).addOnCompleteListener { task ->
             if (task.isSuccessful) {
@@ -184,6 +191,7 @@ fun LaundryOrderScreen(
             }
         }
     }
+
 
     LazyColumn(
         modifier = Modifier
@@ -365,9 +373,6 @@ fun LaundryOrderScreen(
     }
 }
 
-
-
-
 @Composable
 fun AccordionSection(
     title: String,
@@ -394,19 +399,6 @@ fun AccordionSection(
                 content()
             }
         }
-    }
-}
-
-@Composable
-fun LaundryOption(name: String, price: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(name)
-        Text(price)
     }
 }
 
@@ -506,52 +498,6 @@ fun Header(navController: NavController) {
         )
     }
 }
-
-fun orderLogic(
-    navController: NavController,
-    database: FirebaseDatabase,
-    laundryName: String,
-    username: String,
-    address: String,
-    phoneNumber: String,
-    antarJemput: String,
-    tipeLaundry: String,
-    pembayaran: String,
-    selectedCuciKiloanOption: String,
-    onSuccess: () -> Unit,
-    onError: (String) -> Unit
-) {
-    if (username.isBlank() || address.isBlank() || phoneNumber.isBlank() || selectedCuciKiloanOption.isBlank()) {
-        onError("Semua data harus diisi!")
-        return
-    }
-
-    val ordersRef = database.getReference("orders")
-    val orderId = ordersRef.push().key
-
-    val orderData = mapOf(
-        "orderId" to orderId,
-        "laundryName" to laundryName,
-        "username" to username,
-        "address" to address,
-        "phoneNumber" to phoneNumber,
-        "antarJemput" to antarJemput,
-        "tipeLaundry" to tipeLaundry,
-        "pembayaran" to pembayaran,
-        "service" to selectedCuciKiloanOption,
-        "timestamp" to System.currentTimeMillis()
-    )
-
-    if (orderId != null) {
-        ordersRef.child(orderId).setValue(orderData)
-            .addOnSuccessListener { onSuccess() }
-            .addOnFailureListener { error -> onError(error.message ?: "Unknown Error") }
-        navController.navigate("Homepage")
-    } else {
-        onError("Gagal membuat ID Pesanan!")
-    }
-}
-
 //@Preview(showBackground = true)
 //@Composable
 //fun PrevLaundryOrder() {
