@@ -43,6 +43,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.ikancipung.laundrygo.R
+import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
 
 @Composable
 fun TitleLaundryScreen(navController: NavController, orderId: String) {
@@ -408,10 +409,26 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
                         .height(48.dp),
                     enabled = isBayarEnabled,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isBayarEnabled) Color(0xFF007BFF) else Color.Gray
+                        containerColor = if (isBayarEnabled) BlueLaundryGo else Color.Gray
                     )
                 ) {
                     Text(text = "Bayar", color = Color.White)
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Button(
+                    onClick = {
+                        navController.navigate("Homepage")
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Magenta
+                    )
+                ) {
+                    Text(text = "Kembali ke Beranda", color = Color.White)
                 }
             }
         }
