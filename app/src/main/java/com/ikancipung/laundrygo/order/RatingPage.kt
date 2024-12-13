@@ -45,6 +45,8 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.ikancipung.laundrygo.R
+import com.ikancipung.laundrygo.profile.checkFavoriteStatus
+import com.ikancipung.laundrygo.profile.toggleFavorite
 import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
 
 @Composable
@@ -62,6 +64,8 @@ fun RatingScreen(navController: NavController, orderId: String) {
 
     val statusName = "isWeighted" // We explicitly use isWeighted as statusName
     val database = Firebase.database.reference
+
+    var isFavorite by remember { mutableStateOf(false) }
 
     LaunchedEffect(orderId) {
         if (orderId.isNotEmpty()) {
@@ -99,6 +103,10 @@ fun RatingScreen(navController: NavController, orderId: String) {
                                             isLoading = false
                                         }
                                     })
+
+                                    checkFavoriteStatus(order.NamaLaundry) { favorite ->
+                                        isFavorite = favorite
+                                    }
                                 },
                                 onError = { error ->
                                     errorMessage = error
@@ -153,7 +161,7 @@ fun RatingScreen(navController: NavController, orderId: String) {
                         contentDescription = "Copy",
                         modifier = Modifier
                             .size(24.dp) // Set the size of the image
-                            .clickable { } // Add clickable functionality
+                            .clickable { navController.popBackStack() } // Add clickable functionality
                     )
 
                     // Title and Location
@@ -165,28 +173,31 @@ fun RatingScreen(navController: NavController, orderId: String) {
                     ) {
                         Text(
                             text = order.NamaLaundry,
-                            style = MaterialTheme.typography.bodyMedium,
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.Center
                         )
-                        Text(
-                            text = order.AlamatLaundry,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.Gray,
-                            textAlign = TextAlign.Center
-                        )
+//                        Text(
+//                            text = order.AlamatLaundry,
+//                            style = MaterialTheme.typography.bodySmall,
+//                            color = Color.Gray,
+//                            textAlign = TextAlign.Center
+//                        )
                     }
 
                     // Add a Spacer for alignment
-                    Spacer(modifier = Modifier.width(48.dp)) // Matches the size of IconButton
+                    Spacer(modifier = Modifier.width(24.dp)) // Matches the size of IconButton
                 }
                 // Order Details Section
                 val displayTime = formatTimestampNotif(order.WaktuPesan)
-                val doneTime = getDoneStatusTime(order)
-                val formattedTime = doneTime?.let { formatTimestampNotif(it) } ?: "Time not available"
+                val doneTime: Long = order.Status.isDone.time ?: 0L
+                val formattedTime = formatTimestampNotif(doneTime)
 
                 Spacer(modifier = Modifier.height(32.dp))
                 Column(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
                 ) {
                     InfoRow(label = "Waktu Pemesanan", value = displayTime)
                     InfoRow(label = "Waktu Selesai", value = formattedTime)
@@ -207,7 +218,16 @@ fun RatingScreen(navController: NavController, orderId: String) {
                         "Tambahkan ke favorit!",
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.Blue,
-                        modifier = Modifier.clickable { /* Handle favorite action */ }
+                        modifier = Modifier.clickable {
+                            toggleFavorite(
+                                laundryName = order.NamaLaundry,
+                                isCurrentlyFavorite = isFavorite,
+                                navController = navController,
+                                callback = { updatedFavorite ->
+                                    isFavorite = updatedFavorite
+                                }
+                            )
+                        }
                     )
                 }
 
@@ -323,7 +343,8 @@ fun StarRatingBar(
                             onRatingChanged(i.toFloat())
                         }
                     )
-                    .width(starSize).height(starSize)
+                    .width(starSize)
+                    .height(starSize)
             )
 
             if (i < maxStars) {

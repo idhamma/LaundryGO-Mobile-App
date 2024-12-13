@@ -3,12 +3,32 @@ package com.ikancipung.laundrygo.order
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -56,16 +76,21 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
                                 onSuccess = { calculatedTotal ->
                                     total = calculatedTotal
                                     // Once we have all order data loaded, now we read Status/$statusName/value
-                                    val valueRef = database.child("orders").child(orderId).child("Status").child(statusName).child("value")
-                                    valueRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                                    val valueRef =
+                                        database.child("orders").child(orderId).child("Status")
+                                            .child(statusName).child("value")
+                                    valueRef.addListenerForSingleValueEvent(object :
+                                        ValueEventListener {
                                         override fun onDataChange(snapshot: DataSnapshot) {
-                                            val weightedValue = snapshot.getValue(Boolean::class.java) ?: false
+                                            val weightedValue =
+                                                snapshot.getValue(Boolean::class.java) ?: false
                                             isBayarEnabled = weightedValue
                                             isLoading = false
                                         }
 
                                         override fun onCancelled(error: DatabaseError) {
-                                            errorMessage = "Gagal membaca status $statusName: ${error.message}"
+                                            errorMessage =
+                                                "Gagal membaca status $statusName: ${error.message}"
                                             isLoading = false
                                         }
                                     })
@@ -131,7 +156,7 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.Black,
-                            modifier = Modifier.padding(end=96.dp)
+                            modifier = Modifier.padding(end = 96.dp)
                         )
                     }
                 }
@@ -188,7 +213,9 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
                             color = Color.Black
                         )
                         Text(
-                            text = "${order.Pembayaran}",
+                            text = if (order.Pembayaran == "cash") "Tunai"
+                            else if (order.Pembayaran == "Virtual Account") "Akun Virtual"
+                            else order.Pembayaran,
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Bold,
                             color = Color.Black
@@ -251,7 +278,9 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
                                     color = Color.Black
                                 )
                                 Text(
-                                    text = "Rp.${detail.Price.toIntOrNull()?.times(detail.Quantity) ?: 0}",
+                                    text = "Rp.${
+                                        detail.Price.toIntOrNull()?.times(detail.Quantity) ?: 0
+                                    }",
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.Black
@@ -288,7 +317,7 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text("Biaya Express:", fontSize = 14.sp, color = Color.Gray)
+                            Text("Biaya Kilat:", fontSize = 14.sp, color = Color.Gray)
                             Text("Rp.10000", fontSize = 14.sp, color = Color.Gray)
                         }
                     }
@@ -297,8 +326,18 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Total:", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Black)
-                        Text("Rp.$total", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Black)
+                        Text(
+                            "Total:",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                            color = Color.Black
+                        )
+                        Text(
+                            "Rp.$total",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                            color = Color.Black
+                        )
                     }
                 }
 
@@ -310,7 +349,7 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
                         if (isBayarEnabled) {
                             val donebayarValue = total
                             val laundryName = order.NamaLaundry
-                            val targetNode = when(laundryName) {
+                            val targetNode = when (laundryName) {
                                 "Antony Laundry" -> "laundry1"
                                 "Jasjus Laundry" -> "laundry2"
                                 "Kiyomasa Laundry" -> "laundry3"
@@ -321,7 +360,8 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
                             }
 
                             if (targetNode != null) {
-                                val donebayarRef = database.child("laundry").child(targetNode).child("donebayar")
+                                val donebayarRef =
+                                    database.child("laundry").child(targetNode).child("donebayar")
                                 donebayarRef.get().addOnSuccessListener { snapshot ->
                                     val orderCount = snapshot.childrenCount
                                     val newOrderKey = "Order ${(orderCount + 1)}"
