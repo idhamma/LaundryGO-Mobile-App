@@ -15,9 +15,9 @@ class NotificationStatus(
     private val notificationManager = context.getSystemService(NotificationManager::class.java)
 
     fun showBasicNotification() {
-        val notification = NotificationCompat.Builder(context, "water_reminder")
-            .setContentTitle("Water Reminder")
-            .setContentText("Time to drink some water!")
+        val notification = NotificationCompat.Builder(context, "Pesanan-Laundry")
+            .setContentTitle("Pesanan Laundry")
+            .setContentText("Pesanan mu udah selesai nih")
             .setSmallIcon(R.drawable.laundrygo_icon)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)

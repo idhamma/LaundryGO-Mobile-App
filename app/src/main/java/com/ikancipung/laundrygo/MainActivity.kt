@@ -42,8 +42,17 @@ import com.ikancipung.laundrygo.ui.theme.LaundryGOTheme
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
+import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
+import androidx.lifecycle.lifecycleScope
 import com.google.firebase.database.ValueEventListener
+import com.ikancipung.laundrygo.notification.NotificationDatabase
+import com.ikancipung.laundrygo.notification.NotificationRepository
+import com.ikancipung.laundrygo.notification.NotificationViewModel
+import com.ikancipung.laundrygo.notification.NotificationViewModelFactory
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 
 private lateinit var auth: FirebaseAuth
@@ -55,12 +64,12 @@ class MainActivity : ComponentActivity() {
         setContent {
 
             val notificationChannel = NotificationChannel(
-                "water_reminder",
+                "Pesanan-Laundry",
                 "Water reminder channel",
                 NotificationManager.IMPORTANCE_HIGH
             )
 
-            notificationChannel.description = "A notification channel for water reminders"
+            notificationChannel.description = "A notification channel for order done"
 
             val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(notificationChannel)
@@ -71,8 +80,13 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
 
             LaundryGOTheme {
-                val orderStatus = NotificationStatus(this)
-                observeOrderStatusChanges(orderStatus)
+                val notificationViewModel: NotificationViewModel by viewModels {
+                    val dao = NotificationDatabase.getDatabase(applicationContext).notificationDao()
+                    NotificationViewModelFactory(NotificationRepository(dao))
+                }
+
+                observeOrderStatusChanges(notificationViewModel)
+
 
                 NavHost(navController = navController, startDestination = startDestination) {
                     composable("Login") { LoginScreen(navController = navController) }
@@ -214,20 +228,27 @@ class MainActivity : ComponentActivity() {
     }
 
 
-    private fun observeOrderStatusChanges(notificationService: NotificationStatus) {
+    private fun observeOrderStatusChanges(notificationViewModel: NotificationViewModel) {
         val ordersRef = FirebaseDatabase.getInstance().getReference("orders")
 
         ordersRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 for (orderSnapshot in snapshot.children) {
+                    val orderId = orderSnapshot.key ?: continue
                     val isDone = orderSnapshot.child("Status/isDone/value").getValue(Boolean::class.java) ?: false
 
                     if (isDone) {
-                        // Tampilkan notifikasi
-                        notificationService.showBasicNotification()
+                        // Periksa apakah notifikasi sudah diberikan
+                        GlobalScope.launch(Dispatchers.IO) {
+                            val isNotified = notificationViewModel.isOrderNotified(orderId)
+                            if (!isNotified) {
+                                // Tampilkan notifikasi
+                                NotificationStatus(this@MainActivity).showBasicNotification()
 
-                        // Update isDone menjadi false agar tidak dikirim ulang
-//                        ordersRef.child(orderSnapshot.key!!).child("Status/isDone/value").setValue(false)
+                                // Tandai notifikasi sebagai sudah diberikan
+                                notificationViewModel.markAsNotified(orderId)
+                            }
+                        }
                     }
                 }
             }
@@ -237,6 +258,8 @@ class MainActivity : ComponentActivity() {
             }
         })
     }
+
+
 
     private fun addNode() {
         val database = FirebaseDatabase.getInstance().getReference("Banner")
