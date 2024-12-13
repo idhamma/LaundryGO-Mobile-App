@@ -293,7 +293,7 @@ fun ChatScreen(navController: NavController, laundryName: String, laundryLogo: S
             navController.navigate("chat/${Uri.encode(laundryName)}/${Uri.encode(laundryLogo)}")
         },
         modifier = modifier,
-        containerColor = Color(0xFFF3F3F3),
+        containerColor = Color(0xFFD0D0D0),
         elevation = FloatingActionButtonDefaults.elevation(0.dp)
     ) {
         Image(painter = painterResource(id = R.drawable.chat), contentDescription = "Chat")
