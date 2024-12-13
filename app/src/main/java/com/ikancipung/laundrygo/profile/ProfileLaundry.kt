@@ -16,12 +16,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FloatingActionButton
@@ -108,13 +111,32 @@ fun ProfileLaundry(
                         Text(
                             text = laundryAddress,
                         )
-                    }
 
-                    Text(
-                        text = laundryRating,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(end = 8.dp)
-                    )
+                        // Deretan bintang rating di bawah alamat
+                        var selectedRating by remember { mutableStateOf(laundryRating.toIntOrNull() ?: 0) }
+
+                        Row(
+                            modifier = Modifier.padding(top = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            for (i in 1..5) {
+                                Icon(
+                                    imageVector = Icons.Filled.Star,
+                                    contentDescription = null,
+                                    tint = if (i <= selectedRating) BlueLaundryGo else Color.Gray,
+                                    modifier = Modifier
+                                        .size(24.dp)
+                                        .clickable {
+                                            selectedRating = i
+                                            // Simpan rating ke database
+                                            saveRatingToDatabase(laundryName, selectedRating)
+                                        }
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
             }
 
@@ -271,7 +293,6 @@ fun ChatScreen(navController: NavController, laundryName: String, laundryLogo: S
             navController.navigate("chat/${Uri.encode(laundryName)}/${Uri.encode(laundryLogo)}")
         },
         modifier = modifier,
-//        containerColor = BlueLaundryGo
         containerColor = Color(0xFFF3F3F3),
         elevation = FloatingActionButtonDefaults.elevation(0.dp)
     ) {
@@ -281,7 +302,6 @@ fun ChatScreen(navController: NavController, laundryName: String, laundryLogo: S
 
 @Composable
 fun getPriceUnit(service: String, price: String): String {
-
     val serviceLower = service.toLowerCase(Locale.getDefault())
 
     return when (serviceLower) {
@@ -362,4 +382,36 @@ fun toggleFavorite(
         ).show()
         callback(isCurrentlyFavorite)
     }
+}
+
+// Fungsi untuk mendapatkan nama node laundry berdasarkan nama laundry
+fun getLaundryNodeName(laundryName: String): String {
+    return when (laundryName) {
+        "Antony Laundry" -> "laundry1"
+        "Jasjus Laundry" -> "laundry2"
+        "Kiyomasa Laundry" -> "laundry3"
+        "Bersih Laundry" -> "laundry4"
+        "Cuci Cepat" -> "laundry5"
+        "Laundry Sehat" -> "laundry6"
+        else -> "unknown_laundry"
+    }
+}
+
+// Fungsi untuk menyimpan rating ke database
+fun saveRatingToDatabase(laundryName: String, rating: Int) {
+    val user = FirebaseAuth.getInstance().currentUser
+    val userName = user?.displayName ?: "Unknown"
+    val userId = user?.uid ?: "unknown_user"
+    val laundryNodeName = getLaundryNodeName(laundryName)
+
+    val database = FirebaseDatabase.getInstance().reference
+    val ratingRef = database.child("laundry").child(laundryNodeName).child("Rating")
+
+    // Menyimpan dalam bentuk node list dengan userId sebagai key
+    // Jika user yang sama memberi rating lagi, data akan di-overwrite pada node dengan key userId
+    val ratingValue = "$userName : ${rating} Star"
+    ratingRef.child(userId).setValue(ratingValue)
+        .addOnFailureListener {
+            // Opsional: Tampilkan toast jika gagal
+        }
 }
