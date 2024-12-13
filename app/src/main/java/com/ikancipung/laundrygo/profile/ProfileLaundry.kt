@@ -409,7 +409,7 @@ fun saveRatingToDatabase(laundryName: String, rating: Int) {
 
     // Menyimpan dalam bentuk node list dengan userId sebagai key
     // Jika user yang sama memberi rating lagi, data akan di-overwrite pada node dengan key userId
-    val ratingValue = "$userName : ${rating} Star"
+    val ratingValue = "$userName : ${rating}"
     ratingRef.child(userId).setValue(ratingValue)
         .addOnFailureListener {
             // Opsional: Tampilkan toast jika gagal
