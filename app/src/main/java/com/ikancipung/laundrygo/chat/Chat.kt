@@ -125,7 +125,7 @@ fun ChatInputArea(onSendMessage: (String) -> Unit) {
             }
         )
         Spacer(modifier = Modifier.width(8.dp))
-        Icon(
+        Image(
             painter = painterResource(id = R.drawable.send),
             contentDescription = "Send Message",
             modifier = Modifier
