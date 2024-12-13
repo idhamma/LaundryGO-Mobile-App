@@ -17,17 +17,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -39,7 +37,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -48,7 +48,7 @@ import coil.compose.rememberImagePainter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.gson.Gson
-import com.ikancipung.laundrygo.menu.Laundry
+import com.ikancipung.laundrygo.R
 import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
 import java.util.Locale
 
@@ -72,191 +72,210 @@ fun ProfileLaundry(
         }
     }
 
-    LazyColumn(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
-            .padding(16.dp),
-        contentPadding = PaddingValues(bottom = 16.dp)
     ) {
-        // Header
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickable { navController.popBackStack() },
-                    tint = Color.Black
-                )
-
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = laundryName, fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = laundryAddress,
-                    )
-                }
-
-                Text(
-                    text = laundryRating,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(end = 8.dp)
-                )
-            }
-        }
-
-        // Gambar Laundry
-        item {
-            Spacer(modifier = Modifier.height(8.dp))
-            Box(modifier = Modifier) {
-                Image(
-                    painter = rememberImagePainter(laundryLogo),
-                    contentDescription = "Laundry Logo",
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            contentPadding = PaddingValues(bottom = 16.dp)
+        ) {
+            // Header
+            item {
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(200.dp)
-                )
-
-                Icon(
-                    imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                    contentDescription = "Rating",
-                    modifier = Modifier
-                        .size(24.dp)
-                        .align(Alignment.BottomEnd)
-                        .clickable {
-                            toggleFavorite(laundryName, isFavorite, navController) { updatedFavorite ->
-                                isFavorite = updatedFavorite
-                            }
-                        },
-                    tint = BlueLaundryGo
-                )
-            }
-        }
-
-        // Nama dan Deskripsi
-        item {
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Nama Laundry",
-                style = MaterialTheme.typography.bodySmall,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = laundryName,
-                color = Color.Gray,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(start = 16.dp, bottom = 8.dp)
-            )
-
-            Text(
-                text = "Deskripsi",
-                style = MaterialTheme.typography.bodySmall,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = laundryDescription,
-                textAlign = TextAlign.Justify,
-                color = Color.Gray,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(start = 16.dp, bottom = 16.dp)
-            )
-        }
-
-        // Layanan
-        item {
-            Text(
-                text = "Layanan",
-                style = MaterialTheme.typography.bodySmall,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        items(services.size) { index ->
-            Row(modifier = Modifier.padding(vertical = 4.dp)) {
-                Text(
-                    text = services[index],
-                    color = Color.Gray,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(start = 16.dp)
-                )
-                Text(
-                    text = getPriceUnit(services[index], prices[index]),
-                    color = Color.Gray,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(start = 16.dp)
-                )
-            }
-        }
-
-        // Jam Pelayanan
-        item {
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Jam Pelayanan", fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = serviceHours,
-                color = Color.Gray,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier
-                    .padding(start = 16.dp)
-                    .padding(vertical = 4.dp)
-            )
-        }
-
-        // Tombol Pesan
-        item {
-            Spacer(modifier = Modifier.height(16.dp))
-            ChatScreen(navController, laundryName, laundryLogo)
-            Button(
-                onClick = {
-                    navController.navigate(
-                        "Orderpage/${Uri.encode(laundryName)}/${
-                            Uri.encode(
-                                Gson().toJson(prices)
-                            )
-                        }/${Uri.encode(Gson().toJson(services))}"
+                        .padding(bottom = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clickable { navController.popBackStack() },
+                        tint = Color.Black
                     )
-                },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(10.dp),
-                colors = ButtonDefaults.buttonColors(BlueLaundryGo)
-            ) {
-                Text(text = "Pesan Sekarang!", color = Color.White)
+
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = laundryName, fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = laundryAddress,
+                        )
+                    }
+
+                    Text(
+                        text = laundryRating,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(end = 8.dp)
+                    )
+                }
+            }
+
+            // Gambar Laundry
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+                Box(modifier = Modifier) {
+                    Image(
+                        painter = rememberImagePainter(laundryLogo),
+                        contentDescription = "Laundry Logo",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp)
+                    )
+
+                    Icon(
+                        imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                        contentDescription = "Rating",
+                        modifier = Modifier
+                            .size(24.dp)
+                            .align(Alignment.BottomEnd)
+                            .clickable {
+                                toggleFavorite(
+                                    laundryName,
+                                    isFavorite,
+                                    navController
+                                ) { updatedFavorite ->
+                                    isFavorite = updatedFavorite
+                                }
+                            },
+                        tint = BlueLaundryGo
+                    )
+                }
+            }
+
+            // Nama dan Deskripsi
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Nama Laundry",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = laundryName,
+                    color = Color.Gray,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 16.dp, bottom = 8.dp)
+                )
+
+                Text(
+                    text = "Deskripsi",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = laundryDescription,
+                    textAlign = TextAlign.Justify,
+                    color = Color.Gray,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 16.dp, bottom = 16.dp)
+                )
+            }
+
+            // Layanan
+            item {
+                Text(
+                    text = "Layanan",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            items(services.size) { index ->
+                Row(modifier = Modifier.padding(vertical = 4.dp)) {
+                    Text(
+                        text = services[index],
+                        color = Color.Gray,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 16.dp)
+                    )
+                    Text(
+                        text = getPriceUnit(services[index], prices[index]),
+                        color = Color.Gray,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 16.dp)
+                    )
+                }
+            }
+
+            // Jam Pelayanan
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Jam Pelayanan", fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = serviceHours,
+                    color = Color.Gray,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier
+                        .padding(start = 16.dp)
+                        .padding(vertical = 4.dp)
+                )
+            }
+
+            // Tombol Pesan
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = {
+                        navController.navigate(
+                            "Orderpage/${Uri.encode(laundryName)}/${
+                                Uri.encode(
+                                    Gson().toJson(prices)
+                                )
+                            }/${Uri.encode(Gson().toJson(services))}"
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(BlueLaundryGo)
+                ) {
+                    Text(text = "Pesan Sekarang!", color = Color.White)
+                }
             }
         }
+
+        // Floating ChatScreen
+        ChatScreen(
+            navController = navController,
+            laundryName = laundryName,
+            laundryLogo = laundryLogo,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+                .shadow(
+                    elevation = 3.dp,
+                    shape = RoundedCornerShape(16.dp),
+                    clip = false
+                )
+        )
     }
 }
 
 @Composable
-fun ChatScreen(navController: NavController, laundryName: String, laundryLogo: String) {
-    Box(Modifier.padding(16.dp) , contentAlignment = Alignment.BottomEnd) {
-        FloatingActionButton(
-            onClick = {
-                navController.navigate("chat/${Uri.encode(laundryName)}/${Uri.encode(laundryLogo)}")
-            },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.AccountCircle,
-                contentDescription = "Chat"
-            )
-        }
+fun ChatScreen(navController: NavController, laundryName: String, laundryLogo: String, modifier: Modifier = Modifier) {
+    FloatingActionButton(
+        onClick = {
+            navController.navigate("chat/${Uri.encode(laundryName)}/${Uri.encode(laundryLogo)}")
+        },
+        modifier = modifier,
+//        containerColor = BlueLaundryGo
+        containerColor = Color(0xFFF3F3F3),
+        elevation = FloatingActionButtonDefaults.elevation(0.dp)
+    ) {
+        Image(painter = painterResource(id = R.drawable.chat), contentDescription = "Chat")
     }
 }
 
