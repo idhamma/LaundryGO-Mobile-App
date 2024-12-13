@@ -183,20 +183,21 @@ fun myOrder(navController: NavController) {
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
 
-        ) {
-            Text(
-                text = "Dalam Proses",
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.clickable {
-                    historyWindow = false
-                }
-            )
+        ) {    Text(
+            text = "Dalam Proses",
+            fontWeight = if (!historyWindow) FontWeight.Bold else FontWeight.Normal,
+            color = if (!historyWindow) BlueLaundryGo else Color.Gray,
+            modifier = Modifier.clickable {
+                historyWindow = false
+            }
+        )
 
             Spacer(modifier = Modifier.width(96.dp))
 
             Text(
                 text = "Riwayat",
-                fontWeight = FontWeight.Bold,
+                fontWeight = if (historyWindow) FontWeight.Bold else FontWeight.Normal,
+                color = if (historyWindow) BlueLaundryGo else Color.Gray,
                 modifier = Modifier.clickable {
                     historyWindow = true
                 }
