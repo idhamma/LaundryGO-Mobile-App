@@ -60,7 +60,6 @@ fun ProfileLaundry(
     navController: NavController,
     laundryName: String,
     laundryAddress: String,
-    laundryRating: String,
     laundryLogo: String,
     services: List<String>,
     prices: List<String>,
@@ -112,29 +111,7 @@ fun ProfileLaundry(
                             text = laundryAddress,
                         )
 
-                        // Deretan bintang rating di bawah alamat
-                        var selectedRating by remember { mutableStateOf(laundryRating.toIntOrNull() ?: 0) }
 
-                        Row(
-                            modifier = Modifier.padding(top = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            for (i in 1..5) {
-                                Icon(
-                                    imageVector = Icons.Filled.Star,
-                                    contentDescription = null,
-                                    tint = if (i <= selectedRating) BlueLaundryGo else Color.Gray,
-                                    modifier = Modifier
-                                        .size(24.dp)
-                                        .clickable {
-                                            selectedRating = i
-                                            // Simpan rating ke database
-                                            saveRatingToDatabase(laundryName, selectedRating)
-                                        }
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                            }
-                        }
                     }
                     Spacer(modifier = Modifier.height(24.dp))
                 }
@@ -397,21 +374,4 @@ fun getLaundryNodeName(laundryName: String): String {
     }
 }
 
-// Fungsi untuk menyimpan rating ke database
-fun saveRatingToDatabase(laundryName: String, rating: Int) {
-    val user = FirebaseAuth.getInstance().currentUser
-    val userName = user?.displayName ?: "Unknown"
-    val userId = user?.uid ?: "unknown_user"
-    val laundryNodeName = getLaundryNodeName(laundryName)
 
-    val database = FirebaseDatabase.getInstance().reference
-    val ratingRef = database.child("laundry").child(laundryNodeName).child("Rating")
-
-    // Menyimpan dalam bentuk node list dengan userId sebagai key
-    // Jika user yang sama memberi rating lagi, data akan di-overwrite pada node dengan key userId
-    val ratingValue = "$userName : ${rating}"
-    ratingRef.child(userId).setValue(ratingValue)
-        .addOnFailureListener {
-            // Opsional: Tampilkan toast jika gagal
-        }
-}

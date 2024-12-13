@@ -40,20 +40,24 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.ikancipung.laundrygo.R
 import com.ikancipung.laundrygo.menu.userId
 import com.ikancipung.laundrygo.profile.checkFavoriteStatus
+import com.ikancipung.laundrygo.profile.getLaundryNodeName
 import com.ikancipung.laundrygo.profile.toggleFavorite
 import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
 
 @Composable
 fun RatingScreen(navController: NavController, orderId: String) {
-    var rating by remember { mutableStateOf(1f) }
+    var rating by remember { mutableStateOf(0f) } // Nilai rating default
+    var isSubmitting by remember { mutableStateOf(false) } // Status saat submit
 
     var orderData by remember { mutableStateOf<Order?>(null) }
     var isLoading by remember { mutableStateOf(true) }
@@ -66,9 +70,9 @@ fun RatingScreen(navController: NavController, orderId: String) {
 
     val statusName = "isWeighted" // We explicitly use isWeighted as statusName
     val database = Firebase.database.reference
-
     var isFavorite by remember { mutableStateOf(false) }
 
+    // Ambil data pesanan berdasarkan `orderId`
     LaunchedEffect(orderId) {
         if (orderId.isNotEmpty()) {
             fetchOrderData(
@@ -141,7 +145,6 @@ fun RatingScreen(navController: NavController, orderId: String) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text(text = errorMessage ?: "Terjadi kesalahan.")
         }
-
     } else {
         orderData?.let { order ->
             Column(
@@ -150,23 +153,21 @@ fun RatingScreen(navController: NavController, orderId: String) {
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Header Section
+                // Header
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 8.dp)
                 ) {
-                    // Back Icon
                     Image(
                         painter = painterResource(R.drawable.keluar),
-                        contentDescription = "Copy",
+                        contentDescription = "Back",
                         modifier = Modifier
-                            .size(24.dp) // Set the size of the image
-                            .clickable { navController.popBackStack() } // Add clickable functionality
+                            .size(24.dp)
+                            .clickable { navController.popBackStack() }
                     )
 
-                    // Title and Location
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
@@ -179,18 +180,10 @@ fun RatingScreen(navController: NavController, orderId: String) {
                             fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.Center
                         )
-//                        Text(
-//                            text = order.AlamatLaundry,
-//                            style = MaterialTheme.typography.bodySmall,
-//                            color = Color.Gray,
-//                            textAlign = TextAlign.Center
-//                        )
                     }
-
-                    // Add a Spacer for alignment
-                    Spacer(modifier = Modifier.width(24.dp)) // Matches the size of IconButton
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
-                // Order Details Section
+
                 val displayTime = formatTimestampNotif(order.WaktuPesan)
                 var formattedTime by remember { mutableStateOf("") }
 
@@ -218,9 +211,6 @@ fun RatingScreen(navController: NavController, orderId: String) {
                     InfoRow(label = "Biaya", value = "Rp." + total.toString())
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // Rating Section
                 Row() {
                     Text(
                         text = "Menyukai Laundry ini? ",
@@ -243,68 +233,55 @@ fun RatingScreen(navController: NavController, orderId: String) {
                     )
                 }
 
+                // Rating Section
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(
                     horizontalArrangement = Arrangement.Center,
                     modifier = Modifier.fillMaxWidth()
                 ) {
+                    // Komponen StarRatingBar untuk memilih bintang
                     StarRatingBar(
                         maxStars = 5,
                         rating = rating,
-                        onRatingChanged = { rating = it }
+                        onRatingChanged = { selectedRating ->
+                            rating = selectedRating
+                        }
                     )
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "Dengan memberikan rating, anda dapat membantu meningkatkan pelayanan LaundryGO",
+                    text = "Dengan memberikan rating, Anda membantu meningkatkan pelayanan LaundryGO.",
                     style = MaterialTheme.typography.bodySmall,
                     fontSize = 12.sp,
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    textAlign = TextAlign.Center
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Text(
-                    text = "Laporkan Kendala!",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Blue,
-                    modifier = Modifier.clickable { /* Handle report issue */ }
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Button(
-                    onClick = {
-                        // Handle submit action
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
-                ) {
-                    Text(text = "Submit", color = Color.White)
+                if (isSubmitting) {
+                    CircularProgressIndicator() // Indikator loading saat submit
+                } else {
+                    Button(
+                        onClick = {
+                            isSubmitting = true
+                            saveRatingToDatabase(
+                                laundryName = order.NamaLaundry,
+                                rating = rating.toInt()
+                            ) {
+                                isSubmitting = false
+                                navController.popBackStack() // Kembali setelah submit berhasil
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
+                    ) {
+                        Text(text = "Submit", color = Color.White)
+                    }
                 }
             }
         }
     }
-}
-
-fun getDoneStatusTime(order: Order): Long? {
-    val statusMapping = listOf(
-        order.Status.isDone to "Pesanan selesai",  // Assuming `isDone` is of type `LaundryStatusDetail`
-        order.Status.isSent to "Pesanan sedang dikirim",
-        order.Status.isWashing to "Pakaian sedang dicuci",
-        order.Status.isInLaundry to "Pakaian sedang di laundry",
-        order.Status.isWeighted to "Pakaian selesai ditimbang",
-        order.Status.isPaid to "Pesanan telah dibayar",
-        order.Status.isReceived to "Pesanan sudah diterima"
-    )
-
-    // Find the first status where `value` is true and extract the `time` for that status
-    val doneStatusTime = statusMapping
-        .firstOrNull { it.first.value == true } // Find the first status where 'value' is true
-        ?.first?.time // Return the time associated with that status
-
-    return doneStatusTime
 }
 
 @Composable
@@ -332,40 +309,46 @@ fun StarRatingBar(
     rating: Float,
     onRatingChanged: (Float) -> Unit
 ) {
-    val density = LocalDensity.current.density
-    val starSize = (12f * density).dp
-    val starSpacing = (0.5f * density).dp
-
     Row(
         modifier = Modifier.selectableGroup(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         for (i in 1..maxStars) {
             val isSelected = i <= rating
-            val icon = if (isSelected) Icons.Filled.Star else Icons.Default.Star
-            val iconTintColor = if (isSelected) BlueLaundryGo else Color(0xF0E0E0E0)
             Icon(
-                imageVector = icon,
+                imageVector = Icons.Filled.Star,
                 contentDescription = null,
-                tint = iconTintColor,
+                tint = if (isSelected) BlueLaundryGo else Color(0xFFE0E0E0),
                 modifier = Modifier
-                    .selectable(
-                        selected = isSelected,
-                        onClick = {
-                            onRatingChanged(i.toFloat())
-                        }
-                    )
-                    .width(starSize)
-                    .height(starSize)
+                    .clickable { onRatingChanged(i.toFloat()) }
+                    .size(32.dp) // Ukuran ikon bintang
             )
-
-            if (i < maxStars) {
-                Spacer(modifier = Modifier.width(starSpacing))
-            }
         }
     }
 }
 
+// Fungsi untuk menyimpan rating ke database
+fun saveRatingToDatabase(
+    laundryName: String,
+    rating: Int,
+    onSuccess: () -> Unit = {}
+) {
+    val user = FirebaseAuth.getInstance().currentUser
+    val userId = user?.uid ?: "unknown_user"
+    val laundryNodeName = getLaundryNodeName(laundryName)
+
+    val database = FirebaseDatabase.getInstance().reference
+    val ratingRef = database.child("laundry").child(laundryNodeName).child("Rating")
+
+    ratingRef.child(userId).setValue(rating)
+        .addOnSuccessListener {
+            Log.d("Firebase", "Rating berhasil disimpan")
+            onSuccess()
+        }
+        .addOnFailureListener { error ->
+            Log.e("Firebase", "Gagal menyimpan rating: ${error.message}", error)
+        }
+}
 //@Preview(showBackground = true)
 //@Composable
 //fun PrevLaundryScreen() {
