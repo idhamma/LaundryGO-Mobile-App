@@ -415,7 +415,31 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
                     Text(text = "Bayar", color = Color.White)
                 }
 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Button(
+                    onClick = {
+                        // Fungsi untuk menghapus pesanan dari Firebase
+                        val orderRef = database.child("orders").child(orderId)
+                        orderRef.removeValue().addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                navController.navigate("Homepage") // Arahkan ke halaman utama setelah berhasil dihapus
+                            } else {
+                                errorMessage = "Gagal menghapus pesanan. Silakan coba lagi."
+                            }
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Red
+                    )
+                ) {
+                    Text(text = "Batalkan Pesanan", color = Color.White)
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Button(
                     onClick = {
