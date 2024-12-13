@@ -161,7 +161,7 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
                 Column(
                     modifier = Modifier.fillMaxWidth()
@@ -374,7 +374,25 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
                                     if (pembayaran.equals("Virtual Account")) {
                                         donebayarRef.child(newOrderKey).setValue(donebayarValue)
                                             .addOnSuccessListener {
-                                                navController.navigate("Vapayment/${Uri.encode(orderId)}")
+                                                navController.navigate(
+                                                    "Vapayment/${
+                                                        Uri.encode(
+                                                            orderId
+                                                        )
+                                                    }/${Uri.encode(total.toString())}"
+                                                )
+                                            }
+                                    }
+                                    if (pembayaran.equals("Cash")) {
+                                        val statusRef =
+                                            database.child("orders").child(orderId).child("Status")
+                                                .child("isPaid")
+
+                                        statusRef.child("value").setValue(true)
+                                            .addOnCompleteListener { task ->
+                                                if (task.isSuccessful) {
+                                                    navController.navigate("Donebayar")
+                                                }
                                             }
                                     }
                                 }.addOnFailureListener {
