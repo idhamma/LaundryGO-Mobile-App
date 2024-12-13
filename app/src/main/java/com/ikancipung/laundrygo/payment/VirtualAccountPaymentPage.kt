@@ -38,11 +38,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.google.firebase.Firebase
+import com.google.firebase.database.database
 import com.ikancipung.laundrygo.R
 import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
 
 @Composable
-fun VAPaymentScreen(navController: NavController, price: String) {
+fun VAPaymentScreen(navController: NavController, orderId: String, price: String) {
 
     val context = LocalContext.current
 
@@ -53,7 +55,7 @@ fun VAPaymentScreen(navController: NavController, price: String) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Header
-        Header()
+        Header(navController)
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -96,7 +98,18 @@ fun VAPaymentScreen(navController: NavController, price: String) {
         // Payment Button
         Button(
             onClick = {
-                navController.navigate("Donebayar")
+                // Update isDone menjadi true di Realtime Database
+                val database = Firebase.database.reference
+                val statusRef = database.child("orders").child(orderId).child("Status").child("isPaid")
+
+                statusRef.child("value").setValue(true).addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Toast.makeText(context, "Pembayaran berhasil diproses.", Toast.LENGTH_SHORT).show()
+                        navController.navigate("Donebayar")
+                    } else {
+                        Toast.makeText(context, "Gagal memproses pembayaran.", Toast.LENGTH_SHORT).show()
+                    }
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -164,13 +177,13 @@ fun copyToClipboard(context: Context, text: String) {
 }
 
 @Composable
-fun Header() {
+fun Header(navController: NavController) {
     Box(
         modifier = Modifier.fillMaxWidth()
     ) {
         // Icon on the left
         IconButton(
-            onClick = { }, modifier = Modifier.align(Alignment.CenterStart)
+            onClick = { navController.popBackStack() }, modifier = Modifier.align(Alignment.CenterStart)
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,

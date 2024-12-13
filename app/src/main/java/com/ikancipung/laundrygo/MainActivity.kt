@@ -108,11 +108,24 @@ class MainActivity : ComponentActivity() {
                         val orderId = backStackEntry.arguments?.getString("orderId") ?: ""
                         RatingScreen(navController = navController, orderId = orderId)
                     }
-                    composable("Qris") { QrisPaymentScreen(navController = navController) }
-                    composable("Vapayment/{total}", arguments = listOf(navArgument("total"){type = NavType.StringType})){
+                    composable(
+                        route = "Qris/{orderId}",
+                        arguments = listOf(navArgument("orderId") { type = NavType.StringType })
+                    ) { backStackEntry ->
+                        val orderId = backStackEntry.arguments?.getString("orderId") ?: ""
+                        QrisPaymentScreen(navController = navController, orderId = orderId)
+                    }
+                    composable(
+                        route = "Vapayment/{orderId}/{total}",
+                        arguments = listOf(
+                            navArgument("orderId") { type = NavType.StringType },
+                            navArgument("total"){type = NavType.StringType}
+                        )
+                    ){
                         backStackEntry ->
-                        val total = backStackEntry.arguments?.getString(("total"))?:""
-                        VAPaymentScreen(navController = navController, total) }
+                        val orderId = backStackEntry.arguments?.getString("orderId")?:""
+                        val total = backStackEntry.arguments?.getString("total")?:""
+                        VAPaymentScreen(navController = navController, orderId, total) }
                     composable("Profile") { ProfileUser(navController = navController) }
                     composable("Donebayar"){ DonebayarScreen(navController = navController) }
                     composable(

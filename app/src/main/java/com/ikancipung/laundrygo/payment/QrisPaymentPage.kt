@@ -45,12 +45,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.google.firebase.Firebase
+import com.google.firebase.database.database
 import com.ikancipung.laundrygo.R
 import com.ikancipung.laundrygo.ui.theme.BlueLaundryGo
 import com.ikancipung.laundrygo.ui.theme.RedLaundryGo
 
 @Composable
-fun QrisPaymentScreen(navController: NavController) {
+fun QrisPaymentScreen(navController: NavController, orderId: String) {
     val context = LocalContext.current
 
     // Countdown Timer
@@ -74,7 +76,7 @@ fun QrisPaymentScreen(navController: NavController) {
     ) {
         // Header
         item {
-            Header()
+            Header(navController)
         }
 
         item {
@@ -174,7 +176,18 @@ fun QrisPaymentScreen(navController: NavController) {
         item {
             Button(
                 onClick = {
-                    navController.navigate("Donebayar")
+                    // Update isDone menjadi true di Realtime Database
+                    val database = Firebase.database.reference
+                    val statusRef = database.child("orders").child(orderId).child("Status").child("isPaid")
+
+                    statusRef.child("value").setValue(true).addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Toast.makeText(context, "Pembayaran berhasil diproses.", Toast.LENGTH_SHORT).show()
+                            navController.navigate("Donebayar")
+                        } else {
+                            Toast.makeText(context, "Gagal memproses pembayaran.", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()

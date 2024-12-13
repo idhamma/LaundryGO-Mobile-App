@@ -368,13 +368,13 @@ fun TitleLaundryScreen(navController: NavController, orderId: String) {
                                     if (pembayaran.equals("QRIS")) {
                                         donebayarRef.child(newOrderKey).setValue(donebayarValue)
                                             .addOnSuccessListener {
-                                                navController.navigate("Qris")
+                                                navController.navigate("Qris/${Uri.encode(orderId)}")
                                             }
                                     }
                                     if (pembayaran.equals("Virtual Account")) {
                                         donebayarRef.child(newOrderKey).setValue(donebayarValue)
                                             .addOnSuccessListener {
-                                                navController.navigate("Vapayment/${Uri.encode(total.toString())}")
+                                                navController.navigate("Vapayment/${Uri.encode(orderId)}")
                                             }
                                     }
                                 }.addOnFailureListener {
